@@ -60,6 +60,31 @@ Meteor.methods({
 
 });
 
+function teardownSession( connection ){
+
+    console.log('connection closed !!!',connection);
+
+    var session = Sessions.findOne({"connection":connection.id});
+
+    console.log('session matching closed connection', session);
+    if (session) {
+
+        var playerId = session.viewer_id, sessionType = session.type;
+
+        // Delete session document with this connection id
+        Sessions.remove(session._id);
+
+        // Deactivate player bound to session
+        if ( sessionType==='private' && playerId !== null ){
+
+            console.log('deactivate player bound to session',playerId);
+            Meteor.users.update( playerId, { $set: { active: false } } );
+        }
+    }
+
+}
+
+
 Meteor.startup(function () {
 
     // https://github.com/arunoda/meteor-streams/issues/17
@@ -71,26 +96,7 @@ Meteor.startup(function () {
         Meteor.ClientCall.apply( 'default', 'onConnect', [ [connection.id] ],
             function(){ console.log('client called from server'); });
 
-        connection.onClose(function(){
-
-           console.log('connection closed !!!',self);
-
-            var session = Sessions.findOne({"connection":self.id});
-
-            console.log('session matching closed connection', session);
-            if (session) {
-
-                // Deactivate player bound to session
-                if ( session.type==='private' && session.viewer_id !== null ){
-
-                    console.log('deactivate player bound to session',session.viewer_id);
-                    Meteor.users.update( session.viewer_id, { $set: { active: false } } );
-                }
-
-                // Delete session document with this connection id
-                Sessions.remove(session._id);
-            }
-        });
+        connection.onClose( function(){teardownSession(connection)});
 
     });
 
