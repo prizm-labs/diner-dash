@@ -36,6 +36,9 @@ Meteor.ClientCall.methods({
         var connectionId = args[0], user = args[1], clientId = Session.get('client_id');
 
         if ( Meteor.connection._lastSessionId == connectionId ){
+
+            Meteor.logout();
+
             console.log('onLogin paired connection id',Meteor.connection._lastSessionId);
 
             Session.set('user',user);

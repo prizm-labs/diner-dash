@@ -3,7 +3,10 @@
  */
 Meteor.publish('activeLobbies', function(){
 
-
     return Lobbies.find({ active: true });
+});
 
+Meteor.publish('allGames', function(){
+
+    return Games.find();
 });

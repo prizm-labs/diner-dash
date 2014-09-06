@@ -5,29 +5,83 @@
 
     {{name}}
 
-    <img src="{{avatar}}"/>
+    <img src="{{avatar}}" height="200" width="200"/>
 
-    <button class="signout">Sign out</button>
+    <button class="sign-out">Sign out</button>
 
+    <hr/>
+
+    {{#if userChoseLobby}}
+
+    <button class="leave-lobby">Leave {{currentLobby}}</button>
+
+    {{>arenaConfiguration}}
 
     {{else}}
 
-    {{ >loginUi }}
+    {{>lobbySelection}}
+
+    {{/if}}
+
+    {{else}}
+
+    {{>loginUi}}
 
     {{/if}}
 
 </template>
 
-<template name="lobby-selection">
+<template name="lobbySelection">
+    Select a lobby:
 
+    {{#each lobbies}}
+
+    <button class="select-lobby">{{title}}</button>
+
+    {{/each}}
 
 </template>
 
-<template name="arena-configuration">
+<template name="arenaConfiguration">
+
+    <hr/>
+
+    Choose a game:
+    {{#each games}}
+
+    <button class="select-game">{{title}}</button>
+
+    {{/each}}
+
+    {{#if gameChosen }}
+
+    {{#with gameContext}}
+    <h1>{{title}}</h1>
+    <p>{{ageRestriction}}</p>
+    <p>{{description}}</p>
+
+    {{/with}}
+
+    <hr/>
+    Set game options:
+    {{>gameOptions}}
+
+    <hr/>
+    <button class="join-arena">Join</button>
+    <button class="leave-arena">Cancel</button>
+
+
+    {{/if}}
 
 </template>
 
-<template name="arena-active">
+<template name="gameOptions">
+
+    Set number of players:
+</template>
+
+
+<template name="arenaActive">
 
 
 </template>

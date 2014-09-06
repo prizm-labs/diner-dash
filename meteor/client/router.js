@@ -22,6 +22,8 @@ Router.map(function() {
         },
         data: function () {
             return {
+                lobbies: Lobbies.find().fetch(),
+                games: Games.find().fetch()
             }
         },
         onAfterAction: function () {
@@ -44,6 +46,8 @@ Router.map(function() {
         },
         data: function () {
             return {
+                lobbies: Lobbies.find().fetch(),
+                games: Games.find().fetch()
             }
         },
         onAfterAction: function () {

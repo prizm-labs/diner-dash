@@ -1,6 +1,10 @@
 /**
  * Created by michaelgarrido on 9/4/14.
  */
+
+//MongoDB document modifiers
+// http://docs.mongodb.org/manual/tutorial/modify-documents/#Updating-ModifierOperations
+
 Meteor.methods({
 
     'registerClient': function( clientId, connectionId ){
@@ -41,13 +45,23 @@ Meteor.methods({
     'deactivateUser': function( playerId ){
 
         console.log('deactivate player bound to session',playerId);
-        Meteor.users.update( playerId, { $set: { active: false, client_id: null } } );
+        Meteor.users.update( playerId, { $set: { active: false, client_id: null, lobby_id: null } } );
 
+        Sessions.update({ viewer_id: playerId, type: 'private'}, { $set: { viewer_id: null } });
     },
 
-    'activateLobby': function(){
+    'userEnterLobby': function( userId, lobbyId ){
 
+        console.log('userEnterLobby',userId, lobbyId);
+        Meteor.users.update( userId, { $set: { lobby_id: lobbyId } } );
+        //Lobbies.update( lobbyId, { $set: {} } )
+    },
 
+    'userLeaveLobby': function( userId, lobbyId ){
+
+        console.log('userLeaveLobby',userId, lobbyId);
+        Meteor.users.update( { _id: userId, lobby_id: lobbyId }, { $set: { lobby_id: null } } );
+        //Lobbies.update( lobbyId, { $set: {} } )
     },
 
     'registerPrivateClient': function( connectionId ){
@@ -99,8 +113,6 @@ Meteor.startup(function () {
     // https://github.com/arunoda/meteor-streams/issues/17
     Meteor.onConnection(function(connection) {
         console.log('server made connection',connection);
-
-        var self = connection;
 
         Meteor.ClientCall.apply( 'default', 'onConnect', [ [connection.id] ],
             function(){ console.log('client called from server'); });
