@@ -1,9 +1,6 @@
 /**
  * Created by michaelgarrido on 9/4/14.
  */
-Sessions = new Meteor.Collection('sessions');
-Lobbies = new Meteor.Collection('lobbies');
-
 Meteor.methods({
 
     'registerClient': function( clientId, connectionId ){
@@ -29,7 +26,7 @@ Meteor.methods({
 
         if ( user ){
             // Update user document
-            Meteor.users.update( userId, { $set: { active: true } } );
+            Meteor.users.update( userId, { $set: { active: true, client_id: clientId } } );
 
             // Bind active user to open session
             Sessions.update( { _id: clientId, connection: connectionId }, { $set: { type: 'private', viewer_id: userId } } );
@@ -41,6 +38,10 @@ Meteor.methods({
 
     },
 
+    'activateLobby': function(){
+
+
+    },
 
     'registerPrivateClient': function( connectionId ){
 

@@ -12,13 +12,20 @@ Meteor.ClientCall.methods({
     // if server onConnection executes before client status().connected updated
     'onConnect': function( args ){
 
-        var connectionId = args[0];
+        var connectionId = args[0], clientId = Session.get('client_id'), clientType =  Session.get('client_type');
         //console.log('onConnect client', connectionId, Meteor.connection._lastSessionId);
 
         if ( Meteor.connection._lastSessionId == connectionId ){
-            console.log('onConnect paired connection id', connectionId);
-            Meteor.call('registerClient',Session.get('client_id'),connectionId);
-            Meteor.ClientCall.setClientId( Session.get('client_id') );
+            console.log( 'onConnect paired connection id', connectionId );
+            Meteor.call( 'registerClient', clientId, connectionId );
+            Meteor.ClientCall.setClientId( clientId );
+
+            // If private client, auto login user
+            var user = Session.get('user');
+            if ( user && clientType == 'private' ) {
+                console.log('activating user',user);
+                Meteor.call('activateUser', user._id, connectionId, clientId );
+            }
         }
 
     },
@@ -39,64 +46,3 @@ Meteor.ClientCall.methods({
     }
 
 });
-
-Template.public.rendered = function() {
-
-    visualClientStartup();
-
-   // Register new lobby
-
-
-
-};
-
-
-Template.private.rendered = function() {
-
-    visualClientStartup();
-
-    if (Session.get('user')) {
-
-        console.log('active user !!!',Session.get('user'));
-
-    }
-
-};
-
-
-// Ensure that registered sessions are being create from browser window
-// Prevent headless sessions...
-
-function visualClientStartup(){
-
-    console.log('Client startup');
-
-    // clear client id binding, so this client will receive global messages from server
-    Meteor.ClientCall.setClientId( 'default' );
-
-
-    // generate local client id for registration on server
-    if (!Session.get('client_id')) {
-        Session.set('client_id',Meteor.uuid());
-        console.log('new client id');
-    }
-    console.log('client id', Session.get('client_id'));
-
-
-    Deps.autorun(function(){
-
-        if (Meteor.status().connected){
-
-            console.log('connection open, requesting registration');
-            Meteor.ClientCall.setClientId( 'default' );
-            Meteor.call('requestClientRegistration',Meteor.connection._lastSessionId);
-        }
-
-        // failed
-
-        // waiting
-
-        // offline
-    });
-
-}

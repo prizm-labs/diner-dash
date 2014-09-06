@@ -1,6 +1,30 @@
 <template name="private">
     private
 
+    {{#if userLoggedIn}}
+
+    {{name}}
+
+    <img src="{{avatar}}"/>
+
+    {{else}}
+
     {{ >loginUi }}
+
+    {{/if}}
+
 </template>
 
+<template name="lobby-selection">
+
+
+</template>
+
+<template name="arena-configuration">
+
+</template>
+
+<template name="arena-active">
+
+
+</template>
