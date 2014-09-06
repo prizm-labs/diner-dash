@@ -2,26 +2,63 @@
  * Created by michaelgarrido on 9/4/14.
  */
 Sessions = new Meteor.Collection('sessions');
+Lobbies = new Meteor.Collection('lobbies');
 
 Meteor.methods({
 
-    'registerClientAndConnection': function( clientId, connectionId ){
+    'registerClient': function( clientId, connectionId ){
 
         console.log('setting clientId & connectionId', clientId, connectionId);
 
-        Sessions.upsert( clientId ,{ '_id': clientId, 'connection': connectionId });
+        Sessions.upsert( clientId ,{ '_id': clientId, 'connection': connectionId, 'type': null, 'viewer_id': null });
 
         console.log('registered sessions', Sessions.find().fetch());
     },
 
-    'requestRegistration': function( connectionId ){
+    'requestClientRegistration': function( connectionId ){
 
         console.log('requestRegistration', connectionId );
         Meteor.ClientCall.apply( 'default', 'onConnect', [ [connectionId] ],
             function(){ console.log('client called from server'); });
+    },
+
+    'activateUser': function( userId, clientId, connectionId ){
+
+        var user = Meteor.users.findOne( userId );
+        console.log('player to activate', user);
+
+        if ( user ){
+            // Update user document
+            Meteor.users.update( userId, { $set: { active: true } } );
+
+            // Bind active user to open session
+            Sessions.update( { _id: clientId, connection: connectionId }, { $set: { type: 'private', viewer_id: userId } } );
+
+            // TODO check error if no matched session
+
+            // TODO Update lobby views with activated player
+        }
+
+    },
+
+
+    'registerPrivateClient': function( connectionId ){
+
+        console.log('registerPrivateClient', connectionId);
+
+
+
+    },
+
+    'registerPublicClient': function( connectionId ){
+
+        console.log('registerPublicClient', connectionId);
+
+
+
     }
 
-})
+});
 
 Meteor.startup(function () {
 
@@ -38,11 +75,19 @@ Meteor.startup(function () {
 
            console.log('connection closed !!!',self);
 
-            //TODO delete session document with this connection id
             var session = Sessions.findOne({"connection":self.id});
 
             console.log('session matching closed connection', session);
             if (session) {
+
+                // Deactivate player bound to session
+                if ( session.type==='private' && session.viewer_id !== null ){
+
+                    console.log('deactivate player bound to session',session.viewer_id);
+                    Meteor.users.update( session.viewer_id, { $set: { active: false } } );
+                }
+
+                // Delete session document with this connection id
                 Sessions.remove(session._id);
             }
         });
@@ -74,26 +119,15 @@ Meteor.startup(function () {
         "secret" : "Q0avgYdDrsReBemMZ7f8dmPG"
     });
 
-    //
-    //Q0avgYdDrsReBemMZ7f8dmPG
-    //975952622795-gkl0du04pl1e24eij9tbn564uq5okhnk.apps.googleusercontent.com
 
     // GOAL: Enable multiple unique users signed in, each on separate window of same browser client
-
-//    setInterval(function() {
-//        //sendLogin(2,{a:1});
-//        //sendChat('server yo',2);
-//    }, 1000);
-
     //https://meteor.hackpad.com/Login-hooks-design-notes-o0809sK58jX
-    //
 
+
+    // Bypassing Meteor user login to avoid setting reactive user object for all clients in the same browser
     Accounts.validateLoginAttempt(function( request ){
 
-        console.log('validateLoginAttempt',request);
-
-
-
+        console.log('validateLoginAttempt',request.connection.id);
 
         // check if user is active on a client
 
@@ -110,8 +144,6 @@ Meteor.startup(function () {
 
             Meteor.ClientCall.apply( client._id, 'onLogin', [ [request.connection.id,request.user] ],
                 function(){ console.log('client called from server'); });
-//            Meteor.ClientCall.apply( 'default', 'onLogin', [ [request.connection.id,request.user] ],
-//                function(){ console.log('client called from server'); });
 
 
             return true;
@@ -122,13 +154,45 @@ Meteor.startup(function () {
             return false;
         }
 
-//        if (request.type==='resume'){
-//            return false;
-//        } else {
-//            return true;
-//        }
+
+    });
+
+    // Support for playing D&D: Roll 3d6 for dexterity
+    Accounts.onCreateUser(function(options, user) {
+
+        console.log('onCreateUser', options, user);
+
+        var avatarUrl, gender, email;
+
+        // TODO set default avatar image, random pick from X default images
+
+        // Set avatar image, taken from the login service's user object
+        if ( user.services.google ) {
+
+            avatarUrl = user.services.google.picture;
+            gender = user.services.google.gender;
+            email = user.services.google.email;
+
+        } else if ( user.services.facebook ){
+
+            avatarUrl = 'https://graph.facebook.com/'+user.services.facebook.id+'/picture?type=large&height=500&width=500';
+            gender = user.services.facebook.gender;
+            email = user.services.facebook.email;
+        }
+
+        // We still want the default hook's 'profile' behavior.
+        if ( options.profile ) {
+            user.profile = options.profile;
+        }
+
+        user.active = false;
+
+        user.profile.gender = gender;
+        user.profile.avatar = avatarUrl;
+        user.profile.email = email;
 
 
+        return user;
     });
 
     Accounts.onLogin(function( request ){
