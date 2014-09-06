@@ -38,6 +38,13 @@ Meteor.methods({
 
     },
 
+    'deactivateUser': function( playerId ){
+
+        console.log('deactivate player bound to session',playerId);
+        Meteor.users.update( playerId, { $set: { active: false, client_id: null } } );
+
+    },
+
     'activateLobby': function(){
 
 
@@ -61,6 +68,8 @@ Meteor.methods({
 
 });
 
+
+
 function teardownSession( connection ){
 
     console.log('connection closed !!!',connection);
@@ -78,8 +87,7 @@ function teardownSession( connection ){
         // Deactivate player bound to session
         if ( sessionType==='private' && playerId !== null ){
 
-            console.log('deactivate player bound to session',playerId);
-            Meteor.users.update( playerId, { $set: { active: false } } );
+            Meteor.call('deactivateUser',playerId);
         }
     }
 

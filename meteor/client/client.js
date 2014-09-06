@@ -24,7 +24,7 @@ Meteor.ClientCall.methods({
             var user = Session.get('user');
             if ( user && clientType == 'private' ) {
                 console.log('activating user',user);
-                Meteor.call('activateUser', user._id, connectionId, clientId );
+                Meteor.call('activateUser', user._id, clientId, connectionId );
             }
         }
 
@@ -33,7 +33,7 @@ Meteor.ClientCall.methods({
     'onLogin': function( args ) {
         console.log('onLogin client', args);
 
-        var connectionId = args[0], user = args[1];
+        var connectionId = args[0], user = args[1], clientId = Session.get('client_id');
 
         if ( Meteor.connection._lastSessionId == connectionId ){
             console.log('onLogin paired connection id',Meteor.connection._lastSessionId);
@@ -41,7 +41,7 @@ Meteor.ClientCall.methods({
             Session.set('user',user);
             console.log('active user',Session.get('user'));
 
-            Meteor.call('activateUser',user._id,Session.get('client_id'),connectionId);
+            Meteor.call('activateUser', user._id, clientId, connectionId );
         }
     }
 

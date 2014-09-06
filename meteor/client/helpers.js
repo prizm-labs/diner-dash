@@ -24,7 +24,7 @@ Template.private.rendered = function() {
 //https://www.eventedmind.com/classes/meteor-shark-ui-preview/meteor-template-reactivity-in-the-new-ui-system
 Template.private.helpers({
     name: function(){
-        return (Session.get('user')) ? Session.get('user').profile.name : '...';
+        return Session.get('user').profile.name;
     },
     avatar: function(){
         return Session.get('user').profile.avatar;
@@ -33,6 +33,14 @@ Template.private.helpers({
 
         return Session.get('user') ? true : false;
 
+    }
+});
+
+Template.private.events({
+    'click .signout': function(event){
+
+        Meteor.call('deactivateUser',Session.get('user')._id);
+        Session.set('user',null);
     }
 });
 
