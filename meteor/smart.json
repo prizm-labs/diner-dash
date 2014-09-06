@@ -1,6 +1,9 @@
 {
   "packages": {
     "iron-router": {},
-    "npm": {}
+    "npm": {},
+    "streams": {},
+    "ddp-hooks":{ "path": "../../ddpHooks"},
+    "anti-methods": { "path": "../../meteor-methods" }
   }
 }

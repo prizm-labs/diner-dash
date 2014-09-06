@@ -4,7 +4,6 @@
 # but you can also edit it by hand.
 
 standard-app-packages
-autopublish
 insecure
 mrt:reactive-extra
 iron-router
@@ -16,4 +15,5 @@ accounts-facebook
 accounts-google
 underscore
 amplify
-
+streams
+anti-methods
