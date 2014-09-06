@@ -7,6 +7,12 @@ Meteor.startup(function() {
     Meteor.ClientCall.setClientId( 'default' );
 
 
+    if (Session.get('user')) {
+
+        console.log('active user !!!',Session.get('user'));
+
+    }
+
     if (!Session.get('client_id')) {
         Session.set('client_id',Meteor.uuid());
         console.log('new client id');
@@ -24,6 +30,7 @@ Meteor.startup(function() {
         if (Meteor.status().connected){
 
             console.log('requesting registration');
+            Meteor.ClientCall.setClientId( 'default' );
             Meteor.call('requestRegistration',Meteor.connection._lastSessionId);
 //
 //            var connectionId = Meteor.connection._lastSessionId;

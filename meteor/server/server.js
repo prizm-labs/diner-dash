@@ -39,7 +39,12 @@ Meteor.startup(function () {
            console.log('connection closed !!!',self);
 
             //TODO delete session document with this connection id
+            var session = Sessions.findOne({"connection":self.id});
 
+            console.log('session matching closed connection', session);
+            if (session) {
+                Sessions.remove(session._id);
+            }
         });
 
     });
