@@ -4,7 +4,6 @@
         {
             "title": "USC Startup Equinox",
             "games_whitelist": ["diner-dash"],
-            "users": [],
             "active": true
         }
 

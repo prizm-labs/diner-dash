@@ -7,11 +7,11 @@
 
 Meteor.methods({
 
-    'registerClient': function( clientId, connectionId ){
+    'registerClient': function( clientId, connectionId, type ){
 
         console.log('setting clientId & connectionId', clientId, connectionId);
 
-        Sessions.upsert( clientId ,{ '_id': clientId, 'connection': connectionId, 'type': null, 'viewer_id': null });
+        Sessions.upsert( clientId ,{ '_id': clientId, 'connection': connectionId, 'type': type, 'viewer_id': null });
 
         console.log('registered sessions', Sessions.find().fetch());
     },
@@ -21,6 +21,26 @@ Meteor.methods({
         console.log('requestRegistration', connectionId );
         Meteor.ClientCall.apply( 'default', 'onConnect', [ [connectionId] ],
             function(){ console.log('client called from server'); });
+    },
+
+    'requestArenaRegistration': function( clientId, arenaId ){
+
+        console.log('requestArenaRegistration', clientId, arenaId  );
+        var targetArena = Arenas.findOne( arenaId );
+        var boundArena = Arenas.findOne( {client_id:clientId} );
+
+        console.log(boundArena);
+
+        if ( targetArena.client_id===null && boundArena==null ){
+            // Assign client to arena
+
+            Arenas.update( arenaId, { $set:{ client_id: clientId }});
+
+            return true;
+        } else {
+            return false;
+        }
+
     },
 
     'activateUser': function( userId, clientId, connectionId ){
@@ -113,28 +133,20 @@ Meteor.methods({
     },
 
     'setPlayerReady': function( userId ){
-
         console.log('setPlayerReady',userId);
-
         Meteor.users.update(userId, {$set: { readyToPlay: true }});
-
         return Meteor.users.findOne( userId );
     },
 
-    'registerPrivateClient': function( connectionId ){
-
-        console.log('registerPrivateClient', connectionId);
-
-
-
+    'cancelPlayerReady': function( userId ){
+        console.log('cancelPlayerReady',userId);
+        Meteor.users.update(userId, {$set: { readyToPlay: false }});
+        return Meteor.users.findOne( userId );
     },
 
     'registerPublicClientForGame': function( clientId, gameId ){
 
         console.log('registerPublicClientForGame', clientId, gameId);
-
-
-
     }
 
 });

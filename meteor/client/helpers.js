@@ -2,46 +2,41 @@
  * Created by michaelgarrido on 9/6/14.
  */
 
-Template.public.rendered = function() {
+// Ensure that registered sessions are being create from browser window
+// Prevent headless sessions...
+visualClientStartup = function(){
+
+    console.log('Client startup');
+
+    // clear client id binding, so this client will receive global messages from server
+    Meteor.ClientCall.setClientId( 'default' );
 
 
+    // generate local client id for registration on server
+    if (!Session.get('client_id')) {
+        Session.set('client_id',Meteor.uuid());
+        console.log('new client id');
+    }
+    console.log('client id', Session.get('client_id'));
 
-    visualClientStartup();
 
-    // Register new lobby
-    //Meteor.call('activateLobby');
+    Deps.autorun(function(){
 
-    Session.set('client_type','public');
+        if (Meteor.status().connected){
 
-
-    subscriptions.activate.lobby('S7vjtDBmpC4KvMmqd');
-};
-
-Template.public.helpers({
-
-});
-
-Template.arenaSettings.helpers({
-    usersInArena: function( arenaId ){
-
-        return Meteor.users.find({ arena_id:arenaId}).fetch();
-
-    },
-    chosenGame: function( gameId ){
-
-        return Games.findOne( gameId );
-    },
-    playerStatus: function( arena ){
-
-        return {
-            current: Meteor.users.find({ arena_id:arena._id}).fetch().length,
-            required: arena.players_required,
-            ready: Meteor.users.find({ arena_id:arena._id, readyToPlay:true }).fetch().length
+            console.log('connection open, requesting registration');
+            Meteor.ClientCall.setClientId( 'default' );
+            Meteor.call('requestClientRegistration',Meteor.connection._lastSessionId);
         }
 
-    }
-});
+        // failed
 
+        // waiting
+
+        // offline
+    });
+
+}
 
 
 Template.private.rendered = function() {
@@ -139,6 +134,13 @@ Template.gameOptions.events({
             console.log('user after setPlayerReady',result);
             Session.set('user',result);
         });
+    },
+
+    'click .game-exit': function(event){
+        Meteor.call('cancelPlayerReady',Session.get('user')._id,function(error,result){
+            console.log('user after cancelPlayerReady',result);
+            Session.set('user',result);
+        });
     }
 
 });
@@ -191,40 +193,3 @@ Template.arenaConfiguration.helpers({
         return Session.get('arena');
     }
 });
-
-
-// Ensure that registered sessions are being create from browser window
-// Prevent headless sessions...
-function visualClientStartup(){
-
-    console.log('Client startup');
-
-    // clear client id binding, so this client will receive global messages from server
-    Meteor.ClientCall.setClientId( 'default' );
-
-
-    // generate local client id for registration on server
-    if (!Session.get('client_id')) {
-        Session.set('client_id',Meteor.uuid());
-        console.log('new client id');
-    }
-    console.log('client id', Session.get('client_id'));
-
-
-    Deps.autorun(function(){
-
-        if (Meteor.status().connected){
-
-            console.log('connection open, requesting registration');
-            Meteor.ClientCall.setClientId( 'default' );
-            Meteor.call('requestClientRegistration',Meteor.connection._lastSessionId);
-        }
-
-        // failed
-
-        // waiting
-
-        // offline
-    });
-
-}

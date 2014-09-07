@@ -17,7 +17,7 @@ Meteor.ClientCall.methods({
 
         if ( Meteor.connection._lastSessionId == connectionId ){
             console.log( 'onConnect paired connection id', connectionId );
-            Meteor.call( 'registerClient', clientId, connectionId );
+            Meteor.call( 'registerClient', clientId, connectionId, Session.get('client_type') );
             Meteor.ClientCall.setClientId( clientId );
 
             // If private client, auto login user

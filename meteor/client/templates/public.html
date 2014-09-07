@@ -1,10 +1,18 @@
 <template name="public">
     public
 
-    {{>lobby}}
+    {{#each lobbies}}
+        <button class="register-lobby">{{title}}</button>
+    {{/each}}
+    {{#each arenas}}
+        {{client_id}}
+        <button class="register-arena">{{title}}</button>
+    {{/each}}
+
+    {{>lobby currentLobby}}
 
     {{#each arenas}}
-    {{>arenaSettings}}
+        {{>arenaSettings}}
     {{/each}}
 </template>
 
@@ -14,9 +22,12 @@
 
 <template name="lobby">
     <hr/>
+
+    {{title}}
+
     <h1>In lobby:</h1>
     <ul>
-        {{#each users}}
+        {{#each usersInLobby }}
         {{profile.name}}
 
         <img src="{{profile.avatar}}" height="200" width="200"/>
