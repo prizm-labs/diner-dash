@@ -2,6 +2,10 @@
     public
 
     {{>lobby}}
+
+    {{#each arenas}}
+    {{>arenaSettings}}
+    {{/each}}
 </template>
 
 <template name="greeting">
@@ -9,16 +13,41 @@
 </template>
 
 <template name="lobby">
+    <hr/>
     <h1>In lobby:</h1>
     <ul>
         {{#each users}}
-            {{profile.name}}
+        {{profile.name}}
 
-            <img src="{{profile.avatar}}" height="200" width="200"/>
+        <img src="{{profile.avatar}}" height="200" width="200"/>
         {{/each}}
     </ul>
 </template>
 
-<template name="game-config">
+<template name="arenaSettings">
 
+    <hr/>
+    {{title}}
+
+    {{#with playerStatus this}}
+        Players:
+        {{current}} / {{required}}
+        <br/>
+        Ready:
+        {{ready}} / {{required}}
+    {{/with}}
+
+    <hr/>
+    {{#with chosenGame game_id}}
+
+        {{title}}
+        {{description}}
+
+    {{/with}}
+    <hr/>
+    {{#each usersInArena _id}}
+    {{profile.name}}
+
+    <img src="{{profile.avatar}}" height="200" width="200"/>
+    {{/each}}
 </template>

@@ -8,6 +8,7 @@ subscriptions = {
     activate: {
         lobby: function( lobbyId ){
             Meteor.subscribe('usersInLobby', lobbyId);
+            Meteor.subscribe('arenasInLobby', lobbyId);
         }
     }
-}
+};

@@ -15,3 +15,8 @@ Meteor.publish('usersInLobby', function( lobbyId ){
 
     return Meteor.users.find({ lobby_id:lobbyId });
 });
+
+Meteor.publish('arenasInLobby', function( lobbyId ){
+
+    return Arenas.find({ lobby_id:lobbyId });
+});

@@ -19,6 +19,22 @@
             "description": "Race to serve customers and earn the most as a waiter in a bustling diner!"
         }
 
+    ],
+
+    "arenas": [
+
+        {
+            "title": "HDTV",
+            "lobby_id": null,
+            "client_id": null,
+            "game_id": null
+        },
+        {
+            "title": "Tabletop",
+            "lobby_id": null,
+            "client_id": null,
+            "game_id": null
+        }
     ]
 
 }

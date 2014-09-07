@@ -45,6 +45,18 @@
 <template name="arenaConfiguration">
 
     <hr/>
+    {{#each arenas}}
+    <button class="join-arena">Join {{title}}</button>
+    {{/each}}
+
+    {{#if arenaChosen}}
+
+    <hr/>
+
+    {{#with currentArena}}
+    Current arena: {{title}}
+
+    {{/with}}
 
     Choose a game:
     {{#each games}}
@@ -62,14 +74,9 @@
 
     {{/with}}
 
-    <hr/>
-    Set game options:
     {{>gameOptions}}
 
-    <hr/>
-    <button class="join-arena">Join</button>
-    <button class="leave-arena">Cancel</button>
-
+    {{/if}}
 
     {{/if}}
 
@@ -77,7 +84,17 @@
 
 <template name="gameOptions">
 
+    <hr/>
+
     Set number of players:
+    {{#each requiredPlayerOptions}}
+        <button class="set-player-count">{{value}}</button>
+    {{/each}}
+
+
+    <button class="game-enter">Start</button>
+    <button class="game-exit">Cancel</button>
+
 </template>
 
 

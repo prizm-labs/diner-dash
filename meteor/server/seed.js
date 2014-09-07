@@ -13,7 +13,7 @@
 
 seedCollection( Lobbies, 'seed', 'lobbies' );
 seedCollection( Games, 'seed', 'games' );
-
+seedCollection( Arenas, 'seed', 'arenas' );
 
 function seedCollection( collection, seedFile, seedObject ){
 

@@ -21,6 +21,26 @@ Template.public.helpers({
 
 });
 
+Template.arenaSettings.helpers({
+    usersInArena: function( arenaId ){
+
+        return Meteor.users.find({ arena_id:arenaId}).fetch();
+
+    },
+    chosenGame: function( gameId ){
+
+        return Games.findOne( gameId );
+    },
+    playerStatus: function( arena ){
+
+        return {
+            current: Meteor.users.find({ arena_id:arena._id}).fetch().length,
+            required: arena.players_required,
+            ready: Meteor.users.find({ arena_id:arena._id, readyToPlay:true }).fetch().length
+        }
+
+    }
+});
 
 
 
@@ -69,6 +89,9 @@ Template.private.events({
     }
 });
 
+
+
+
 // how to access data context inside template event
 //http://stackoverflow.com/questions/18879462/meteor-how-can-i-pass-data-between-helpers-and-events-for-a-template
 Template.lobbySelection.events({
@@ -81,14 +104,66 @@ Template.lobbySelection.events({
        });
 
         Session.set('lobby',this);
+        subscriptions.activate.lobby(this._id);
    }
 });
 
+
+
+Template.gameOptions.helpers({
+
+    requiredPlayerOptions: function(){
+
+        var options = [];
+
+        for (var count=1;count<=Session.get('game').player_limit;count++){
+            options.push({value:count});
+        }
+
+        return options;
+    }
+
+});
+
+Template.gameOptions.events({
+
+    'click .set-player-count': function(event){
+        Meteor.call('setArenaPlayersRequired',Session.get('arena')._id,this.value,function(error,result){
+            console.log('arena after setArenaPlayersRequired',result);
+            Session.set('arena',result);
+        });
+    },
+
+    'click .game-enter': function(event){
+        Meteor.call('setPlayerReady',Session.get('user')._id,function(error,result){
+            console.log('user after setPlayerReady',result);
+            Session.set('user',result);
+        });
+    }
+
+});
+
+
 Template.arenaConfiguration.events({
+    'click .join-arena': function(event){
+
+        Session.set('arena',this);
+
+        Meteor.call('userEnterArena', Session.get('user')._id,this._id, function( error, result ){
+            console.log('user after userEnterArena',result);
+            Session.set('user',result);
+        });
+
+    },
+
     'click .select-game': function(e){
 
-        console.log(this);
-        //Meteor.call('userEnterLobby',Session.get('user')._id,this._id);
+        console.log('user selected game',this);
+
+        Meteor.call('setArenaGame',Session.get('arena')._id, this._id, function(error,result){
+            console.log('arena after set game',result);
+            Session.set('arena',result);
+        });
         Session.set('game',this);
     }
 });
@@ -103,6 +178,17 @@ Template.arenaConfiguration.helpers({
             ageRestriction: Session.get('game').age_restriction,
             description: Session.get('game').description
         }
+    },
+    arenaChosen: function(){
+
+        return Session.get('user').arena_id ? true : false;
+
+    },
+    arenas: function(){
+        return Arenas.find().fetch();
+    },
+    currentArena: function(){
+        return Session.get('arena');
     }
 });
 

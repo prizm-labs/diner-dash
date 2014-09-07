@@ -23,18 +23,28 @@ Meteor.ClientCall.methods({
             // If private client, auto login user
             var user = Session.get('user');
             if ( user && clientType == 'private' ) {
-                console.log('activating user',user);
-                Meteor.call('activateUser', user._id, clientId, connectionId, function( error, result ){
-                    console.log('user after activateUser',result);
-                    Session.set('user',result);
-                });
 
-                if (user.lobby_id){
-                    Meteor.call('userEnterLobby',Session.get('user')._id,this._id, function( error, result ){
-                        console.log('user after enterLobby',result);
-                        Session.set('user',result);
-                    });
-                }
+                console.log('auto set user',user);
+                  Meteor.call('setUser', user);
+
+                  if (user.lobby_id){
+                      subscriptions.activate.lobby(user.lobby_id);
+                  }
+
+                  if (user.arena_id){
+                      //Session.set
+                  }
+//                Meteor.call('activateUser', user._id, clientId, connectionId, function( error, result ){
+//                    console.log('user after activateUser',result);
+//                    Session.set('user',result);
+//                });
+//
+//                if (user.lobby_id){
+//                    Meteor.call('userEnterLobby',Session.get('user')._id,this._id, function( error, result ){
+//                        console.log('user after enterLobby',result);
+//                        Session.set('user',result);
+//                    });
+//                }
             }
         }
 

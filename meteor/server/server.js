@@ -44,10 +44,20 @@ Meteor.methods({
 
     },
 
+    'setUser': function( user ){
+
+        console.log('user set, full document replacement');
+        Meteor.users.update( user._id, user );
+    },
+
     'deactivateUser': function( playerId ){
 
         console.log('deactivate player bound to session',playerId);
-        Meteor.users.update( playerId, { $set: { active: false, client_id: null, lobby_id: null } } );
+        Meteor.users.update( playerId, { $set: {
+            active: false, client_id: null,
+            lobby_id: null, arena_id: null,
+            readyToPlay: false
+        } } );
 
         Sessions.update({ viewer_id: playerId, type: 'private'}, { $set: { viewer_id: null } });
     },
@@ -66,6 +76,49 @@ Meteor.methods({
         console.log('userLeaveLobby',userId, lobbyId);
         Meteor.users.update( { _id: userId, lobby_id: lobbyId }, { $set: { lobby_id: null } } );
         //Lobbies.update( lobbyId, { $set: {} } )
+
+
+    },
+
+    'userEnterArena': function( userId, arenaId ){
+        console.log('userEnterArena',userId, arenaId );
+        Meteor.users.update( { _id: userId }, { $set: { arena_id: arenaId } } );
+
+        return Meteor.users.findOne( userId );
+    },
+
+    'userLeaveArena': function( userId, arenaId ){
+        console.log('userLeaveArena',userId, arenaId );
+        Meteor.users.update( { _id: userId, arena_id:arenaId }, { $set: { arena_id: null } } );
+
+        return Meteor.users.findOne( userId );
+    },
+
+    'setArenaGame': function( arenaId, gameId ){
+
+        console.log('setArenaGame',arenaId,gameId);
+
+        Arenas.update({ _id:arenaId },{$set:{ game_id:gameId }})
+
+        return Arenas.findOne(arenaId);
+    },
+
+    'setArenaPlayersRequired': function( arenaId, playersRequired ){
+
+        console.log('setArenaPlayersRequired',arenaId, playersRequired);
+
+        Arenas.update( arenaId, { $set: { players_required:playersRequired } });
+
+        return Arenas.findOne(arenaId);
+    },
+
+    'setPlayerReady': function( userId ){
+
+        console.log('setPlayerReady',userId);
+
+        Meteor.users.update(userId, {$set: { readyToPlay: true }});
+
+        return Meteor.users.findOne( userId );
     },
 
     'registerPrivateClient': function( connectionId ){
@@ -76,9 +129,9 @@ Meteor.methods({
 
     },
 
-    'registerPublicClient': function( connectionId ){
+    'registerPublicClientForGame': function( clientId, gameId ){
 
-        console.log('registerPublicClient', connectionId);
+        console.log('registerPublicClientForGame', clientId, gameId);
 
 
 
