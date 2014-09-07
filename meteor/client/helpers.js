@@ -4,12 +4,17 @@
 
 Template.public.rendered = function() {
 
+
+
     visualClientStartup();
 
     // Register new lobby
     //Meteor.call('activateLobby');
 
     Session.set('client_type','public');
+
+
+    subscriptions.activate.lobby('S7vjtDBmpC4KvMmqd');
 };
 
 Template.public.helpers({
@@ -70,7 +75,11 @@ Template.lobbySelection.events({
    'click .select-lobby': function(e){
 
         console.log(this);
-        Meteor.call('userEnterLobby',Session.get('user')._id,this._id);
+       Meteor.call('userEnterLobby',Session.get('user')._id,this._id, function( error, result ){
+           console.log('user after enterLobby',result);
+           Session.set('user',result);
+       });
+
         Session.set('lobby',this);
    }
 });

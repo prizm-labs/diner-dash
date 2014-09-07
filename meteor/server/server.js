@@ -38,6 +38,8 @@ Meteor.methods({
             // TODO check error if no matched session
 
             // TODO Update lobby views with activated player
+
+            return Meteor.users.findOne( userId );
         }
 
     },
@@ -55,6 +57,8 @@ Meteor.methods({
         console.log('userEnterLobby',userId, lobbyId);
         Meteor.users.update( userId, { $set: { lobby_id: lobbyId } } );
         //Lobbies.update( lobbyId, { $set: {} } )
+
+        return Meteor.users.findOne( userId );
     },
 
     'userLeaveLobby': function( userId, lobbyId ){

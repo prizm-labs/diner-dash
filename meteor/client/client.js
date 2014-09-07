@@ -24,7 +24,17 @@ Meteor.ClientCall.methods({
             var user = Session.get('user');
             if ( user && clientType == 'private' ) {
                 console.log('activating user',user);
-                Meteor.call('activateUser', user._id, clientId, connectionId );
+                Meteor.call('activateUser', user._id, clientId, connectionId, function( error, result ){
+                    console.log('user after activateUser',result);
+                    Session.set('user',result);
+                });
+
+                if (user.lobby_id){
+                    Meteor.call('userEnterLobby',Session.get('user')._id,this._id, function( error, result ){
+                        console.log('user after enterLobby',result);
+                        Session.set('user',result);
+                    });
+                }
             }
         }
 
@@ -44,7 +54,10 @@ Meteor.ClientCall.methods({
             Session.set('user',user);
             console.log('active user',Session.get('user'));
 
-            Meteor.call('activateUser', user._id, clientId, connectionId );
+            Meteor.call('activateUser', user._id, clientId, connectionId, function( error, result ){
+                console.log('user after activateUser',result);
+                Session.set('user',result);
+            });
         }
     }
 

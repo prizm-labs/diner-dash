@@ -1,7 +1,7 @@
 <template name="public">
     public
 
-
+    {{>lobby}}
 </template>
 
 <template name="greeting">
@@ -9,7 +9,14 @@
 </template>
 
 <template name="lobby">
+    <h1>In lobby:</h1>
+    <ul>
+        {{#each users}}
+            {{profile.name}}
 
+            <img src="{{profile.avatar}}" height="200" width="200"/>
+        {{/each}}
+    </ul>
 </template>
 
 <template name="game-config">

@@ -10,3 +10,8 @@ Meteor.publish('allGames', function(){
 
     return Games.find();
 });
+
+Meteor.publish('usersInLobby', function( lobbyId ){
+
+    return Meteor.users.find({ lobby_id:lobbyId });
+});

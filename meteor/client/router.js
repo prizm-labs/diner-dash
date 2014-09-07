@@ -47,7 +47,8 @@ Router.map(function() {
         data: function () {
             return {
                 lobbies: Lobbies.find().fetch(),
-                games: Games.find().fetch()
+                games: Games.find().fetch(),
+                users: Meteor.users.find().fetch()
             }
         },
         onAfterAction: function () {

@@ -3,3 +3,11 @@
  */
 Meteor.subscribe('activeLobbies');
 Meteor.subscribe('allGames');
+
+subscriptions = {
+    activate: {
+        lobby: function( lobbyId ){
+            Meteor.subscribe('usersInLobby', lobbyId);
+        }
+    }
+}
