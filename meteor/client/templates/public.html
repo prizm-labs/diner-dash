@@ -5,8 +5,12 @@
         <button class="register-lobby">{{title}}</button>
     {{/each}}
     {{#each arenas}}
-        {{client_id}}
+        <br/>
+
         <button class="register-arena">{{title}}</button>
+        {{#if client_id}}
+            Linked client: {{client_id}}
+        {{/if}}
     {{/each}}
 
     {{>lobby currentLobby}}

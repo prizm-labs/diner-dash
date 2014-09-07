@@ -26,13 +26,15 @@
             "title": "HDTV",
             "lobby_id": null,
             "client_id": null,
-            "game_id": null
+            "game_id": null,
+            "players_required": 1
         },
         {
             "title": "Tabletop",
             "lobby_id": null,
             "client_id": null,
-            "game_id": null
+            "game_id": null,
+            "players_required":1
         }
     ]
 

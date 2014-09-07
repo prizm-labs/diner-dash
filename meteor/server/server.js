@@ -29,9 +29,9 @@ Meteor.methods({
         var targetArena = Arenas.findOne( arenaId );
         var boundArena = Arenas.findOne( {client_id:clientId} );
 
-        console.log(boundArena);
+        console.log('arena bound to clientId',boundArena);
 
-        if ( targetArena.client_id===null && boundArena==null ){
+        if ( targetArena.client_id===null && (boundArena==null || boundArena=='undefined') ){
             // Assign client to arena
 
             Arenas.update( arenaId, { $set:{ client_id: clientId }});
@@ -144,9 +144,28 @@ Meteor.methods({
         return Meteor.users.findOne( userId );
     },
 
-    'registerPublicClientForGame': function( clientId, gameId ){
+    'registerPublicClientForGame': function( clientId, gameId ) {
 
         console.log('registerPublicClientForGame', clientId, gameId);
+    },
+
+    'checkArenaReadyForGame': function( arenaId ){
+
+        var arena = Arenas.findOne(arenaId);
+        var playersReady = Meteor.users.find({ arena_id:arenaId, readyToPlay:true }).fetch();
+
+        console.log('checking arena for players ready',arena,playersReady);
+
+        if ( (arena.players_required === playersReady.length) && (arena.cilent_id!==null) ){
+            console.log('arena is ready');
+            return true;
+        } else {
+            console.log('waiting for players',arena.players_required-playersReady.length);
+            console.log('arena client id',arena.cilent_id);
+
+            return false;
+        }
+
     }
 
 });
@@ -163,6 +182,14 @@ function teardownSession( connection ){
     if (session) {
 
         var playerId = session.viewer_id, sessionType = session.type;
+
+        // Disassociate session client from arenas
+        var linkedArena = Arenas.findOne({client_id:session._id});
+        console.log('linked arena to client',linkedArena);
+        if ( linkedArena ){
+            Arenas.update(linkedArena._id,{$set:{client_id:null}});
+            console.log('unlinking client from arena', linkedArena);
+        }
 
         // Delete session document with this connection id
         Sessions.remove(session._id);
