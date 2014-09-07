@@ -16,6 +16,13 @@ Meteor.methods({
         console.log('registered sessions', Sessions.find().fetch());
     },
 
+    'setViewerForClient': function( clientId, viewerId ){
+
+        console.log( 'setViewerForClient', clientId, viewerId );
+
+        Sessions.update( clientId, {$set: {viewer_id: viewerId}});
+    },
+
     'requestClientRegistration': function( connectionId ){
 
         console.log('requestRegistration', connectionId );
@@ -132,9 +139,15 @@ Meteor.methods({
         return Arenas.findOne(arenaId);
     },
 
-    'setPlayerReady': function( userId ){
+    'setPlayerReady': function( userId, arenaId ){
         console.log('setPlayerReady',userId);
         Meteor.users.update(userId, {$set: { readyToPlay: true }});
+
+        // Check if player's arena is ready
+        if ( Meteor.call('checkArenaReadyForGame', arenaId) ){
+            setupArenaForGame( arenaId );
+        }
+
         return Meteor.users.findOne( userId );
     },
 
@@ -170,6 +183,29 @@ Meteor.methods({
 
 });
 
+function setupArenaForGame( arenaId ){
+
+    var clients = [];
+    var arena = Arenas.findOne(arenaId);
+
+    // get all private clients
+    _.each(Meteor.users.find({arena_id:arenaId}).fetch(),function( user ){
+        clients.push( user.client_id );
+    });
+
+    // get public client
+    clients.push(arena.client_id);
+
+    // generate game configuration
+
+    // broadcast to all valid clients
+    console.log('notifying clients of game start',clients);
+
+    _.each(clients, function(clientId){
+        Meteor.ClientCall.apply( clientId, 'onArenaReady', [ [arena.game_id] ],
+            function(){ console.log('client called from server'); });
+    });
+}
 
 
 function teardownSession( connection ){

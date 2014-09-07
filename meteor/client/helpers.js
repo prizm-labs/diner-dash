@@ -72,8 +72,8 @@ Template.private.helpers({
 });
 
 Template.private.events({
-    'click .sign-out': function(event){
 
+    'click .sign-out': function(event){
         Meteor.call('deactivateUser',Session.get('user')._id);
         Session.set('user',null);
     },
@@ -90,8 +90,8 @@ Template.private.events({
 // how to access data context inside template event
 //http://stackoverflow.com/questions/18879462/meteor-how-can-i-pass-data-between-helpers-and-events-for-a-template
 Template.lobbySelection.events({
-   'click .select-lobby': function(e){
 
+   'click .select-lobby': function(e){
         console.log(this);
        Meteor.call('userEnterLobby',Session.get('user')._id,this._id, function( error, result ){
            console.log('user after enterLobby',result);
@@ -130,7 +130,7 @@ Template.gameOptions.events({
     },
 
     'click .game-enter': function(event){
-        Meteor.call('setPlayerReady',Session.get('user')._id,function(error,result){
+        Meteor.call('setPlayerReady',Session.get('user')._id, Session.get('arena')._id, function(error,result){
             console.log('user after setPlayerReady',result);
             Session.set('user',result);
         });

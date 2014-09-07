@@ -25,15 +25,16 @@ Meteor.ClientCall.methods({
             if ( user && clientType == 'private' ) {
 
                 console.log('auto set user',user);
-                  Meteor.call('setUser', user);
+                Meteor.call('setUser', user);
+                Meteor.call('setViewerForClient', clientId, user._id );
 
-                  if (user.lobby_id){
-                      subscriptions.activate.lobby(user.lobby_id);
-                  }
+                if (user.lobby_id){
+                    subscriptions.activate.lobby(user.lobby_id);
+                }
 
-                  if (user.arena_id){
-                      //Session.set
-                  }
+                if (user.arena_id){
+                    //Session.set
+                }
 //                Meteor.call('activateUser', user._id, clientId, connectionId, function( error, result ){
 //                    console.log('user after activateUser',result);
 //                    Session.set('user',result);
@@ -69,6 +70,16 @@ Meteor.ClientCall.methods({
                 Session.set('user',result);
             });
         }
+    },
+
+
+    'onArenaReady': function( args ){
+
+        console.log('onArenaReady', args);
+
+
+
+
     }
 
 });

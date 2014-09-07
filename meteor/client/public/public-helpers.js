@@ -21,6 +21,9 @@ Template.public.helpers({
     currentLobby: function(){
         return Session.get('lobby');
 
+    },
+    activeGame: function(){
+        return Session.get('active_game');
     }
 });
 
