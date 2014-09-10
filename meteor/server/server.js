@@ -35,21 +35,24 @@ Meteor.methods({
     'requestArenaRegistration': function( clientId, arenaId ){
 
         console.log('requestArenaRegistration', clientId, arenaId  );
-        var targetArena = Arenas.findOne( arenaId );
-        var boundArena = Arenas.findOne( {client_id:clientId} );
 
-        console.log('arena bound to clientId',boundArena);
+        // TODO limit registration of public clients per arena
+//        var targetArena = Arenas.findOne( arenaId );
+//        var boundArena = Arenas.findOne( {client_id:clientId} );
+//
+//        console.log('target arena & arena linked to clientId',targetArena,boundArena);
+//
+//        if ( targetArena.client_id===null && (boundArena==null || boundArena=='undefined') ){
 
-        if ( targetArena.client_id===null && (boundArena==null || boundArena=='undefined') ){
+        // Two-way Link public client and arena
+        Sessions.update( clientId, { $set: {arena_id:arenaId} });
+        Arenas.update( arenaId, { $set:{ client_id: clientId }});
 
-            // Two-way Link public client and arena
-            Sessions.update( clientId, { $set: {arena_id:arenaId} });
-            Arenas.update( arenaId, { $set:{ client_id: clientId }});
-
-            return true;
-        } else {
-            return false;
-        }
+        return Arenas.findOne( arenaId );
+//            return true;
+//        } else {
+//            return false;
+//        }
 
     },
 
@@ -114,8 +117,9 @@ Meteor.methods({
         console.log('userEnterArena',userId, arenaId );
         Meteor.users.update( { _id: userId }, { $set: { arena_id: arenaId } } );
 
+        console.log('user',Meteor.users.findOne(userId));
         // Also bind user's arena to user's client to check if client preloaded for game
-        Sessions.update( Meteor.users.findOne(userId).client_id, {$set:{ arena_id:arenaId }});
+        Sessions.update( {_id:Meteor.users.findOne(userId).client_id}, {$set:{ arena_id:arenaId }});
 
         return Meteor.users.findOne( userId );
     },

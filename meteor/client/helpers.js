@@ -56,6 +56,7 @@ Template.private.rendered = function() {
 
     Session.set('client_type','private');
 
+
 };
 
 //https://www.eventedmind.com/classes/meteor-shark-ui-preview/meteor-template-reactivity-in-the-new-ui-system
@@ -217,11 +218,11 @@ Template.arenaConfiguration.helpers({
             description: Session.get('game').description
         }
     },
-    arenaChosen: function(){
-
-        return Session.get('user').arena_id ? true : false;
-
-    },
+//    arenaChosen: function(){
+//
+//        return Session.get('user').arena_id ? true : false;
+//
+//    },
     arenas: function(){
         return Arenas.find().fetch();
     },
