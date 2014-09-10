@@ -6,6 +6,14 @@ Meteor.startup(function() {
 
 });
 
+Meteor.methods({
+    'clientReadyForGameSession': function( clientId, arenaId ){
+        console.log('client stub: clientReadyForGameSession');
+
+        gameWorld.call('setupDefaultWorld');
+    }
+})
+
 
 Meteor.ClientCall.methods({
 
@@ -81,26 +89,6 @@ Meteor.ClientCall.methods({
 
         createGameWorldFromConfiguration( args );
 
-        /*
-        * connectionStore = Meteor.connection.registerStore('nodes', {
-         beginUpdate: function( batchSize, reset ){
-         //console.log('beginUpdate nodes', batchSize, reset);
-         },
-         update: function( msg ){
-         //console.log('update nodes', JSON.stringify(msg));
-         liveDataDelegate.updateSubscriptions( msg );
-         },
-         endUpdate: function(){
-         //console.log('endUpdate nodes');
-         },
-         saveOriginals: function(){
-         //console.log('saveOriginals');
-         },
-         retrieveOriginals: function(){
-         //console.log('retrieveOriginals');
-         }
-         });
-        * */
     }
 
 });
@@ -112,4 +100,38 @@ createGameWorldFromConfiguration = function( config ){
     if (!gameWorld.preloaded){
         gameWorld.prepare( config.contexts[Session.get('client_type')] );
     }
+
+    // Once gameState received from server
+    // update gameWorld accordingly
+
+    // if a client disconnects
+    // pause game
+
+    // if all clients reconnected
+    // allow resume game clock
+
+    // TODO define DDP bindings for gameWorld
+    // TODO define stream bindings for gameWorld
+
+    //
+
+//    connectionStore = Meteor.connection.registerStore('nodes', {
+//     beginUpdate: function( batchSize, reset ){
+//     //console.log('beginUpdate nodes', batchSize, reset);
+//     },
+//     update: function( msg ){
+//     //console.log('update nodes', JSON.stringify(msg));
+//     //liveDataDelegate.updateSubscriptions( msg );
+//     },
+//     endUpdate: function(){
+//     //console.log('endUpdate nodes');
+//     },
+//     saveOriginals: function(){
+//     //console.log('saveOriginals');
+//     },
+//     retrieveOriginals: function(){
+//     //console.log('retrieveOriginals');
+//     }
+//     });
+
 }

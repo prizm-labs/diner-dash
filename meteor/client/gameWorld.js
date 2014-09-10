@@ -13,22 +13,43 @@ gameWorld = new PRIZM.GameWorld();
 //    Session.set('gameWorld',gameWorld);
 //}
 
+bindPrivateClientMethods = function( key, methods ){
+    console.log('bindPrivateClientMethods');
 
-
-
-
-bindPrivateClientMethods = function(){
-
-    gameWorld.createDefaultWorld = function(){
-
-    }
+    gameWorld.methods({
+        setupDefaultWorld: function(){
+            console.log('setupDefaultWorld',this);
+            b1 = this.view.factory.makeBody2D( 'mainContext', 'dish', { x:100, y:100}, { variant: 'drink' } );
+        }
+    });
 
 }
 
 bindPublicClientMethods = function(){
+    console.log('bindPublicClientMethods');
 
-    gameWorld.createDefaultWorld = function(){
+    gameWorld.methods({
+        setupDefaultWorld: function(){
+            console.log('setupDefaultWorld',this);
+            b1 = this.view.factory.makeBody2D( 'mainContext', 'dish', { x:100, y:100}, { variant: 'meat' } );
+        }
+    });
+
+}
+
+
+Deps.autorun(function(){
+
+    if (Session.get('client_type')){
+
+        if (Session.get('client_type')==='private') {
+            bindPrivateClientMethods();
+        } else if (Session.get('client_type')==='public') {
+            bindPublicClientMethods();
+        }
 
     }
 
-}
+});
+
+
