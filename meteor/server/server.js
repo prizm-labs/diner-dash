@@ -260,7 +260,7 @@ function teardownSession( connection ){
         var linkedArena = Arenas.findOne({client_id:session._id});
         console.log('linked arena to client',linkedArena);
         if ( linkedArena ){
-            Arenas.update(linkedArena._id,{$set:{client_id:null}});
+            Arenas.update( {_id:linkedArena._id}, {$set:{client_id:null}});
             console.log('unlinking client from arena', linkedArena);
         }
 

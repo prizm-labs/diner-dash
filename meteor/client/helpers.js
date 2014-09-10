@@ -42,6 +42,12 @@ visualClientStartup = function(){
         // offline
     });
 
+
+    // restore gameWorld from HCP
+    if (Session.get('gameState_configuration')){
+        createGameWorldFromConfiguration( Session.get('gameState_configuration') );
+    }
+
 };
 
 
