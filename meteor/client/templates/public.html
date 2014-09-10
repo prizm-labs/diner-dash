@@ -1,34 +1,33 @@
 <template name="public">
     public
+    {{>gameViewPublic}}
 
     {{#if activeGame}}
-
-    {{>gameView}}
-
     {{else}}
+    {{/if}}
 
     {{#each lobbies}}
-    <button class="register-lobby">{{title}}</button>
+        <button class="register-lobby">{{title}}</button>
     {{/each}}
     {{#each arenas}}
-    <br/>
+        <br/>
 
-    <button class="register-arena">{{title}}</button>
-    {{#if client_id}}
-    Linked client: {{client_id}}
-    {{/if}}
+        <button class="register-arena">{{title}}</button>
+        {{#if client_id}}
+        Linked client: {{client_id}}
+        {{/if}}
     {{/each}}
 
     {{>lobby currentLobby}}
 
     {{#each arenas}}
-    {{>arenaSettings}}
+        {{>arenaSettings}}
     {{/each}}
 
-    {{/if}}
+
 </template>
 
-<template name="gameView">
+<template name="gameViewPublic">
 
     <div id="context2D-main"></div>
     <div id="hit-area"></div>

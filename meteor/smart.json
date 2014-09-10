@@ -1,9 +1,12 @@
 {
-  "packages": {
-    "iron-router": {},
-    "npm": {},
-    "streams": {},
-    "ddp-hooks":{ "path": "../../ddpHooks"},
-    "anti-methods": { "path": "../../meteor-methods" }
-  }
+    "packages": {
+        "iron-router": {},
+        "npm": {},
+        "streams": {},
+        "ddp-hooks":{ "path": "../../ddpHooks"},
+        "anti-methods": { "path": "../../meteor-methods" },
+
+        "lodash": { "path":"../../meteor-lodash" },
+        "prizm-core": { "path":"../../prizm-core" }
+    }
 }

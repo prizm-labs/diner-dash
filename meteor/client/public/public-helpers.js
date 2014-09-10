@@ -15,6 +15,9 @@ Template.public.rendered = function() {
     if (Session.get('lobby')){
         subscriptions.activate.lobby(Session.get('lobby')._id);
     }
+    if (Session.get('arena')){
+        Meteor.call('requestArenaRegistration',Session.get('client_id'),Session.get('arena')._id);
+    }
 };
 
 Template.public.helpers({
@@ -35,10 +38,12 @@ Template.public.events({
 
     },
     'click .register-arena': function(event){
+        var self = this;
         console.log('requestArenaRegistration',Session.get('client_id'),this._id);
         // allow only one public client per arena
         Meteor.call('requestArenaRegistration',Session.get('client_id'),this._id,function(error,result){
             console.log('after requestArenaRegistration',result);
+            if (result) Session.set('arena',self);
         });
     }
 });

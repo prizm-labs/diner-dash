@@ -38,6 +38,7 @@ json@1.0.0
 less@1.0.6
 livedata@1.0.7
 localstorage@1.0.0
+lodash@0.0.0
 logging@1.0.2
 meteor@1.0.2
 minifiers@1.0.2
@@ -50,6 +51,7 @@ oauth2@1.0.0
 oauth@1.0.0
 observe-sequence@1.0.1
 ordered-dict@1.0.0
+prizm-core@0.0.0
 random@1.0.0
 reactive-dict@1.0.0
 reload@1.0.0

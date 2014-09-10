@@ -15,7 +15,8 @@
             "title": "Diner Dash",
             "player_limit": 5,
             "age_restriction": "8+",
-            "description": "Race to serve customers and earn the most as a waiter in a bustling diner!"
+            "description": "Race to serve customers and earn the most as a waiter in a bustling diner!",
+            "configuration": "game-config.json"
         }
 
     ],

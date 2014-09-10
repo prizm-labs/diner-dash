@@ -10,6 +10,12 @@
       },
       "anti-methods": {
         "path": "../../meteor-methods"
+      },
+      "lodash": {
+        "path": "../../meteor-lodash"
+      },
+      "prizm-core": {
+        "path": "../../prizm-core"
       }
     },
     "packages": {
@@ -33,6 +39,12 @@
       },
       "anti-methods": {
         "path": "../../meteor-methods"
+      },
+      "lodash": {
+        "path": "../../meteor-lodash"
+      },
+      "prizm-core": {
+        "path": "../../prizm-core"
       },
       "iron-layout": {
         "git": "https://github.com/EventedMind/iron-layout.git",

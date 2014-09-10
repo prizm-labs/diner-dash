@@ -11,7 +11,9 @@ Meteor.methods({
 
         console.log('setting clientId & connectionId', clientId, connectionId);
 
-        Sessions.upsert( clientId ,{ '_id': clientId, 'connection': connectionId, 'type': type, 'viewer_id': null });
+        Sessions.upsert( clientId ,{
+            '_id':clientId, 'connection':connectionId,
+            'type':type, 'viewer_id':null, 'arena_id':null, 'preloaded':false });
 
         console.log('registered sessions', Sessions.find().fetch());
     },
@@ -20,7 +22,7 @@ Meteor.methods({
 
         console.log( 'setViewerForClient', clientId, viewerId );
 
-        Sessions.update( clientId, {$set: {viewer_id: viewerId}});
+        Sessions.update( clientId, {$set: { viewer_id:viewerId }});
     },
 
     'requestClientRegistration': function( connectionId ){
@@ -39,8 +41,9 @@ Meteor.methods({
         console.log('arena bound to clientId',boundArena);
 
         if ( targetArena.client_id===null && (boundArena==null || boundArena=='undefined') ){
-            // Assign client to arena
 
+            // Two-way Link public client and arena
+            Sessions.update( clientId, { $set: {arena_id:arenaId} });
             Arenas.update( arenaId, { $set:{ client_id: clientId }});
 
             return true;
@@ -111,6 +114,9 @@ Meteor.methods({
         console.log('userEnterArena',userId, arenaId );
         Meteor.users.update( { _id: userId }, { $set: { arena_id: arenaId } } );
 
+        // Also bind user's arena to user's client to check if client preloaded for game
+        Sessions.update( Meteor.users.findOne(userId).client_id, {$set:{ arena_id:arenaId }});
+
         return Meteor.users.findOne( userId );
     },
 
@@ -143,10 +149,9 @@ Meteor.methods({
         console.log('setPlayerReady',userId);
         Meteor.users.update(userId, {$set: { readyToPlay: true }});
 
-        // Check if player's arena is ready
-        if ( Meteor.call('checkArenaReadyForGame', arenaId) ){
-            setupArenaForGame( arenaId );
-        }
+        // Link user's current arena to user's session
+        Sessions.update( Sessions.findOne( {viewer_id:Meteor.users.findOne(userId)._id} ),
+            { $set: { arena_id:arenaId } });
 
         return Meteor.users.findOne( userId );
     },
@@ -169,43 +174,71 @@ Meteor.methods({
 
         console.log('checking arena for players ready',arena,playersReady);
 
-        if ( (arena.players_required === playersReady.length) && (arena.cilent_id!==null) ){
+        if ( (arena.players_required === playersReady.length) && (arena.client_id!==null) ){
+
+            // track clients ready: preloaded audio & visual assets
+            //TODO how to track/handle client ready if multiple public clients or ad hoc private clients???
+            Arenas.update( arenaId, { $set: { clients_required: playersReady.length+1, players: _.pluck(playersReady,'_id') }});
+
             console.log('arena is ready');
+            console.log('arena client id',arena.client_id);
+
             return true;
         } else {
             console.log('waiting for players',arena.players_required-playersReady.length);
-            console.log('arena client id',arena.cilent_id);
+            console.log('arena client id',arena.client_id);
 
             return false;
         }
 
+    },
+
+    'clientReadyForGameSession': function( clientId, arenaId ){
+        console.log('clientReadyForGameSession',clientId, arenaId);
+
+        // set client preloaded
+        Sessions.update(clientId, {$set:{ preloaded: true }});
+
+        // count clients preloaded
+        var linkedClients = Sessions.find({ arena_id:arenaId, preloaded:true}).fetch();
+        var arena = Arenas.findOne(arenaId);
+        console.log('clients linked to arena',linkedClients.length,arena);
+
+        if ( arena.clients_required===linkedClients.length ){
+            console.log('all clients preloaded');
+            // Begin game clock
+        }
+    },
+
+    'setupArenaForGame': function( arenaId ){
+        console.log('setupArenaForGame',arenaId);
+        var clients = [];
+        var arena = Arenas.findOne(arenaId);
+        var users = Meteor.users.find({arena_id:arenaId}).fetch();
+
+        // get all private clients
+        _.each( users,function( user ){
+            clients.push( user.client_id );
+        });
+
+        // get public client
+        clients.push(arena.client_id);
+
+        // generate initial gameState from game configuration
+        var gameState = generateGameState( arena.game_id, users, 'game-config.json' );
+
+        // broadcast to all valid clients
+        console.log('notifying clients of game start',clients);
+
+        _.each(clients, function(clientId){
+            Meteor.ClientCall.apply( clientId, 'onArenaReady', [gameState],
+                function(){ console.log('client called from server'); });
+        });
     }
 
 });
 
-function setupArenaForGame( arenaId ){
 
-    var clients = [];
-    var arena = Arenas.findOne(arenaId);
-
-    // get all private clients
-    _.each(Meteor.users.find({arena_id:arenaId}).fetch(),function( user ){
-        clients.push( user.client_id );
-    });
-
-    // get public client
-    clients.push(arena.client_id);
-
-    // generate game configuration
-
-    // broadcast to all valid clients
-    console.log('notifying clients of game start',clients);
-
-    _.each(clients, function(clientId){
-        Meteor.ClientCall.apply( clientId, 'onArenaReady', [ [arena.game_id] ],
-            function(){ console.log('client called from server'); });
-    });
-}
 
 
 function teardownSession( connection ){
@@ -356,17 +389,17 @@ Meteor.startup(function () {
 
     Accounts.onLogin(function( request ){
 
-       console.log('onLogin',request);
+        console.log('onLogin',request);
 //        sendChat('onlogin yo',2);
 //        sendLogin(request.connection.id,request.user);
 
-       //services.google.picture
+        //services.google.picture
 
         //services.facebook
-       //https://developers.facebook.com/docs/graph-api/reference/user/picture/
+        //https://developers.facebook.com/docs/graph-api/reference/user/picture/
 
 
-       //.email
+        //.email
         //.id
         //gender
         //name

@@ -1,33 +1,39 @@
 <template name="private">
     private
+    {{>gameViewPrivate}}
 
     {{#if userLoggedIn}}
 
-    {{name}}
+        {{#if activeGame}}
 
-    <img src="{{avatar}}" height="200" width="200"/>
+        {{else}}
 
-    <button class="sign-out">Sign out</button>
+        {{/if}}
 
-    <hr/>
+            {{name}}
+            <img src="{{avatar}}" height="200" width="200"/>
+            <button class="sign-out">Sign out</button>
+            <hr/>
 
-    {{#if userChoseLobby}}
+            {{#if userChoseLobby}}
+                <button class="leave-lobby">Leave {{currentLobby}}</button>
+                {{>arenaConfiguration}}
+            {{else}}
+                {{>lobbySelection}}
+            {{/if}}
 
-    <button class="leave-lobby">Leave {{currentLobby}}</button>
 
-    {{>arenaConfiguration}}
 
     {{else}}
-
-    {{>lobbySelection}}
-
+        {{>loginUi}}
     {{/if}}
 
-    {{else}}
+</template>
 
-    {{>loginUi}}
+<template name="gameViewPrivate">
 
-    {{/if}}
+    <div id="context2D-main"></div>
+    <div id="hit-area"></div>
 
 </template>
 
@@ -46,37 +52,34 @@
 
     <hr/>
     {{#each arenas}}
-    <button class="join-arena">Join {{title}}</button>
+        <button class="join-arena">Join {{title}}</button>
     {{/each}}
 
     {{#if arenaChosen}}
 
-    <hr/>
+        <hr/>
 
-    {{#with currentArena}}
-    Current arena: {{title}}
+        {{#with currentArena}}
+        Current arena: {{title}}
+        {{/with}}
+        <hr/>
 
-    {{/with}}
+        Choose a game:
+        {{#each games}}
+            <button class="select-game">{{title}}</button>
+        {{/each}}
 
-    Choose a game:
-    {{#each games}}
+        {{#if gameChosen }}
 
-    <button class="select-game">{{title}}</button>
+            {{#with gameContext}}
+            <h1>{{title}}</h1>
+            <p>{{ageRestriction}}</p>
+            <p>{{description}}</p>
+            {{/with}}
 
-    {{/each}}
+            {{>gameOptions}}
 
-    {{#if gameChosen }}
-
-    {{#with gameContext}}
-    <h1>{{title}}</h1>
-    <p>{{ageRestriction}}</p>
-    <p>{{description}}</p>
-
-    {{/with}}
-
-    {{>gameOptions}}
-
-    {{/if}}
+        {{/if}}
 
     {{/if}}
 

@@ -11,6 +11,12 @@ visualClientStartup = function(){
     // clear client id binding, so this client will receive global messages from server
     Meteor.ClientCall.setClientId( 'default' );
 
+    registerViewportSize();
+
+    // detect viewport size, to pass on to game world renderer
+    $( window ).resize(function() {
+        registerViewportSize();
+    });
 
     // generate local client id for registration on server
     if (!Session.get('client_id')) {
@@ -36,8 +42,13 @@ visualClientStartup = function(){
         // offline
     });
 
-}
+};
 
+
+registerViewportSize = function(){
+    Session.set('viewport_width',$(window).width());
+    Session.set('viewport_height',$(window).height());
+};
 
 Template.private.rendered = function() {
 
@@ -49,7 +60,10 @@ Template.private.rendered = function() {
 
 //https://www.eventedmind.com/classes/meteor-shark-ui-preview/meteor-template-reactivity-in-the-new-ui-system
 Template.private.helpers({
+    activeGame: function(){
+      return Session.get('activeGame');
 
+    },
     name: function(){
         return Session.get('user').profile.name;
     },
@@ -85,6 +99,21 @@ Template.private.events({
 });
 
 
+Template.gameViewPrivate.rendered = function(){
+
+    console.log('rendered gameViewPrivate',Session.get('activeGame'));
+
+    // Build game world
+
+    // Bind rendering contexts to DOM
+
+    // Preload assets for rendering contexts
+
+    // Bind interaction layer to DOM
+
+    // Notify server that game world is ready
+
+}
 
 
 // how to access data context inside template event
@@ -95,7 +124,7 @@ Template.lobbySelection.events({
         console.log(this);
        Meteor.call('userEnterLobby',Session.get('user')._id,this._id, function( error, result ){
            console.log('user after enterLobby',result);
-           Session.set('user',result);
+           if (result) Session.set('user',result);
        });
 
         Session.set('lobby',this);
@@ -125,21 +154,28 @@ Template.gameOptions.events({
     'click .set-player-count': function(event){
         Meteor.call('setArenaPlayersRequired',Session.get('arena')._id,this.value,function(error,result){
             console.log('arena after setArenaPlayersRequired',result);
-            Session.set('arena',result);
+            if (result) Session.set('arena',result);
         });
     },
 
     'click .game-enter': function(event){
         Meteor.call('setPlayerReady',Session.get('user')._id, Session.get('arena')._id, function(error,result){
             console.log('user after setPlayerReady',result);
-            Session.set('user',result);
+            if (result) Session.set('user',result);
+
+            // Check if player's arena is ready
+            Meteor.call('checkArenaReadyForGame', Session.get('arena')._id, function(error,result){
+               if (result) Meteor.call('setupArenaForGame', Session.get('arena')._id );
+            });
+
+
         });
     },
 
     'click .game-exit': function(event){
         Meteor.call('cancelPlayerReady',Session.get('user')._id,function(error,result){
             console.log('user after cancelPlayerReady',result);
-            Session.set('user',result);
+            if (result) Session.set('user',result);
         });
     }
 
@@ -153,7 +189,7 @@ Template.arenaConfiguration.events({
 
         Meteor.call('userEnterArena', Session.get('user')._id,this._id, function( error, result ){
             console.log('user after userEnterArena',result);
-            Session.set('user',result);
+            if (result) Session.set('user',result);
         });
 
     },
@@ -164,7 +200,7 @@ Template.arenaConfiguration.events({
 
         Meteor.call('setArenaGame',Session.get('arena')._id, this._id, function(error,result){
             console.log('arena after set game',result);
-            Session.set('arena',result);
+            if (result) Session.set('arena',result);
         });
         Session.set('game',this);
     }

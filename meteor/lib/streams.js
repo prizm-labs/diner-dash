@@ -2,8 +2,6 @@
  * Created by michaelgarrido on 9/5/14.
  */
 lobbyStream = new Meteor.Stream('lobby');
-
-
 chatStream = new Meteor.Stream('chat');
 
 sendChat = function(message,to) {
@@ -14,6 +12,22 @@ sendChat = function(message,to) {
 sendLogin = function(id,user){
     lobbyStream.emit('login', id, user);
 }
+
+
+// Bind gameState streams
+// prefix events with gameState id
+
+// Events
+
+// player added dish to tray
+
+// seat is locked / unlocked
+
+// player serving to customer
+
+
+bindGameStream = function(){}
+
 
 if(Meteor.isServer) {
 //    lobbyStream.permissions.read(function() {

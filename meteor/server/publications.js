@@ -20,3 +20,7 @@ Meteor.publish('arenasInLobby', function( lobbyId ){
 
     return Arenas.find({ lobby_id:lobbyId });
 });
+
+Meteor.publish('activeGame', function( gameStateId ){
+   return GameStates.find( gameStateId );
+});
