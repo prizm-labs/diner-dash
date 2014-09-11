@@ -238,6 +238,23 @@ Meteor.methods({
             Meteor.ClientCall.apply( clientId, 'onArenaReady', [gameState],
                 function(){ console.log('client called from server'); });
         });
+    },
+
+
+    'quadraticCurveAroundOrigin': function( origin, width, height, steps ){
+        console.log('quadraticCurveAroundOrigin',Shape);
+
+        var s = new Shape();
+
+        var a = [ origin[0]-width/2, origin[1] ];
+        var b = [ origin[0]+width/2, origin[1] ];
+
+        s.moveTo(a[0],a[1]);
+        s.quadraticCurveTo( origin[0],origin[1]-height*2, b[0],b[1], steps );
+
+        console.log(s.points);
+
+        return s.points;
     }
 
 });

@@ -35,6 +35,7 @@ generateGameState = function( gameId, users, configJson ){
     // merge in manifest as object from JSON
     _.each( contexts, function(context){
         context.manifest =  JSON.parse(Assets.getText(context.manifest[0]))[context.manifest[1]];
+        console.log('context manifest',context.manifest);
     });
 
     var allContexts = {

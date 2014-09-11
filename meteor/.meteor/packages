@@ -6,7 +6,6 @@
 standard-app-packages
 insecure
 mrt:reactive-extra
-iron-router
 less
 npm
 accounts-password
@@ -20,4 +19,5 @@ anti-methods
 lodash
 prizm-core
 jquery
+iron:router
 

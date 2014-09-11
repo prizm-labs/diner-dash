@@ -1,6 +1,6 @@
 {
     "packages": {
-        "iron-router": {},
+        "iron-router": {"version":"0.8.2"},
         "npm": {},
         "streams": {},
         "ddp-hooks":{ "path": "../../ddpHooks"},

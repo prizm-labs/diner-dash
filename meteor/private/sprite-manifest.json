@@ -35,7 +35,7 @@
         ["dishStatus",{
             "cooking":"dish-cooking.png"
         }],
-        ["tray","tray.png"],
+        ["tray","background-tray.png"],
         ["queue","background-queue.png"]
     ]
 }
