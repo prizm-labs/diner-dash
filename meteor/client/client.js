@@ -94,8 +94,8 @@ Meteor.ClientCall.methods({
 });
 
 createGameWorldFromConfiguration = function( config ){
-    // Subscribe to gameState document, shared with all clients
-    connectionStore = subscriptions.activate.gameState(config.gameStateId);
+    // TODO Subscribe to gameState document, shared with all clients
+    //connectionStore = subscriptions.activate.gameState(config.gameStateId);
 
     if (!gameWorld.preloaded){
         gameWorld.prepare( config.contexts[Session.get('client_type')] );

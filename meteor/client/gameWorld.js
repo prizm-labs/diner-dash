@@ -32,8 +32,7 @@ bindPrivateClientMethods = function( key, methods ){
             _.each(seatPositions, function( position ){
                 var seat = self.view.factory.makeBody2D( 'mainContext', 'seat',
                     { x:position[0], y:position[1]},
-                    { variant: 'neutral', scale:0.5, rotation: -position[2] } );
-                    // reflect rotation across Y axis
+                    { variant: 'neutral', scale:0.5, rotation: position[2] } );
             });
 
 
@@ -62,11 +61,14 @@ bindPrivateClientMethods = function( key, methods ){
 
             });
 
-
+            // http://stackoverflow.com/questions/18645334/meteor-meteor-call-from-within-observe-callback-does-not-execute
+            // https://github.com/meteor/meteor/issues/907
+            setTimeout(function(){
             // Dish queue buttons
-            Meteor.call('quadraticCurveAroundOrigin',[ self.view.width/2, 90 ], 240, 30, 5,
+            Meteor.apply('curveAroundOrigin', [{x:self.view.width/2, y:110}, 240, 30, 5],
+                { wait: true },
                 function(error,result){
-                    console.log('after quadraticCurveAroundOrigin',result);
+                    console.log('after curveAroundOrigin',error,result);
 
                     queueButtonPositions = result;
 //                    queueButtonPositions = distributePositionsAcrossWidth(
@@ -81,6 +83,7 @@ bindPrivateClientMethods = function( key, methods ){
 
             });
 
+            },0);
 
 
 // https://graph.facebook.com/10203388818815570/picture?type=large&height=500&width=500
@@ -111,8 +114,71 @@ bindPublicClientMethods = function(){
     gameWorld.methods({
         setupDefaultWorld: function(){
             console.log('setupDefaultWorld',this);
-            b1 = this.view.factory.makeBody2D( 'mainContext', 'table',
-                this.view.locations.center(), { variant: 'public', scale:0.5 } );
+            var self = this;
+
+            config = Session.get('gameState_configuration');
+
+            // Set global background colors
+            this.view.contexts['mainContext'].setBackgroundColor(config.palette.brightOrange);
+
+
+            // Table & Seats
+            table = this.view.factory.makeBody2D( 'mainContext', 'table',
+                this.view.locations.center(), { variant: 'public' } );
+
+            seatPositions = positionsAlongRadius( this.view.locations.center(), 320,
+                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
+                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
+
+            _.each(seatPositions, function( position ){
+                var seat = self.view.factory.makeBody2D( 'mainContext', 'seat',
+                    { x:position[0], y:position[1]},
+                    { variant: 'neutral', rotation: position[2] } );
+            });
+
+
+            // Customers
+            seatedPositions = positionsAlongRadius( this.view.locations.center(), 440,
+                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
+                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
+
+            _.each( seatedPositions, function( position ){
+
+               var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
+                   { x:position[0], y:position[1]},
+                   { variant: 'happy', rotation: position[2] } );
+            });
+
+            entryPositions = positionsAlongRadius( this.view.locations.center(), 700,
+                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
+                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
+
+            _.each( entryPositions, function( position ){
+
+                var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
+                    { x:position[0], y:position[1]},
+                    { variant: 'walking', rotation: position[2] } );
+            });
+
+
+            // Customer order
+            // background
+            orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
+                { x:seatedPositions[0][0], y:seatedPositions[0][1]-110},
+                { variant: '5', rotation: seatedPositions[0][2] } );
+            // items
+            itemPositions = distributePositionsAcrossWidth(
+                {x:seatedPositions[0][0], y:seatedPositions[0][1]-115 },
+                5, 300
+            );
+
+            _.each(itemPositions, function( position ){
+
+                var item = self.view.factory.makeBody2D( 'mainContext', 'dish',
+                    { x:position[0], y:position[1]},
+                    { variant: 'drink', scale:0.5 } );
+
+            });
         }
     });
 
@@ -148,7 +214,7 @@ function positionAlongRadius( origin, length, angle ){
     var x = Math.sin(angle)*length;
     var y = Math.cos(angle)*length;
 
-    return [ origin.x+Math.round(x), origin.y+Math.round(y), angle ];
+    return [ origin.x+Math.round(x), origin.y-Math.round(y), angle ];
 }
 
 function distributePositionsAcrossWidth( origin, count, width ){

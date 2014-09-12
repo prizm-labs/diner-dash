@@ -7,6 +7,23 @@
 
 Meteor.methods({
 
+    // Shape helpers
+    'curveAroundOrigin': function( origin, width, height, steps ){
+        console.log('quadraticCurveAroundOrigin');
+
+        var s = new Shape();
+
+        var a = [ origin.x-width/2, origin.y ];
+        var b = [ origin.x+width/2, origin.y ];
+
+        s.moveTo(a[0],a[1]);
+        s.quadraticCurveTo( origin.x,origin.y-height*2, b[0],b[1], steps );
+
+        console.log(s.points);
+
+        return _.clone(s.points);
+    },
+
     'registerClient': function( clientId, connectionId, type ){
 
         console.log('setting clientId & connectionId', clientId, connectionId);
@@ -238,23 +255,6 @@ Meteor.methods({
             Meteor.ClientCall.apply( clientId, 'onArenaReady', [gameState],
                 function(){ console.log('client called from server'); });
         });
-    },
-
-
-    'quadraticCurveAroundOrigin': function( origin, width, height, steps ){
-        console.log('quadraticCurveAroundOrigin',Shape);
-
-        var s = new Shape();
-
-        var a = [ origin[0]-width/2, origin[1] ];
-        var b = [ origin[0]+width/2, origin[1] ];
-
-        s.moveTo(a[0],a[1]);
-        s.quadraticCurveTo( origin[0],origin[1]-height*2, b[0],b[1], steps );
-
-        console.log(s.points);
-
-        return s.points;
     }
 
 });

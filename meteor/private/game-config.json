@@ -60,15 +60,16 @@
         }
     },
 
+    "palette":{
+        "brightOrange" : "#D79728",
+        "brightBlue": "#53C8EA",
+        "darkGray": "#3A3938",
+        "mediumGray": "#BBBDC0"
+    },
+
     "mainContext": {
         "type": "2D",
         "domAnchor": "context2D-main",
-        "palette":{
-            "brightOrange" : "D79728",
-            "brightBlue": "53C8EA",
-            "darkGray": "3A3938",
-            "mediumGray":"BBBDC0"
-        },
 
         "atlas": {
             "map": "atlas.json",

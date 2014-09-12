@@ -51,7 +51,8 @@ generateGameState = function( gameId, users, configJson ){
         gameId: gameId,
         gameStateId: gameStateId,
         contexts: allContexts,
-        factory: factory
+        factory: factory,
+        palette: config['palette']
     };
 };
 
