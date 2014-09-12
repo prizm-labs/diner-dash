@@ -44,9 +44,9 @@ bindPrivateClientMethods = function( key, methods ){
                 [0, Math.PI*2/5, Math.PI*4/5, Math.PI*6/5, Math.PI*8/5 ]);
 
             _.each( trayPositions, function( position ){
-               var slot = self.view.factory.makeBody2D( 'mainContext', 'dish',
-                   { x:position[0], y:position[1]},
-                   { variant: 'veggie', scale:0.35 } );
+                var slot = self.view.factory.makeBody2D( 'mainContext', 'dish',
+                    { x:position[0], y:position[1]},
+                    { variant: 'veggie', scale:0.35 } );
             });
 
 
@@ -55,33 +55,33 @@ bindPrivateClientMethods = function( key, methods ){
                 {x:self.view.width/2,y:self.view.height-60}, 4, 220 );
 
             _.each( orderButtonPositions, function(position){
-               var button =  self.view.factory.makeBody2D( 'mainContext', 'dish',
-                   { x:position[0], y:position[1]},
-                   { variant: 'dessert', scale:0.5 } );
+                var button =  self.view.factory.makeBody2D( 'mainContext', 'dish',
+                    { x:position[0], y:position[1]},
+                    { variant: 'dessert', scale:0.5 } );
 
             });
 
             // http://stackoverflow.com/questions/18645334/meteor-meteor-call-from-within-observe-callback-does-not-execute
             // https://github.com/meteor/meteor/issues/907
             setTimeout(function(){
-            // Dish queue buttons
-            Meteor.apply('curveAroundOrigin', [{x:self.view.width/2, y:110}, 240, 30, 5],
-                { wait: true },
-                function(error,result){
-                    console.log('after curveAroundOrigin',error,result);
+                // Dish queue buttons
+                Meteor.apply('curveAroundOrigin', [{x:self.view.width/2, y:110}, 240, 30, 5],
+                    { wait: true },
+                    function(error,result){
+                        console.log('after curveAroundOrigin',error,result);
 
-                    queueButtonPositions = result;
+                        queueButtonPositions = result;
 //                    queueButtonPositions = distributePositionsAcrossWidth(
 //                        {x:self.view.width/2,y:80}, 5, 240 );
 
-                    _.each( queueButtonPositions, function(position){
-                        var button =  self.view.factory.makeBody2D( 'mainContext', 'dish',
-                            { x:position.x, y:position.y },
-                            { variant: 'meat', scale:0.4 } );
+                        _.each( queueButtonPositions, function(position){
+                            var button =  self.view.factory.makeBody2D( 'mainContext', 'dish',
+                                { x:position.x, y:position.y },
+                                { variant: 'meat', scale:0.4 } );
+
+                        });
 
                     });
-
-            });
 
             },0);
 
@@ -98,7 +98,7 @@ bindPrivateClientMethods = function( key, methods ){
 
             self.view.factory.loadTemplates2D('mainContext',avatarUrls,avatarManifest,function(){
                 avatar = self.view.factory.makeBody2D( 'mainContext', 'avatar',
-                     self.view.locations.center(), { variant:'p1', scale: 0.3 } );
+                    self.view.locations.center(), { variant:'p1', scale: 0.3 } );
 
                 self.view.contexts['mainContext'].maskBody( avatar.entity(),
                     { shape:'circle', position:self.view.locations.center(), size:60 } );
@@ -144,9 +144,9 @@ bindPublicClientMethods = function(){
 
             _.each( seatedPositions, function( position ){
 
-               var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
-                   { x:position[0], y:position[1]},
-                   { variant: 'happy', rotation: position[2] } );
+                var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
+                    { x:position[0], y:position[1]},
+                    { variant: 'happy', rotation: position[2] } );
             });
 
             entryPositions = positionsAlongRadius( this.view.locations.center(), 700,
@@ -163,22 +163,52 @@ bindPublicClientMethods = function(){
 
             // Customer order
             // background
+//            orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
+//                { x:seatedPositions[0][0], y:seatedPositions[0][1]-110},
+//                { variant: '5', rotation: seatedPositions[0][2] } );
+//            // items
+//            itemPositions = distributePositionsAcrossWidth(
+//                {x:seatedPositions[0][0], y:seatedPositions[0][1]-115 },
+//                5, 300
+//            );
+//
+//            _.each(itemPositions, function( position ){
+//
+//                var item = self.view.factory.makeBody2D( 'mainContext', 'dish',
+//                    { x:position[0], y:position[1]},
+//                    { variant: 'drink', scale:0.5 } );
+//
+//            });
+
+            orderGroup = self.view.factory.makeGroup2D( 'mainContext',
+                {
+                    x:seatedPositions[0][0], y:seatedPositions[0][1]-110
+                });
+
             orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
-                { x:seatedPositions[0][0], y:seatedPositions[0][1]-110},
-                { variant: '5', rotation: seatedPositions[0][2] } );
+                { x:0, y:0},
+                { variant: '5' } );
+
+            orderGroup.addChild(orderBackground);
+
             // items
             itemPositions = distributePositionsAcrossWidth(
-                {x:seatedPositions[0][0], y:seatedPositions[0][1]-115 },
+                {x:0, y:-5 },
                 5, 300
             );
 
             _.each(itemPositions, function( position ){
 
-                var item = self.view.factory.makeBody2D( 'mainContext', 'dish',
+                var orderItem = self.view.factory.makeBody2D( 'mainContext', 'dish',
                     { x:position[0], y:position[1]},
                     { variant: 'drink', scale:0.5 } );
 
+                orderGroup.addChild(orderItem);
+
             });
+
+
+
         }
     });
 
@@ -202,7 +232,7 @@ Deps.autorun(function(){
 function positionsAlongRadius( origin, length, angles ){
     var positions = [];
     _.each(angles, function(angle){
-       positions.push(positionAlongRadius(_.clone(origin), length, angle));
+        positions.push(positionAlongRadius(_.clone(origin), length, angle));
     });
 
     return positions;
