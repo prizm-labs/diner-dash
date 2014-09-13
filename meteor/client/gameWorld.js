@@ -180,32 +180,41 @@ bindPublicClientMethods = function(){
 //
 //            });
 
-            orderGroup = self.view.factory.makeGroup2D( 'mainContext',
-                {
-                    x:seatedPositions[0][0], y:seatedPositions[0][1]-110
+            _.each( seatedPositions, function(seatPosition) {
+
+                var orderGroup = self.view.factory.makeGroup2D( 'mainContext',
+                    {
+                        x:seatPosition[0], y:seatPosition[1]
+                    });
+
+                var orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
+                    { x:0, y:0},
+                    { variant: '5' } );
+
+                orderGroup.addChild(orderBackground);
+
+                // items
+                var itemPositions = distributePositionsAcrossWidth(
+                    {x:0, y:-7 },
+                    5, 300
+                );
+
+                _.each(itemPositions, function( position ){
+
+                    var orderItem = self.view.factory.makeBody2D( 'mainContext', 'dish',
+                        { x:position[0], y:position[1]},
+                        { variant: 'drink', scale:0.5 } );
+
+                    orderGroup.addChild(orderItem);
+
                 });
 
-            orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
-                { x:0, y:0},
-                { variant: '5' } );
-
-            orderGroup.addChild(orderBackground);
-
-            // items
-            itemPositions = distributePositionsAcrossWidth(
-                {x:0, y:-5 },
-                5, 300
-            );
-
-            _.each(itemPositions, function( position ){
-
-                var orderItem = self.view.factory.makeBody2D( 'mainContext', 'dish',
-                    { x:position[0], y:position[1]},
-                    { variant: 'drink', scale:0.5 } );
-
-                orderGroup.addChild(orderItem);
+                orderGroup.setPivot(0,110);
+                orderGroup.rotate(seatPosition[2]);
 
             });
+
+
 
 
 
