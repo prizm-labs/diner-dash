@@ -142,81 +142,68 @@ bindPublicClientMethods = function(){
                 [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
                         Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
 
+
             _.each( seatedPositions, function( position ){
 
-                var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
-                    { x:position[0], y:position[1]},
-                    { variant: 'happy', rotation: position[2] } );
+               lane = new CustomerLane();
+                lane.init(position[0], position[1], position[2], self);
+                //console.dir(lane);
+                //lane.call('init', position[0], position[1], position[2], self);
+
             });
 
-            entryPositions = positionsAlongRadius( this.view.locations.center(), 700,
-                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
-                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
-
-            _.each( entryPositions, function( position ){
-
-                var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
-                    { x:position[0], y:position[1]},
-                    { variant: 'walking', rotation: position[2] } );
-            });
-
-
-            // Customer order
-            // background
-//            orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
-//                { x:seatedPositions[0][0], y:seatedPositions[0][1]-110},
-//                { variant: '5', rotation: seatedPositions[0][2] } );
-//            // items
-//            itemPositions = distributePositionsAcrossWidth(
-//                {x:seatedPositions[0][0], y:seatedPositions[0][1]-115 },
-//                5, 300
-//            );
+//            _.each( seatedPositions, function( position ){
 //
-//            _.each(itemPositions, function( position ){
-//
-//                var item = self.view.factory.makeBody2D( 'mainContext', 'dish',
+//                var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
 //                    { x:position[0], y:position[1]},
-//                    { variant: 'drink', scale:0.5 } );
+//                    { variant: 'happy', rotation: position[2] } );
+//            });
+//
+//            entryPositions = positionsAlongRadius( this.view.locations.center(), 700,
+//                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
+//                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
+//
+//            _.each( entryPositions, function( position ){
+//
+//                var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
+//                    { x:position[0], y:position[1]},
+//                    { variant: 'walking', rotation: position[2] } );
+//            });
+//
+//
+//            _.each( seatedPositions, function(seatPosition) {
+//
+//                var orderGroup = self.view.factory.makeGroup2D( 'mainContext',
+//                    {
+//                        x:seatPosition[0], y:seatPosition[1]
+//                    });
+//
+//                var orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
+//                    { x:0, y:0},
+//                    { variant: '5' } );
+//
+//                orderGroup.addChild(orderBackground);
+//
+//                // items
+//                var itemPositions = distributePositionsAcrossWidth(
+//                    {x:0, y:-7 },
+//                    5, 300
+//                );
+//
+//                _.each(itemPositions, function( position ){
+//
+//                    var orderItem = self.view.factory.makeBody2D( 'mainContext', 'dish',
+//                        { x:position[0], y:position[1]},
+//                        { variant: 'drink', scale:0.5 } );
+//
+//                    orderGroup.addChild(orderItem);
+//
+//                });
+//
+//                orderGroup.setPivot(0,110);
+//                orderGroup.rotate(seatPosition[2]);
 //
 //            });
-
-            _.each( seatedPositions, function(seatPosition) {
-
-                var orderGroup = self.view.factory.makeGroup2D( 'mainContext',
-                    {
-                        x:seatPosition[0], y:seatPosition[1]
-                    });
-
-                var orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
-                    { x:0, y:0},
-                    { variant: '5' } );
-
-                orderGroup.addChild(orderBackground);
-
-                // items
-                var itemPositions = distributePositionsAcrossWidth(
-                    {x:0, y:-7 },
-                    5, 300
-                );
-
-                _.each(itemPositions, function( position ){
-
-                    var orderItem = self.view.factory.makeBody2D( 'mainContext', 'dish',
-                        { x:position[0], y:position[1]},
-                        { variant: 'drink', scale:0.5 } );
-
-                    orderGroup.addChild(orderItem);
-
-                });
-
-                orderGroup.setPivot(0,110);
-                orderGroup.rotate(seatPosition[2]);
-
-            });
-
-
-
-
 
         }
     });
