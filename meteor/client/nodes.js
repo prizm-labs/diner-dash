@@ -54,10 +54,7 @@ _.extend( CustomerLane.prototype, {
                 var customer = this.body('customer');
                 var destination = this.location('seated');
 
-
-                //customer.place( destination[0], destination[1], 2);
-
-                customer.registerAnimation('rotation',0,0);
+                customer.registerAnimation('rotation',0,0, {parallel:true});
                 customer.registerAnimation('position', { x:destination[0], y:destination[1] }, 1);
 
                 customer.runAnimations( function(){
@@ -76,28 +73,63 @@ _.extend( CustomerLane.prototype, {
 
                 orderBg.setFrame(orders.length-1);
 
-//                _.each(orders, function(order){
-//
-//                });
+                var orderPositions = [];
+                var orderBgWidths = [
+                  0, 80, 154, 230, 300
+                ];
 
+                // generate positions for dish items
+                if (orders.length==1) {
+                    orderPositions.push(this.location('orderItemOrigin'));
+                } else {
+                    orderPositions = Layout.distributePositionsAcrossWidth(
+                        this.location('orderItemOrigin'),orders.length,orderBgWidths[orders.length-1]);
+                }
+
+                console.log('order positions',orderPositions);
+
+                // create hidden dish items
+                _.each(orders, function(order, index){
+                    var orderItem = self.world.view.factory.makeBody2D( 'mainContext', 'dish',
+                        orderPositions[index],{ variant: order, scale:0.01 } );
+
+                    //TODO add smaller item icons, since child sprites inherit scale from parent
+
+                    self.setBody('order'+index,orderItem);
+                    //orderBg.addChild(orderItem);
+                    self.body('container').addChild(orderItem);
+                });
+
+                this.state['orders'] = orders;
 
 
 
                 var goal = this.location('orderPlaced');
-                orderBg.fade(1,0.5);
+                //orderBg.fade(1,0.5);
+                orderBg._entity.visible = true;
+                orderBg.registerAnimation('alpha',1,0.5,{parallel:true});
+                //orderBg.runAnimations();
                 orderBg.place( goal[0],goal[1], 1, revealOrder.bind(self));
-                //orderBg.place(100,100);
+
+
 
                 function revealOrder(){
                     console.log('order placed');
-                    var orderItem = this.world.view.factory.makeBody2D( 'mainContext', 'dish',
-                        this.location('orderItemOrigin'),{ variant: 'drink', scale:0.5 } );
+//                    var orderItem = this.world.view.factory.makeBody2D( 'mainContext', 'dish',
+//                        this.location('orderItemOrigin'),{ variant: 'drink', scale:0.01 } );
+//
+//                    //TODO add smaller item icons, since child sprites inherit scale from parent
+//
+//                    this.setBody('order1',orderItem);
+//                    //orderBg.addChild(orderItem);
+//                    this.body('container').addChild(orderItem);
+                    for (var i=0;i<this.state['orders'].length;i++){
+                        var orderItem = this.body('order'+i);
+                        orderItem.registerAnimation('scale',{x:0.5,y:0.5},0.5);
+                        orderItem.runAnimations();
+                    }
 
-                    //TODO add smaller item icons, since child sprites inherit scale from parent
 
-                    this.setBody('order1',orderItem);
-                    //orderBg.addChild(orderItem);
-                    this.body('container').addChild(orderItem);
 
                     console.log('order item', orderItem);
                 }
