@@ -88,7 +88,7 @@ _.extend( CustomerLane.prototype, {
                 customer.registerAnimation('position', { x:destination[0], y:destination[1] }, 1);
 
                 customer.runAnimations( function(){
-                   customer.setFrame(1);
+                    customer.setFrame(1);
                     self.body('plate').setFrame(0); // plate is closed
                 });
             },
@@ -110,16 +110,14 @@ _.extend( CustomerLane.prototype, {
             placeOrder: function( orders ){
                 // i.e. orders = ['veggie','meat','drink','veggie','dessert'];
 
+                var self = this;
+
                 this.state['customerOrdered'] = true;
 
-                var self = this;
                 var orderBg = this.body('orderBg');
-
                 orderBg.setFrame(orders.length-1);
 
                 var orderPositions = this.call('generateOrderPositions', orders.length);
-
-                console.log('order positions',orderPositions);
 
                 // create hidden dish items
                 _.each(orders, function(order, index){
@@ -136,45 +134,40 @@ _.extend( CustomerLane.prototype, {
                 this.state['orders'] = orders;
 
 
-
                 var goal = this.location('orderPlaced');
                 orderBg._entity.visible = true;
                 orderBg.registerAnimation('alpha',1,0.5,{parallel:true});
-                orderBg.place( goal[0],goal[1], 1, revealOrder.bind(self));
+                orderBg.place( goal[0],goal[1], 1, function(){
+                    self.call('revealOrder')
+                });
 
+            },
 
-                function revealOrder(){
-                    console.log('order placed');
-                    //TODO add smaller item icons, since child sprites inherit scale from parent
+            revealOrder: function() {
+                console.log('order placed');
+                //TODO add smaller item icons, since child sprites inherit scale from parent
 
-                    for (var i=0;i<this.state['orders'].length;i++){
-                        var orderItem = this.body('order'+i);
-                        //var orderItem = this.bodiesWithTag('order')[i];
-                        orderItem.registerAnimation('scale',{x:0.5,y:0.5},0.5);
-                        orderItem.runAnimations();
-                    }
-
-
-                    // TODO broadcast customer ready
-                    this.body('plate').setFrame(2); // plate is open
-                    this.state['customerTaken'] = false;
-
-                    console.log('order item', orderItem);
+                for (var i=0;i<this.state['orders'].length;i++){
+                    var orderItem = this.body('order'+i);
+                    orderItem.registerAnimation('scale',{x:0.5,y:0.5},0.5);
+                    orderItem.runAnimations();
                 }
+
+                this.call('updatePlate','open');
+                console.log('order item', orderItem);
             },
 
             cancelOrder: function(){
+                // Shrink all orders
 
-
+                // Fade order bubble
             },
 
             serveOrder: function( servings ){
                 var self = this;
 
                 // Lock customer
-                // TODO broadcast customer busy
-                this.body('plate').setFrame(0); // plate is closed
-                this.state['customerTaken'] = true;
+                this.call('updatePlate','closed');
 
                 this.state['served'] = [];
                 var servedCache = [];
@@ -202,8 +195,7 @@ _.extend( CustomerLane.prototype, {
                     });
                 } else {
                     // Release customer
-                    this.body('plate').setFrame(2); // plate is open
-                    this.state['customerTaken'] = false;
+                    this.call('updatePlate','open');
                 }
 
             },
@@ -227,8 +219,7 @@ _.extend( CustomerLane.prototype, {
                     orderBubble.setFrame(orders.length-1);
 
                     // Release customer
-                    this.body('plate').setFrame(2); // plate is open
-                    this.state['customerTaken'] = false;
+                    this.call('updatePlate','open');
 
                 } else {
                     orderBubble.fade(0,0.5);
@@ -261,22 +252,26 @@ _.extend( CustomerLane.prototype, {
 
             updatePlate: function( status ){
 
-               switch(status){
+                switch(status){
 
-                   case 'empty':
+                    case 'empty':
+                        this.body('plate').setFrame(1); // plate is empty
+                        this.state['customerTaken'] = true;
+                        break;
 
-                       break;
+                    case 'closed':
+                        this.body('plate').setFrame(0); // plate is closed
+                        this.state['customerTaken'] = true;
+                        break;
 
-                   case 'closed':
+                    case 'open':
+                        this.body('plate').setFrame(2); // plate is open
+                        this.state['customerTaken'] = false;
+                        break;
 
-                       break;
+                }
 
-                   case 'open':
-
-                       break;
-
-               }
-
+                //TODO broadcast status !!!
             },
 
 
@@ -335,7 +330,6 @@ _.extend( CustomerLane.prototype, {
                     self.removeBody('orderServed');
 
                     if (callback) callback();
-                    //callback();
                 });
             },
 
@@ -345,7 +339,7 @@ _.extend( CustomerLane.prototype, {
                 var payout = 0;
                 // Calculate total payment from dishes served
                 _.each( servedItems, function(item){
-                   payout+=self.state['payouts'][item];
+                    payout+=self.state['payouts'][item];
                 });
 
                 console.log('payout',payout);
@@ -366,8 +360,6 @@ _.extend( CustomerLane.prototype, {
                 // Move coins into center pot
                 _.each(coins, function(coin){
                     var target = PRIZM.Layout.randomPositionNear([0,400],150);
-
-                    //coin.registerAnimation('scale',{x:1,y:1},1,{parallel:true});
                     coin.registerAnimation('scale',{x:1,y:1},0.3);
                     coin.place(target.x, target.y, 1);
                 })
@@ -379,8 +371,7 @@ _.extend( CustomerLane.prototype, {
                 var destination = this.location('entry');
 
                 // TODO broadcast customer empty
-                this.body('plate').setFrame(1); // plate is empty
-                this.state['customerTaken'] = true;
+                this.call('updatePlate','empty');
 
                 customer.setFrame(2); // customer walking
 

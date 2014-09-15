@@ -25,7 +25,7 @@ bindPrivateClientMethods = function( key, methods ){
             table = this.view.factory.makeBody2D( 'mainContext', 'table',
                 this.view.locations.center(), { variant: 'private', scale:0.5 } );
 
-            seatPositions = positionsAlongRadius( this.view.locations.center(), 130,
+            seatPositions = PRIZM.Layout.positionsAlongRadius( this.view.locations.center(), 130,
                 [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
                         Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
 
@@ -40,7 +40,7 @@ bindPrivateClientMethods = function( key, methods ){
             tray = this.view.factory.makeBody2D( 'mainContext', 'tray',
                 this.view.locations.center(), { scale:0.6 } );
 
-            trayPositions = positionsAlongRadius( this.view.locations.center(), 55,
+            trayPositions = PRIZM.Layout.positionsAlongRadius( this.view.locations.center(), 55,
                 [0, Math.PI*2/5, Math.PI*4/5, Math.PI*6/5, Math.PI*8/5 ]);
 
             _.each( trayPositions, function( position ){
@@ -51,7 +51,7 @@ bindPrivateClientMethods = function( key, methods ){
 
 
             // Dish order buttons
-            orderButtonPositions = distributePositionsAcrossWidth(
+            orderButtonPositions = PRIZM.Layout.distributePositionsAcrossWidth(
                 {x:self.view.width/2,y:self.view.height-60}, 4, 220 );
 
             _.each( orderButtonPositions, function(position){
@@ -116,8 +116,6 @@ bindPublicClientMethods = function(){
             console.log('setupDefaultWorld',this);
             var self = this;
 
-
-
             config = Session.get('gameState_configuration');
 
             // Set global background colors
@@ -128,19 +126,9 @@ bindPublicClientMethods = function(){
             table = this.view.factory.makeBody2D( 'mainContext', 'table',
                 this.view.locations.center(), { variant: 'public' } );
 
-//            seatPositions = positionsAlongRadius( this.view.locations.center(), 320,
-//                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
-//                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
-//
-//            _.each(seatPositions, function( position ){
-//                var seat = self.view.factory.makeBody2D( 'mainContext', 'seat',
-//                    { x:position[0], y:position[1]},
-//                    { variant: 'neutral', rotation: position[2] } );
-//            });
-
 
             // Customers
-            seatedPositions = positionsAlongRadius( this.view.locations.center(), 440,
+            seatedPositions = PRIZM.Layout.positionsAlongRadius( this.view.locations.center(), 440,
                 [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
                         Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
 
@@ -163,9 +151,7 @@ bindPublicClientMethods = function(){
 
             _.each(lanes, function(lane){
                 if (lane.state['customerPresent'] == false){
-                    //var orders = self.call('generateRandomOrder');
                     lane.call('customerEnter');
-                    //lane.call('placeOrder',orders);
                 }
             })
         },
@@ -221,31 +207,3 @@ Deps.autorun(function(){
     }
 
 });
-
-function positionsAlongRadius( origin, length, angles ){
-    var positions = [];
-    _.each(angles, function(angle){
-        positions.push(positionAlongRadius(_.clone(origin), length, angle));
-    });
-
-    return positions;
-}
-
-
-function positionAlongRadius( origin, length, angle ){
-
-    var x = Math.sin(angle)*length;
-    var y = Math.cos(angle)*length;
-
-    return [ origin.x+Math.round(x), origin.y-Math.round(y), angle ];
-}
-
-function distributePositionsAcrossWidth( origin, count, width ){
-
-    var positions = [];
-    for (var p=0; p<count; p++){
-        positions.push([ origin.x+p*width/(count-1)-(width/2), origin.y ]);
-    }
-
-    return positions;
-}
