@@ -37,31 +37,57 @@ _.extend( TrayNode.prototype, {
         table = this.world.view.factory.makeBody2D( 'mainContext', 'table',
             this.world.view.locations.center(), { variant: 'private', scale:0.5 } );
 
-        seatPositions = PRIZM.Layout.positionsAlongRadius( this.world.view.locations.center(), 130,
+        platePositions = PRIZM.Layout.positionsAlongRadius(
+            this.world.view.locations.center(), 130,
             [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
                     Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
 
-        _.each(seatPositions, function( position ){
-            var seat = self.world.view.factory.makeBody2D( 'mainContext', 'seat',
+        _.each(platePositions, function( position ){
+
+            var plate = self.world.view.factory.makeBody2D( 'mainContext', 'seat',
                 { x:position[0], y:position[1]},
-                { variant: 'neutral', scale:0.5, rotation: position[2] } );
+                { currentFrame: 1, frames :true, scale:0.4, rotation: position[2] } );
+            plate.addTag('plate');
         });
+
+        // Bind UI for pan over tray
+        //        boxTgt = uiManager.addBoxTarget(0,0,self.world.view.width,self.world.view.height,'mainContext');
+//        boxTgt.setBehavior( 'tap', null, null, function( event ){
+//            console.log('box tap stop',event);
+//        });
+//        boxTgt.setBehavior( 'pan',
+//            function( event ){
+//                console.log('box pan start',event);
+//            },
+//            function( event ){
+//                console.log('box pan update',event);
+//                //b1.place( event.center.x, event.center.y, 0 );
+//                //b1.place( b1.x+event.deltaX, b1.y+event.deltaY );
+//            },
+//            function( event ){
+//                console.log('box pan stop',event);
+//            });
+//
+//        boxTgt.activate();
+
 
 
         // Player's Tray
         tray = this.world.view.factory.makeBody2D( 'mainContext', 'tray',
             this.world.view.locations.center(), { scale:0.6 } );
 
-        trayPositions = PRIZM.Layout.positionsAlongRadius( this.world.view.locations.center(), 70,
+        trayPositions = PRIZM.Layout.positionsAlongRadius(
+            this.world.view.locations.center(), 70,
             [0, Math.PI*2/5, Math.PI*4/5, Math.PI*6/5, Math.PI*8/5 ]);
 
         _.each( trayPositions, function( position ){
             var slot = self.world.view.factory.makeBody2D( 'mainContext', 'dishStatus',
                 { x:position[0], y:position[1]},
                 { variant: 'cooking', scale:0.4 } );
+            slot.addTag('traySlot');
         });
 
-
+        // Bind UI target for each order button
 
 
 
