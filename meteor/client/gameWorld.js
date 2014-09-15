@@ -153,7 +153,7 @@ bindPublicClientMethods = function(){
                 self.addNode(lane);
             });
 
-
+            lanes = this.nodesWithTag('customerLane');
         },
 
         welcomeCustomers: function(){
@@ -163,7 +163,7 @@ bindPublicClientMethods = function(){
 
             _.each(lanes, function(lane){
                 if (lane.state['customerPresent']==false){
-                    var orders = self.call('generateRandomOrder');
+                    //var orders = self.call('generateRandomOrder');
                     lane.call('customerEnter');
                     //lane.call('placeOrder',orders);
                 }

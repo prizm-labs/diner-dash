@@ -64,7 +64,7 @@ _.extend( CustomerLane.prototype, {
 
         var plate = this.world.view.factory.makeBody2D( 'mainContext', 'seat',
             this.location('plateOrigin'),
-            { variant: 'neutral' } );
+            { currentFrame: 1, frames :true } );
         container.addChild(plate);
         this.setBody('plate',plate);
 
@@ -74,7 +74,9 @@ _.extend( CustomerLane.prototype, {
         this.methods({
 
             customerEnter: function( ){
+                var self = this;
 
+                this.state['customerTaken'] = true;
                 this.state['customerPresent'] = true;
                 var customer = this.body('customer');
                 var destination = this.location('seated');
@@ -86,6 +88,7 @@ _.extend( CustomerLane.prototype, {
 
                 customer.runAnimations( function(){
                    customer.setFrame(1);
+                    self.body('plate').setFrame(0); // plate is closed
                 });
             },
 
@@ -150,6 +153,9 @@ _.extend( CustomerLane.prototype, {
                     }
 
 
+                    // TODO broadcast customer ready
+                    this.body('plate').setFrame(2); // plate is open
+                    this.state['customerTaken'] = false;
 
                     console.log('order item', orderItem);
                 }
@@ -160,12 +166,14 @@ _.extend( CustomerLane.prototype, {
 
             },
 
-            customerRevealOrder: function(){
-
-            },
-
             serveOrder: function( servings ){
                 var self = this;
+
+                // Lock customer
+                // TODO broadcast customer busy
+                this.body('plate').setFrame(0); // plate is closed
+                this.state['customerTaken'] = true;
+
                 this.state['served'] = [];
                 var servedCache = [];
                 // Find servings matched to orders
@@ -190,6 +198,10 @@ _.extend( CustomerLane.prototype, {
                         self.call('updateOrder');
                         self.call('makePayment',servedCache);
                     });
+                } else {
+                    // Release customer
+                    this.body('plate').setFrame(2); // plate is open
+                    this.state['customerTaken'] = false;
                 }
 
             },
@@ -211,9 +223,18 @@ _.extend( CustomerLane.prototype, {
 
                     // Resize background bubble
                     orderBubble.setFrame(orders.length-1);
+
+                    // Release customer
+                    this.body('plate').setFrame(2); // plate is open
+                    this.state['customerTaken'] = false;
+
                 } else {
                     orderBubble.fade(0,0.5);
+
+                    // Customer leaves after order is complete
+                    this.call('customerExit');
                 }
+
 
             },
 
@@ -234,9 +255,25 @@ _.extend( CustomerLane.prototype, {
                         self.call('consumeNextItem',callback);
                     }])
                 }
+            },
 
+            updatePlate: function( status ){
 
+               switch(status){
 
+                   case 'empty':
+
+                       break;
+
+                   case 'closed':
+
+                       break;
+
+                   case 'open':
+
+                       break;
+
+               }
 
             },
 
@@ -339,16 +376,19 @@ _.extend( CustomerLane.prototype, {
                 var customer = this.body('customer');
                 var destination = this.location('entry');
 
-                customer.setFrame(2);
+                // TODO broadcast customer empty
+                this.body('plate').setFrame(1); // plate is empty
+                this.state['customerTaken'] = true;
 
-                // TODO add delay for fade, after rotation
-
+                customer.setFrame(2); // customer walking
 
                 customer.rotate( Math.PI, 0.4, function(){
                     customer.registerAnimation('alpha',0,1.25,{parallel:true});
                     //customer.registerAnimation('rotation',Math.PI,0.4, {parallel:true});
                     customer.place( destination[0], destination[1], 1, function(){
                         self.state['customerPresent'] = false;
+
+
                     });
                 });
 
