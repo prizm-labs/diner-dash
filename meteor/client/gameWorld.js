@@ -126,15 +126,15 @@ bindPublicClientMethods = function(){
             table = this.view.factory.makeBody2D( 'mainContext', 'table',
                 this.view.locations.center(), { variant: 'public' } );
 
-            seatPositions = positionsAlongRadius( this.view.locations.center(), 320,
-                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
-                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
-
-            _.each(seatPositions, function( position ){
-                var seat = self.view.factory.makeBody2D( 'mainContext', 'seat',
-                    { x:position[0], y:position[1]},
-                    { variant: 'neutral', rotation: position[2] } );
-            });
+//            seatPositions = positionsAlongRadius( this.view.locations.center(), 320,
+//                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
+//                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
+//
+//            _.each(seatPositions, function( position ){
+//                var seat = self.view.factory.makeBody2D( 'mainContext', 'seat',
+//                    { x:position[0], y:position[1]},
+//                    { variant: 'neutral', rotation: position[2] } );
+//            });
 
 
             // Customers
