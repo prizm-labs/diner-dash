@@ -116,6 +116,8 @@ bindPublicClientMethods = function(){
             console.log('setupDefaultWorld',this);
             var self = this;
 
+
+
             config = Session.get('gameState_configuration');
 
             // Set global background colors
@@ -145,66 +147,62 @@ bindPublicClientMethods = function(){
 
             _.each( seatedPositions, function( position ){
 
-               lane = new CustomerLane();
+                var lane = new CustomerLane();
                 lane.init(position[0], position[1], position[2], self);
-                //console.dir(lane);
-                //lane.call('init', position[0], position[1], position[2], self);
 
+                self.addNode(lane);
             });
 
-//            _.each( seatedPositions, function( position ){
-//
-//                var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
-//                    { x:position[0], y:position[1]},
-//                    { variant: 'happy', rotation: position[2] } );
-//            });
-//
-//            entryPositions = positionsAlongRadius( this.view.locations.center(), 700,
-//                [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
-//                        Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
-//
-//            _.each( entryPositions, function( position ){
-//
-//                var customer = self.view.factory.makeBody2D( 'mainContext', 'customer',
-//                    { x:position[0], y:position[1]},
-//                    { variant: 'walking', rotation: position[2] } );
-//            });
-//
-//
-//            _.each( seatedPositions, function(seatPosition) {
-//
-//                var orderGroup = self.view.factory.makeGroup2D( 'mainContext',
-//                    {
-//                        x:seatPosition[0], y:seatPosition[1]
-//                    });
-//
-//                var orderBackground = self.view.factory.makeBody2D( 'mainContext', 'orderBackground',
-//                    { x:0, y:0},
-//                    { variant: '5' } );
-//
-//                orderGroup.addChild(orderBackground);
-//
-//                // items
-//                var itemPositions = distributePositionsAcrossWidth(
-//                    {x:0, y:-7 },
-//                    5, 300
-//                );
-//
-//                _.each(itemPositions, function( position ){
-//
-//                    var orderItem = self.view.factory.makeBody2D( 'mainContext', 'dish',
-//                        { x:position[0], y:position[1]},
-//                        { variant: 'drink', scale:0.5 } );
-//
-//                    orderGroup.addChild(orderItem);
-//
-//                });
-//
-//                orderGroup.setPivot(0,110);
-//                orderGroup.rotate(seatPosition[2]);
-//
-//            });
 
+        },
+
+        welcomeCustomers: function(){
+            var self = this;
+            var lanes = this.nodesWithTag('customerLane');
+            console.log('welcomeCustomers',lanes);
+
+            _.each(lanes, function(lane){
+                if (lane.state['customerPresent']==false){
+                    var orders = self.call('generateRandomOrder');
+                    lane.call('customerEnter');
+                    //lane.call('placeOrder',orders);
+                }
+            })
+        },
+
+        customersOrder: function(){
+            var self = this;
+            var lanes = this.nodesWithTag('customerLane');
+            console.log('customersOrder',lanes);
+
+            _.each(lanes, function(lane){
+//                if (lane.state['customerPresent']==false){
+                    var orders = self.call('generateRandomOrder');
+//                    lane.call('customerEnter');
+                    lane.call('placeOrder',orders);
+//                }
+            })
+        },
+
+        generateRandomOrder: function(){
+
+            this.state['orderTypes'] = ['drink','veggie','meat','dessert'];
+            this.state['orderLimit'] = 5;
+
+            var result = [];
+            var count = Math.floor(Math.random()*this.state['orderLimit'])+1;
+
+            do {
+                var index = Math.floor(Math.random()*this.state['orderTypes'].length);
+
+                result.push(this.state['orderTypes'][index]);
+
+                count--;
+            } while (count>0);
+
+            console.log('generateRandomOrder',result);
+
+            return result;
         }
     });
 

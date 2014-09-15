@@ -33,6 +33,7 @@ Layout = {
     },
 
     distributePositionsAcrossWidth: function( origin, count, width ){
+        console.log('distributePositionsAcrossWidth',origin, count, width);
         origin = this.arrayToPoint(origin);
 
         var positions = [];

@@ -18,6 +18,8 @@ _.extend( CustomerLane.prototype, {
 
         this.world = world;
 
+        this.addTag('customerLane');
+
         // Create object container and rotate to align with radius
         var container = this.world.view.factory.makeGroup2D( 'mainContext',
             { x:x, y:y });
@@ -30,6 +32,18 @@ _.extend( CustomerLane.prototype, {
         this.setLocation('orderPlaced', 0, -105);
         this.setLocation('orderItemOrigin', 0, -112);
         this.setLocation('plateOrigin',0,120);
+
+        // What are total length of order bubbles per item count???
+        this.state['orderWidths'] = [
+            0, 80, 154, 230, 300
+        ];
+        this.state['payouts'] = {
+            drink: 1,
+            veggie: 3,
+            meat: 6,
+            dessert: 2.5
+        };
+        this.state['customerPresent'] = false;
 
 
         var customer = this.world.view.factory.makeBody2D( 'mainContext', 'customer',
@@ -60,6 +74,8 @@ _.extend( CustomerLane.prototype, {
         this.methods({
 
             customerEnter: function( ){
+
+                this.state['customerPresent'] = true;
                 var customer = this.body('customer');
                 var destination = this.location('seated');
 
@@ -73,29 +89,30 @@ _.extend( CustomerLane.prototype, {
                 });
             },
 
-            customerPlaceOrder: function( orders ){
+            generateOrderPositions: function( count ){
+                var orderPositions = [];
 
-                orders = ['veggie','meat','drink','veggie','dessert'];
+                // generate positions for dish items
+                if (count==1) {
+                    orderPositions.push(this.location('orderItemOrigin'));
+                } else {
+                    orderPositions = Layout.distributePositionsAcrossWidth(
+                        this.location('orderItemOrigin'), count, this.state['orderWidths'][count-1]);
+                }
+
+                return orderPositions;
+            },
+
+            placeOrder: function( orders ){
+
+                //orders = ['veggie','meat','drink','veggie','dessert'];
 
                 var self = this;
                 var orderBg = this.body('orderBg');
 
-                // TODO what are total length of order bubbles per item count???
-
                 orderBg.setFrame(orders.length-1);
 
-                var orderPositions = [];
-                var orderBgWidths = [
-                  0, 80, 154, 230, 300
-                ];
-
-                // generate positions for dish items
-                if (orders.length==1) {
-                    orderPositions.push(this.location('orderItemOrigin'));
-                } else {
-                    orderPositions = Layout.distributePositionsAcrossWidth(
-                        this.location('orderItemOrigin'),orders.length,orderBgWidths[orders.length-1]);
-                }
+                var orderPositions = this.call('generateOrderPositions', orders.length);
 
                 console.log('order positions',orderPositions);
 
@@ -105,11 +122,9 @@ _.extend( CustomerLane.prototype, {
                         orderPositions[index],{ variant: order, scale:0.01 } );
 
                     //TODO add smaller item icons, since child sprites inherit scale from parent
-
                     orderItem.addTag(order);
                     orderItem.addTag('order');
                     self.setBody('order'+index,orderItem);
-                    //orderBg.addChild(orderItem);
                     self.body('container').addChild(orderItem);
                 });
 
@@ -140,28 +155,66 @@ _.extend( CustomerLane.prototype, {
                 }
             },
 
+            cancelOrder: function(){
+
+
+            },
+
             customerRevealOrder: function(){
 
             },
 
-            customerUpdateOrder: function( servings ){
+            serveOrder: function( servings ){
                 var self = this;
-                servings = ['veggie','drink','meat'];
-
+                this.state['served'] = [];
+                var servedCache = [];
                 // Find servings matched to orders
-                //var served = _.intersection(this.state['orders'],servings);
-                this.state['served'] = _.intersection(this.state['orders'],servings);
 
-                this.state['orders'] = _.difference(this.state['orders'],servings);
-                console.log('items to serve',this.state['served'] );
+                _.each(servings,function(item){
 
-
-                this.call('consumeNextItem',function(){
-                    console.log('all items served');
+                    if (self.state['orders'].indexOf(item)!==-1) {
+                        var match = self.state['orders'].splice(self.state['orders'].indexOf(item),1);
+                        self.state['served'] = self.state['served'].concat(match);
+                        servedCache = servedCache.concat(match);
+                    }
                 });
 
-                // Regenerate order bubble
-                console.log('orders after serving',this.state['orders']);
+                console.log('items to serve',this.state['served'] );
+
+                if (this.state['served'].length>0) {
+                    this.call('consumeNextItem',function(){
+                        console.log('all items served');
+                        // Regenerate order bubble
+                        console.log('orders after serving',self.state['orders']);
+
+                        self.call('updateOrder');
+                        self.call('makePayment',servedCache);
+                    });
+                }
+
+            },
+
+            updateOrder: function(){
+                console.log('resetOrder');
+                // Get remaining order bodies
+                var orders = this.bodiesWithTag('order');
+                var orderBubble = this.body('orderBg');
+
+                if (orders.length>0) {
+                    // Calculate new positions
+                    var positions = this.call('generateOrderPositions', orders.length);
+
+                    // Move to new positions
+                    _.each( orders, function(body,index){
+                        body.place( positions[index][0], positions[index][1], 0.2 );
+                    });
+
+                    // Resize background bubble
+                    orderBubble.setFrame(orders.length-1);
+                } else {
+                    orderBubble.fade(0,0.5);
+                }
+
             },
 
 
@@ -247,18 +300,42 @@ _.extend( CustomerLane.prototype, {
                 });
             },
 
-            customerMakePayment: function( ){
-
+            makePayment: function( servedItems ){
+                console.log('makPayment',servedItems);
+                var self = this;
+                var payout = 0;
                 // Calculate total payment from dishes served
+                _.each( servedItems, function(item){
+                   payout+=self.state['payouts'][item];
+                });
+
+                console.log('payout',payout);
 
                 // Create coins in front of customer
+                var coins = [];
+                do {
 
+                    var coin = self.world.view.factory.makeBody2D( 'mainContext', 'coin',
+                        this.location('seated'),{ scale:0.01 } );
+                    self.body('container').addChild(coin);
+                    coin.addTag('coin');
+                    coins.push(coin);
+
+                    payout--;
+                } while (payout>0);
 
                 // Move coins into center pot
+                _.each(coins, function(coin){
+                    var target = PRIZM.Layout.randomPositionNear([0,400],150);
 
+                    //coin.registerAnimation('scale',{x:1,y:1},1,{parallel:true});
+                    coin.registerAnimation('scale',{x:1,y:1},0.3);
+                    coin.place(target.x, target.y, 1);
+                })
             },
 
             customerExit: function( ){
+                var self = this;
                 var customer = this.body('customer');
                 var destination = this.location('entry');
 
@@ -266,10 +343,15 @@ _.extend( CustomerLane.prototype, {
 
                 // TODO add delay for fade, after rotation
 
-                customer.registerAnimation('alpha',0,1.25,{parallel:true});
-                //customer.registerAnimation('rotation',Math.PI,0.4, {parallel:true});
-                customer.rotate( Math.PI, 0.4);
-                customer.place( destination[0], destination[1], 1);
+
+                customer.rotate( Math.PI, 0.4, function(){
+                    customer.registerAnimation('alpha',0,1.25,{parallel:true});
+                    //customer.registerAnimation('rotation',Math.PI,0.4, {parallel:true});
+                    customer.place( destination[0], destination[1], 1, function(){
+                        self.state['customerPresent'] = false;
+                    });
+                });
+
             }
         });
     }
