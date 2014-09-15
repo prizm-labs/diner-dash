@@ -1,12 +1,10 @@
 /**
  * Created by michaelgarrido on 9/13/14.
  */
-
 CustomerLane = function (){
     PRIZM.Node.call(this);
     //Node.call(this);
-}
-
+};
 
 //CustomerLane.prototype = Object.create(Node.prototype);
 CustomerLane.prototype = Object.create(PRIZM.Node.prototype);
@@ -70,7 +68,7 @@ _.extend( CustomerLane.prototype, {
 
 
 
-        //bind methods
+        // Bind methods
         this.methods({
 
             customerEnter: function( ){

@@ -3,6 +3,19 @@
  */
 Meteor.startup(function() {
 
+    Deps.autorun(function(){
+
+        if (Session.get('client_type')){
+
+            if (Session.get('client_type')==='private') {
+                bindPrivateClientMethods();
+            } else if (Session.get('client_type')==='public') {
+                bindPublicClientMethods();
+            }
+
+        }
+
+    });
 
 });
 
