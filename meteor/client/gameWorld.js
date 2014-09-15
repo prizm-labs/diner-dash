@@ -162,7 +162,7 @@ bindPublicClientMethods = function(){
             console.log('welcomeCustomers',lanes);
 
             _.each(lanes, function(lane){
-                if (lane.state['customerPresent']==false){
+                if (lane.state['customerPresent'] == false){
                     //var orders = self.call('generateRandomOrder');
                     lane.call('customerEnter');
                     //lane.call('placeOrder',orders);
@@ -176,11 +176,10 @@ bindPublicClientMethods = function(){
             console.log('customersOrder',lanes);
 
             _.each(lanes, function(lane){
-//                if (lane.state['customerPresent']==false){
+                if (lane.state['customerOrdered'] == false) {
                     var orders = self.call('generateRandomOrder');
-//                    lane.call('customerEnter');
                     lane.call('placeOrder',orders);
-//                }
+                }
             })
         },
 

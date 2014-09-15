@@ -76,6 +76,7 @@ _.extend( CustomerLane.prototype, {
             customerEnter: function( ){
                 var self = this;
 
+                this.state['customerOrdered'] = false;
                 this.state['customerTaken'] = true;
                 this.state['customerPresent'] = true;
                 var customer = this.body('customer');
@@ -107,8 +108,9 @@ _.extend( CustomerLane.prototype, {
             },
 
             placeOrder: function( orders ){
+                // i.e. orders = ['veggie','meat','drink','veggie','dessert'];
 
-                //orders = ['veggie','meat','drink','veggie','dessert'];
+                this.state['customerOrdered'] = true;
 
                 var self = this;
                 var orderBg = this.body('orderBg');
@@ -383,12 +385,11 @@ _.extend( CustomerLane.prototype, {
                 customer.setFrame(2); // customer walking
 
                 customer.rotate( Math.PI, 0.4, function(){
-                    customer.registerAnimation('alpha',0,1.25,{parallel:true});
+                    customer.registerAnimation('alpha',0,0.7,{parallel:true});
                     //customer.registerAnimation('rotation',Math.PI,0.4, {parallel:true});
                     customer.place( destination[0], destination[1], 1, function(){
                         self.state['customerPresent'] = false;
-
-
+                        console.log('customer left',self);
                     });
                 });
 
