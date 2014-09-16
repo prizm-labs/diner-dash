@@ -23,7 +23,17 @@ Meteor.methods({
     'clientReadyForGameSession': function( clientId, arenaId ){
         console.log('client stub: clientReadyForGameSession');
 
-        gameWorld.call('setupDefaultWorld');
+        // Bind stream for real-time data
+        setTimeout(function() {
+            Meteor.call('requestGameStream', Session.get('client_id'), Session.get('gameState_id'),
+                function (error, result) {
+                    console.log('client requestGameStream', error, result);
+
+                    bindGameStream(Session.get('gameState_id'));
+                });
+        },0);
+
+        //gameWorld.call('setupDefaultWorld');
     }
 })
 
@@ -98,6 +108,7 @@ Meteor.ClientCall.methods({
 
         // Cache game config data for hot code reload
         Session.set('gameState_configuration',args);
+        Session.set('gameState_id',args.gameStateId);
 
 
         createGameWorldFromConfiguration( args );
@@ -107,6 +118,7 @@ Meteor.ClientCall.methods({
 });
 
 createGameWorldFromConfiguration = function( config ){
+
     // TODO Subscribe to gameState document, shared with all clients
     //connectionStore = subscriptions.activate.gameState(config.gameStateId);
 

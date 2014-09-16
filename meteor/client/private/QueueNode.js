@@ -157,8 +157,8 @@ _.extend( QueueNode.prototype, {
 
                 // Show feedback
                 //body.resize(0.6,0.6, 0.2);
-                body.registerAnimation('scale',{x:0.35,y:0.35},0.2);
-                body.resize(0.5,0.5, 0.3);
+                body.registerAnimation('scale',{x:0.35,y:0.35},0.15);
+                body.resize(0.5,0.5, 0.2);
 
                 self.call('queueItem',body.state['itemType']);
             });

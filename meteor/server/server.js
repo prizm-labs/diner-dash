@@ -7,6 +7,32 @@
 
 Meteor.methods({
 
+    // Stream helpers
+    'requestGameStream': function( clientId, gameStateId ){
+
+        console.log('active streams', STREAMS);
+
+        if (!STREAMS[gameStateId]) {
+
+            console.log('new game stream',gameStateId);
+            STREAMS[gameStateId] = bindGameStream(gameStateId);
+
+        }
+
+
+        //{"_id" : "61175b8e-101f-4434-b171-cafa16e5adf5",
+        // "connection" : "PkbdnPDiTfFEcHk5g",
+        // "type" : "public",
+        // "viewer_id" : null, "arena_id" : null, "preloaded" : true }
+
+        //{ "_id" : "4954e8e2-725f-4888-a4bc-7423b699e41f",
+        // "arena_id" : "gweQHKJMBKttNbNE2",
+        // "connection" : "pwjPtgTBDZ2rbbxJp", "preloaded" : true,
+        // "type" : "private", "viewer_id" : "MRpCw97a4tnH6GmXL" }
+
+        return true;
+    },
+
     // Shape helpers
     'curveAroundOrigin': function( origin, width, height, steps ){
         console.log('quadraticCurveAroundOrigin');
@@ -295,6 +321,10 @@ function teardownSession( connection ){
 
 
 Meteor.startup(function () {
+
+
+    STREAMS = {};
+
 
     // https://github.com/arunoda/meteor-streams/issues/17
     Meteor.onConnection(function(connection) {
