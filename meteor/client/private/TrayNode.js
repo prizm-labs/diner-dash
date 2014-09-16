@@ -32,6 +32,45 @@ _.extend( TrayNode.prototype, {
             dessert: 0.5
         };
 
+        this.state['trayLoadout'] = [];
+
+
+        this.methods({
+
+            loadItem: function( item ){
+
+            },
+
+            updatePlate: function( index ){
+
+            },
+
+            serveCustomer: function( direction ){
+                console.log('serveCustomer',direction);
+                // Broadcast loadout
+
+                // Get valid servings
+
+                // Animate valid servings
+
+                // Receive payment
+
+            },
+
+            removeItem: function( index ){
+
+            }
+
+        });
+
+        // Finally render node
+        this.render();
+    },
+
+    render: function( configuration ){
+        var self = this;
+
+        //TODO pass in layout configuration from browser screen size !!!
 
         // Table & Seats
         table = this.world.view.factory.makeBody2D( 'mainContext', 'table',
@@ -42,14 +81,60 @@ _.extend( TrayNode.prototype, {
             [0, Math.PI/4, Math.PI/2, Math.PI/4*3, Math.PI,
                     Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
 
-        _.each(platePositions, function( position ){
+        _.each(platePositions, function (position, index) {
 
             var plate = self.world.view.factory.makeBody2D( 'mainContext', 'seat',
                 { x:position[0], y:position[1]},
                 { currentFrame: 1, frames :true, scale:0.4, rotation: position[2] } );
             plate.addTag('plate');
+            plate.state['directionIndex'] = index;
+
+            self.setLocation('plate'+index,position[0],position[1]);
             self.addBody(plate);
         });
+
+        // Player's Tray
+        tray = this.world.view.factory.makeBody2D( 'mainContext', 'tray',
+            this.world.view.locations.center(), { scale:0.6 } );
+
+        trayPositions = PRIZM.Layout.positionsAlongRadius(
+            this.world.view.locations.center(), 70,
+            [0, Math.PI*2/5, Math.PI*4/5, Math.PI*6/5, Math.PI*8/5 ]);
+
+        _.each( trayPositions, function( position ){
+            var slot = self.world.view.factory.makeBody2D( 'mainContext', 'dishStatus',
+                { x:position[0], y:position[1]},
+                { variant: 'cooking', scale:0.4 } );
+            slot.addTag('traySlot');
+        });
+
+
+        // https://graph.facebook.com/10203388818815570/picture?type=large&height=500&width=500
+        // Player avatars
+        var avatarUrls = ['https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xaf1/v/t1.0-1/c32.113.402.402/197820_10200365622437550_1307454223_n.jpg?oh=8c158d69e3b36d07539b721b9cd0f404&oe=5492CF89&__gda__=1418764606_1684123b2a18eb8f4ab3bc3252c1e156',
+            'https://lh5.googleusercontent.com/-TbxFjAU9Vpg/AAAAAAAAAAI/AAAAAAAAAJU/ZiJRz12XYco/photo.jpg'];
+        var avatarManifest = [
+            [ 'avatar', {
+                'p1':'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xaf1/v/t1.0-1/c32.113.402.402/197820_10200365622437550_1307454223_n.jpg?oh=8c158d69e3b36d07539b721b9cd0f404&oe=5492CF89&__gda__=1418764606_1684123b2a18eb8f4ab3bc3252c1e156',
+                'p2':'https://lh5.googleusercontent.com/-TbxFjAU9Vpg/AAAAAAAAAAI/AAAAAAAAAJU/ZiJRz12XYco/photo.jpg'}]
+        ];
+
+        self.world.view.factory.loadTemplates2D('mainContext',avatarUrls,avatarManifest,function(){
+            avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
+                self.world.view.locations.center(), { variant:'p1', scale: 0.3 } );
+
+            self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
+                { shape:'circle', position:self.world.view.locations.center(), size:60 } );
+        }, true);
+
+
+        //TODO cleanup timing for binding UI
+        self.bindUI();
+
+    },
+
+    bindUI: function(){
+        var self = this;
 
         var plates = self.bodiesWithTag('plate');
 
@@ -59,14 +144,17 @@ _.extend( TrayNode.prototype, {
 
             console.log('plate button', body._entity, bounds);
 
-            boxTgt = self.world.view.UI.addCircleTarget( bounds[0],bounds[1], Math.max(bounds[2],bounds[3])/2, 'mainContext');
+            var target = self.world.view.UI.addCircleTarget( bounds[0],bounds[1], Math.max(bounds[2],bounds[3])/2, 'mainContext');
 
             //boxTgt = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
-            boxTgt.setBehavior( 'tap', null, null, function( event ){
-                console.log('circle tap stop',event);
+            target.setBehavior( 'tap', null, null, function( event ){
+                console.log('plate direction tap',event);
+
+
+                self.call('serveCustomer',body.state['directionIndex']);
             });
 
-            boxTgt.activate();
+            target.activate();
         });
 
         // Bind UI for pan over tray
@@ -89,68 +177,5 @@ _.extend( TrayNode.prototype, {
 //
 //        boxTgt.activate();
 
-
-
-        // Player's Tray
-        tray = this.world.view.factory.makeBody2D( 'mainContext', 'tray',
-            this.world.view.locations.center(), { scale:0.6 } );
-
-        trayPositions = PRIZM.Layout.positionsAlongRadius(
-            this.world.view.locations.center(), 70,
-            [0, Math.PI*2/5, Math.PI*4/5, Math.PI*6/5, Math.PI*8/5 ]);
-
-        _.each( trayPositions, function( position ){
-            var slot = self.world.view.factory.makeBody2D( 'mainContext', 'dishStatus',
-                { x:position[0], y:position[1]},
-                { variant: 'cooking', scale:0.4 } );
-            slot.addTag('traySlot');
-        });
-
-        // Bind UI target for each order button
-
-
-
-
-// https://graph.facebook.com/10203388818815570/picture?type=large&height=500&width=500
-        // Player avatars
-        var avatarUrls = ['https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xaf1/v/t1.0-1/c32.113.402.402/197820_10200365622437550_1307454223_n.jpg?oh=8c158d69e3b36d07539b721b9cd0f404&oe=5492CF89&__gda__=1418764606_1684123b2a18eb8f4ab3bc3252c1e156',
-            'https://lh5.googleusercontent.com/-TbxFjAU9Vpg/AAAAAAAAAAI/AAAAAAAAAJU/ZiJRz12XYco/photo.jpg'];
-        var avatarManifest = [
-            [ 'avatar', {
-                'p1':'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xaf1/v/t1.0-1/c32.113.402.402/197820_10200365622437550_1307454223_n.jpg?oh=8c158d69e3b36d07539b721b9cd0f404&oe=5492CF89&__gda__=1418764606_1684123b2a18eb8f4ab3bc3252c1e156',
-                'p2':'https://lh5.googleusercontent.com/-TbxFjAU9Vpg/AAAAAAAAAAI/AAAAAAAAAJU/ZiJRz12XYco/photo.jpg'}]
-        ];
-
-        self.world.view.factory.loadTemplates2D('mainContext',avatarUrls,avatarManifest,function(){
-            avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
-                self.world.view.locations.center(), { variant:'p1', scale: 0.3 } );
-
-            self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
-                { shape:'circle', position:self.world.view.locations.center(), size:60 } );
-        }, true);
-
-
-        this.methods({
-
-            loadItem: function( item ){
-
-            },
-
-            updatePlate: function( index ){
-
-            },
-
-            serveCustomer: function( index ){
-
-            },
-
-            removeItem: function(){
-
-            }
-
-        });
-
     }
-
-    //
 });

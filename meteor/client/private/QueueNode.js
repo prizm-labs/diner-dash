@@ -31,8 +31,65 @@ _.extend( QueueNode.prototype, {
             dessert: 0.5
         };
 
+        this.state['queueSlots'] = [null,null,null,null,null];
 
-        //TODO pass in layout confguration from browser screen size !!!
+
+        this.methods({
+
+            queueItem: function (item) {
+
+                // Get first empty queue slot
+                // from left to right
+                var emptySlotIndex = _.indexOf(this.state['queueSlots'],null);
+
+                console.log('queueItem',emptySlotIndex,item);
+
+                if (emptySlotIndex!==-1) {
+                   this.apply('prepareItem', [item,emptySlotIndex]);
+                    return true;
+                } else {
+                    return false;
+                }
+            },
+
+            prepareItem: function (variant, slot) {
+                var position = this.location('queue'+slot);
+
+                console.log('prepareItem', variant, slot, position);
+
+                this.state['queueSlots'][slot] = variant;
+                console.log('queue slots',this.state['queueSlots']);
+
+                var button =  this.world.view.factory.makeBody2D( 'mainContext', 'dish',
+                    { x:position[0], y:position[1]},
+                    { variant: variant, scale:0.01 } );
+                button.addTags(['queueButton',variant]);
+                button.state['itemType'] = variant;
+                this.addBody(button);
+
+                button.resize(0.5,0.5, 0.4);
+            },
+
+            itemReady: function (item, slot) {
+
+            },
+
+            loadItem: function (item) {
+
+            }
+
+        });
+
+
+
+        // Finally render node
+        this.render();
+    },
+
+    render: function( configuration ){
+        var self = this;
+
+        //TODO pass in layout configuration from browser screen size !!!
 
         // Dish order buttons
         orderButtonPositions = PRIZM.Layout.distributePositionsAcrossWidth(
@@ -44,25 +101,8 @@ _.extend( QueueNode.prototype, {
                 { x:position[0], y:position[1]},
                 { variant: variant, scale:0.5 } );
             button.addTags(['orderButton',variant]);
+            button.state['itemType'] = variant;
             self.addBody(button);
-        });
-
-        // Bind UI target for each order button
-
-        var orderButtons = this.bodiesWithTag('orderButton');
-
-        _.each( orderButtons, function(body){
-
-            var bounds = body.getAbsoluteBounds();
-
-            console.log('order button', body, bounds);
-
-            boxTgt = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
-            boxTgt.setBehavior( 'tap', null, null, function( event ){
-                console.log('box tap stop',event);
-            });
-
-            boxTgt.activate();
         });
 
 
@@ -84,49 +124,63 @@ _.extend( QueueNode.prototype, {
                             { x:position.x, y:position.y },
                             { variant: 'cooking', scale:0.4 } );
 
-                        self.setLocation('queue'+index,position)
-                        slot.addTags(['queueButton','queueSlot']);
+                        self.setLocation('queue'+index,position.x,position.y);
+                        slot.addTag('queueSlot');
                         self.addBody(slot);
                     });
 
-                    var queueButtons = self.bodiesWithTag('queueButton');
-
-                    _.each( queueButtons, function(body){
-
-                        var bounds = body.getAbsoluteBounds();
-
-                        console.log('queue button', body, bounds);
-
-                        boxTgt = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
-                        boxTgt.setBehavior( 'tap', null, null, function( event ){
-                            console.log('box tap stop',event);
-                        });
-
-                        boxTgt.activate();
-                    });
+                    //TODO cleanup timing for binding UI
+                    self.bindUI();
 
                 });
 
         },0);
+    },
 
+    bindUI: function(){
+        var self = this;
 
-        this.methods({
+        // Bind UI target for each order button
 
-            queueItem: function( item ){
+        var orderButtons = this.bodiesWithTag('orderButton');
 
-            },
+        _.each( orderButtons, function(body){
 
-            itemReady: function( item ){
+            var bounds = body.getAbsoluteBounds({center:true});
 
-            },
+            console.log('order button', body, bounds);
 
-            loadItem: function( item ){
+            var target = self.world.view.UI.addCircleTarget( bounds[0],bounds[1], Math.max(bounds[2],bounds[3])/2, 'mainContext');
 
-            }
+            target.setBehavior( 'tap', null, null, function( event ){
+                console.log('order button tap',event);
 
+                // Show feedback
+                //body.resize(0.6,0.6, 0.2);
+                body.registerAnimation('scale',{x:0.35,y:0.35},0.2);
+                body.resize(0.5,0.5, 0.3);
+
+                self.call('queueItem',body.state['itemType']);
+            });
+
+            target.activate();
+        });
+
+        var queueButtons = self.bodiesWithTag('queueSlot');
+
+        _.each( queueButtons, function(body){
+
+            var bounds = body.getAbsoluteBounds();
+
+            console.log('queue button', body, bounds);
+
+            var target = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
+            target.setBehavior( 'tap', null, null, function( event ){
+                console.log('box tap stop',event);
+            });
+
+            target.activate();
         });
 
     }
-
-    //
 });
