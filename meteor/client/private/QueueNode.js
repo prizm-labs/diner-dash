@@ -6,7 +6,6 @@ QueueNode = function (){
     //Node.call(this);
 };
 
-//CustomerLane.prototype = Object.create(Node.prototype);
 QueueNode.prototype = Object.create(PRIZM.Node.prototype);
 
 console.dir(QueueNode);
@@ -48,9 +47,6 @@ _.extend( QueueNode.prototype, {
             self.addBody(button);
         });
 
-        uiManager = new PRIZM.UIManager( self.world.view.factory, 'hit-area' );
-        uiManager.bindStageTarget('mainContext');
-
         // Bind UI target for each order button
 
         var orderButtons = this.bodiesWithTag('orderButton');
@@ -61,7 +57,7 @@ _.extend( QueueNode.prototype, {
 
             console.log('order button', body, bounds);
 
-            boxTgt = uiManager.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
+            boxTgt = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
             boxTgt.setBehavior( 'tap', null, null, function( event ){
                 console.log('box tap stop',event);
             });
@@ -101,7 +97,7 @@ _.extend( QueueNode.prototype, {
 
                         console.log('queue button', body, bounds);
 
-                        boxTgt = uiManager.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
+                        boxTgt = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
                         boxTgt.setBehavior( 'tap', null, null, function( event ){
                             console.log('box tap stop',event);
                         });

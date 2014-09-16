@@ -48,6 +48,25 @@ _.extend( TrayNode.prototype, {
                 { x:position[0], y:position[1]},
                 { currentFrame: 1, frames :true, scale:0.4, rotation: position[2] } );
             plate.addTag('plate');
+            self.addBody(plate);
+        });
+
+        var plates = self.bodiesWithTag('plate');
+
+        _.each( plates, function(body){
+
+            var bounds = body.getAbsoluteBounds({center:true});
+
+            console.log('plate button', body._entity, bounds);
+
+            boxTgt = self.world.view.UI.addCircleTarget( bounds[0],bounds[1], Math.max(bounds[2],bounds[3])/2, 'mainContext');
+
+            //boxTgt = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
+            boxTgt.setBehavior( 'tap', null, null, function( event ){
+                console.log('circle tap stop',event);
+            });
+
+            boxTgt.activate();
         });
 
         // Bind UI for pan over tray
