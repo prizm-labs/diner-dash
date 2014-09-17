@@ -42,6 +42,7 @@ _.extend( CustomerLane.prototype, {
             dessert: 2.5
         };
         this.state['customerPresent'] = false;
+        this.state['currentClient'] = null; // Track which player is serving
 
 
         var customer = this.world.view.factory.makeBody2D( 'mainContext', 'customer',
@@ -161,8 +162,14 @@ _.extend( CustomerLane.prototype, {
                 // Fade order bubble
             },
 
-            serveOrder: function( servings ){
+            serveOrder: function( servings, clientId ){
                 var self = this;
+
+                console.log('serveOrder',servings, clientId);
+
+                if (clientId){
+                    this.state['currentClient'] = clientId;
+                }
 
                 // Lock customer
                 this.call('updatePlate','closed');
@@ -190,6 +197,8 @@ _.extend( CustomerLane.prototype, {
 
                         self.call('updateOrder');
                         self.call('makePayment',servedCache);
+
+                        this.state['currentClient'] = null;
                     });
                 } else {
                     // Release customer
@@ -328,6 +337,9 @@ _.extend( CustomerLane.prototype, {
                     console.log('item served',match);
                     // Remove served dish from plate
                     self.removeBody('orderServed');
+
+                    // Remove dish from player who served it
+                    self.world.liveData.broadcast('itemConsumed',[item,self.state['currentClient']]);
 
                     if (callback) callback();
                 });

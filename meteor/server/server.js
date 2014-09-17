@@ -19,6 +19,13 @@ Meteor.methods({
             console.log('new game stream',gameStateId);
             LiveData.setupStream(gameStateId);
             LiveData.activateStream(gameStateId);
+
+
+
+            // Add client id to args
+//            LiveData.addFilter(function(eventName, args){
+//                return args;
+//            });
         }
 
 //        setInterval(function() {

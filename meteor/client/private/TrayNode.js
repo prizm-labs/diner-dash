@@ -82,7 +82,12 @@ _.extend( TrayNode.prototype, {
                 console.log('serveCustomer',direction);
 
                 // Broadcast loadout
-                this.world.liveData.broadcast('servingCustomer',[direction, this.state['trayLoadout']]);
+                this.world.liveData.broadcast('servingCustomer',[direction, this.state['trayLoadout'], Session.get('client_id')]);
+
+
+
+                //TODO deactivate serving to other customers
+                //TODO show target customer serving in process
 
                 // Get valid servings
 

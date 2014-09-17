@@ -45,6 +45,8 @@ bindStreams = function(){
     var clientType = Session.get('client_type');
     console.log('bindStreams',clientType);
 
+    bindAllStreams();
+
     if (clientType=='public') {
         bindPublicStreams();
     } else if (clientType=='private') {
@@ -57,12 +59,24 @@ bindStreams = function(){
 //    });
 }
 
+bindAllStreams = function(){
+
+
+}
+
 bindPublicStreams = function(){
 
     gameWorld.liveData.addTrigger('servingCustomer',function(args){
         console.log('servingCustomer', args, this);
-        //args: direction, trayLoadout
-        gameWorld.nodesWithTag('customerLane')[args[0]].call('serveOrder',args[1]);
+        //args: direction, trayLoadout, clientId
+        gameWorld.nodesWithTag('customerLane')[args[0]].apply('serveOrder',[args[1],args[2]]);
+    });
+
+    gameWorld.liveData.addTrigger('registerClientId',function(args){
+        console.log('registerClientId', args, this);
+        //args: clientId
+
+        gameWorld.liveData.mapCallerToClient(this.subscriptionId,args[0]);
     });
 
 }
@@ -73,6 +87,16 @@ bindPrivateStreams = function(){
         console.log('updatePlate', args, this);
         //args: direction, status
         gameWorld.nodesWithTag('trayNode')[0].apply('updatePlate',args);
+    });
+
+    gameWorld.liveData.addTrigger('itemConsumed',function(args){
+        console.log('itemConsumed', args, this);
+        //args: item, clientId
+
+        if (Session.get('client_id')==args[1]) {
+            gameWorld.nodesWithTag('queueNode')[0].call('removeItem',args[0]);
+        }
+
     });
 
 }

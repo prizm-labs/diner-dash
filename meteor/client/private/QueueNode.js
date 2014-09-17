@@ -83,6 +83,19 @@ _.extend( QueueNode.prototype, {
 
             loadItem: function (item) {
 
+            },
+
+            removeItem: function (item) {
+                var self = this;
+
+                // Remove item from slot data
+                this.state['queueSlots'][this.state['queueSlots'].indexOf(item)] = null;
+
+                // Remove item body
+                var body = this.bodiesWithTags(['queueButton',item])[0];
+                body.resize(0.01,0.01, 0.3, function(){
+                    self.removeBody(body);
+                });
             }
 
         });
