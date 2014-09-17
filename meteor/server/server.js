@@ -5,6 +5,8 @@
 //MongoDB document modifiers
 // http://docs.mongodb.org/manual/tutorial/modify-documents/#Updating-ModifierOperations
 
+LiveData = new LiveDataDelegate();
+
 Meteor.methods({
 
     // Stream helpers
@@ -12,12 +14,16 @@ Meteor.methods({
 
         console.log('active streams', STREAMS);
 
-        if (!STREAMS[gameStateId]) {
+        if (!LiveData.streams[gameStateId]) {
 
             console.log('new game stream',gameStateId);
-            STREAMS[gameStateId] = bindGameStream(gameStateId);
-
+            LiveData.setupStream(gameStateId);
+            LiveData.activateStream(gameStateId);
         }
+
+        setInterval(function() {
+            LiveData.broadcast('test', 'server generated event');
+        }, 1000);
 
 
         //{"_id" : "61175b8e-101f-4434-b171-cafa16e5adf5",

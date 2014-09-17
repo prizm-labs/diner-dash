@@ -29,7 +29,16 @@ Meteor.methods({
                 function (error, result) {
                     console.log('client requestGameStream', error, result);
 
-                    bindGameStream(Session.get('gameState_id'));
+                    //bindGameStream(Session.get('gameState_id'));
+
+                    gameWorld.liveData.setupStream(Session.get('gameState_id'));
+                    gameWorld.liveData.activateStream(Session.get('gameState_id'));
+
+                    gameWorld.liveData.addTrigger('test',function(data){
+                        console.log('stream test', data);
+
+                    });
+
                 });
         },0);
 

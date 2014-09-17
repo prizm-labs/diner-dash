@@ -42,74 +42,74 @@
  */
 
 
-bindGameStream = function( streamId ){
-
-    console.log('bindGameStream',streamId);
-
-    // Client-to-client stream
-    var streamC2C = new Meteor.Stream(streamId);
-
-    // Public VS Private client ???
-
-
-    // http://arunoda.github.io/meteor-streams/stream-context.html
-    // Map subscriptionId (client id)
-    // to user/player
-    // to client type (private || public)
-
-    // register: clientType, userId
-    // return playerId
-
-
-    // Update plates
-    // plates: [true,true,true,true,false,null];
-
-
-    // Update queue
-    // queue: playerId, ['drink','drink','meat','veggie','dessert']
-
-
-    // Check serving
-    // serving: playerId, customerIndex, ['drink','drink','meat','veggie','dessert']
-
-
-    // Send payment
-    // payment: playerId, total, {veggie:1,meat:1,drink:2}
-
-
-    if(Meteor.isServer) {
-
-
-        // Permissions
-        streamC2C.permissions.read(function() {
-            return true;
-        });
-        streamC2C.permissions.write(function() {
-            return true;
-        });
-
-
-        // Filters
-        streamC2C.addFilter(function(eventName, args){
-            return args;
-        });
-
-
-        // Test Events
-        setInterval(function() {
-            streamC2C.emit('test', 'server generated event');
-        }, 1000);
-    }
-
-    if (Meteor.isClient) {
-
-        streamC2C.on('test', function(data){
-           console.log('stream test', data);
-        });
-
-    }
-
-    return streamC2C;
-};
+//bindGameStream = function( streamId ){
+//
+//    console.log('bindGameStream',streamId);
+//
+//    // Client-to-client stream
+//    var streamC2C = new Meteor.Stream(streamId);
+//
+//    // Public VS Private client ???
+//
+//
+//    // http://arunoda.github.io/meteor-streams/stream-context.html
+//    // Map subscriptionId (client id)
+//    // to user/player
+//    // to client type (private || public)
+//
+//    // register: clientType, userId
+//    // return playerId
+//
+//
+//    // Update plates
+//    // plates: [true,true,true,true,false,null];
+//
+//
+//    // Update queue
+//    // queue: playerId, ['drink','drink','meat','veggie','dessert']
+//
+//
+//    // Check serving
+//    // serving: playerId, customerIndex, ['drink','drink','meat','veggie','dessert']
+//
+//
+//    // Send payment
+//    // payment: playerId, total, {veggie:1,meat:1,drink:2}
+//
+//
+//    if(Meteor.isServer) {
+//
+//
+//        // Permissions
+//        streamC2C.permissions.read(function() {
+//            return true;
+//        });
+//        streamC2C.permissions.write(function() {
+//            return true;
+//        });
+//
+//
+//        // Filters
+//        streamC2C.addFilter(function(eventName, args){
+//            return args;
+//        });
+//
+//
+//        // Test Events
+//        setInterval(function() {
+//            streamC2C.emit('test', 'server generated event');
+//        }, 1000);
+//    }
+//
+//    if (Meteor.isClient) {
+//
+//        streamC2C.on('test', function(data){
+//           console.log('stream test', data);
+//        });
+//
+//    }
+//
+//    return streamC2C;
+//};
 
 
