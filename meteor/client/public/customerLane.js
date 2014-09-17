@@ -87,7 +87,7 @@ _.extend( CustomerLane.prototype, {
 
                 customer.runAnimations( function(){
                     customer.setFrame(1);
-                    self.body('plate').setFrame(0); // plate is closed
+                    self.call('updatePlate','closed');
                 });
             },
 
@@ -249,6 +249,7 @@ _.extend( CustomerLane.prototype, {
             },
 
             updatePlate: function( status ){
+                console.log('updatePlate lane',status);
 
                 switch(status){
 
@@ -270,6 +271,7 @@ _.extend( CustomerLane.prototype, {
                 }
 
                 //TODO broadcast status !!!
+                this.world.liveData.broadcast('updatePlate',[this.state['direction'],status]);
             },
 
 

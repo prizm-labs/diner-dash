@@ -16,9 +16,11 @@ bindPrivateClientMethods = function( key, methods ){
 
             var queueNode = new QueueNode();
             queueNode.init(self);
+            self.addNode(queueNode);
 
             var trayNode = new TrayNode();
             trayNode.init(self);
+            self.addNode(trayNode);
         }
     });
 

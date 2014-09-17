@@ -16,6 +16,8 @@ _.extend( TrayNode.prototype, {
 
         var self = this;
 
+        this.addTag('trayNode');
+
         this.world = world;
 
         this.state['queueTimes'] = {
@@ -34,15 +36,46 @@ _.extend( TrayNode.prototype, {
 
         this.state['trayLoadout'] = [null,null,null,null,null];
 
-
         this.methods({
 
             loadItem: function( item ){
 
             },
 
-            updatePlate: function( index ){
+            updatePlates: function( plates ){
+                var self = this;
 
+                _.each(plates, function(plate){
+
+                })
+            },
+
+            updatePlate: function( index, status ){
+
+                var plate = this.bodiesWithTag('plate')[index];
+                console.log('updatePlate',plate, index, status);
+
+                // Change sprite
+                // Activate / Deactivate
+
+                switch(status){
+
+                    case 'empty':
+                        plate.setFrame(1); // plate is empty
+                        plate.hitArea.deactivate();
+                        break;
+
+                    case 'closed':
+                        plate.setFrame(0); // plate is closed
+                        plate.hitArea.deactivate();
+                        break;
+
+                    case 'open':
+                        plate.setFrame(2); // plate is open
+                        plate.hitArea.activate();
+                        break;
+
+                }
             },
 
             serveCustomer: function( direction ){
@@ -163,7 +196,8 @@ _.extend( TrayNode.prototype, {
                 self.call('serveCustomer',body.state['directionIndex']);
             });
 
-            target.activate();
+            body.setHitArea(target);
+            //body.hitArea.activate();
         });
 
         // Bind UI for pan over tray

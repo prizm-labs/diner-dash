@@ -26,12 +26,15 @@ bindPublicClientMethods = function(){
                         Math.PI/4*5, Math.PI/4*6, Math.PI/4*7]);
 
 
-            _.each( seatedPositions, function( position ){
+            _.each( seatedPositions, function( position, index ){
 
                 var lane = new CustomerLane();
                 lane.init(position[0], position[1], position[2], self);
 
                 self.addNode(lane);
+
+                // Set lane's direction so it can be distinguished
+                lane.state['direction'] = index;
             });
 
             lanes = this.nodesWithTag('customerLane');

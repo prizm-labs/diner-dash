@@ -69,6 +69,11 @@ bindPublicStreams = function(){
 
 bindPrivateStreams = function(){
 
+    gameWorld.liveData.addTrigger('updatePlate',function(args){
+        console.log('updatePlate', args, this);
+        //args: direction, status
+        gameWorld.nodesWithTag('trayNode')[0].apply('updatePlate',args);
+    });
 
 }
 

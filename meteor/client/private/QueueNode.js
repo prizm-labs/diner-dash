@@ -13,6 +13,9 @@ console.dir(QueueNode);
 _.extend( QueueNode.prototype, {
     init: function (world) {
         var self = this;
+
+        this.addTag('queueNode');
+
         this.world = world;
 
         this.state['itemTypes'] = ['drink','veggie','meat','dessert'];
