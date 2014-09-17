@@ -21,9 +21,9 @@ Meteor.methods({
             LiveData.activateStream(gameStateId);
         }
 
-        setInterval(function() {
-            LiveData.broadcast('test', 'server generated event');
-        }, 1000);
+//        setInterval(function() {
+//            LiveData.broadcast('test', 'server generated event');
+//        }, 1000);
 
 
         //{"_id" : "61175b8e-101f-4434-b171-cafa16e5adf5",

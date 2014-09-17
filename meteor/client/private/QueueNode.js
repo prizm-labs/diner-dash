@@ -68,6 +68,10 @@ _.extend( QueueNode.prototype, {
                 this.addBody(button);
 
                 button.resize(0.5,0.5, 0.4);
+
+
+                // Update tray loaded items
+                amplify.publish('updateTray',this.state['queueSlots']);
             },
 
             itemReady: function (item, slot) {

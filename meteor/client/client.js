@@ -34,15 +34,12 @@ Meteor.methods({
                     gameWorld.liveData.setupStream(Session.get('gameState_id'));
                     gameWorld.liveData.activateStream(Session.get('gameState_id'));
 
-                    gameWorld.liveData.addTrigger('test',function(data){
-                        console.log('stream test', data);
+                    bindStreams();
 
-                    });
+                    gameWorld.call('setupDefaultWorld');
 
                 });
         },0);
-
-        //gameWorld.call('setupDefaultWorld');
     }
 })
 

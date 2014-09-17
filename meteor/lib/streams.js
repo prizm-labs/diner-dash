@@ -41,17 +41,37 @@
  register
  */
 
+bindStreams = function(){
+    var clientType = Session.get('client_type');
+    console.log('bindStreams',clientType);
 
-//bindGameStream = function( streamId ){
+    if (clientType=='public') {
+        bindPublicStreams();
+    } else if (clientType=='private') {
+        bindPrivateStreams();
+    }
+
+//    gameWorld.liveData.addTrigger('test',function(data){
+//        console.log('stream test', data);
 //
-//    console.log('bindGameStream',streamId);
-//
-//    // Client-to-client stream
-//    var streamC2C = new Meteor.Stream(streamId);
-//
-//    // Public VS Private client ???
-//
-//
+//    });
+}
+
+bindPublicStreams = function(){
+
+    gameWorld.liveData.addTrigger('servingCustomer',function(args){
+        console.log('servingCustomer', args, this);
+        //args: direction, trayLoadout
+        gameWorld.nodesWithTag('customerLane')[args[0]].call('serveOrder',args[1]);
+    });
+
+}
+
+bindPrivateStreams = function(){
+
+
+}
+
 //    // http://arunoda.github.io/meteor-streams/stream-context.html
 //    // Map subscriptionId (client id)
 //    // to user/player
@@ -75,41 +95,4 @@
 //
 //    // Send payment
 //    // payment: playerId, total, {veggie:1,meat:1,drink:2}
-//
-//
-//    if(Meteor.isServer) {
-//
-//
-//        // Permissions
-//        streamC2C.permissions.read(function() {
-//            return true;
-//        });
-//        streamC2C.permissions.write(function() {
-//            return true;
-//        });
-//
-//
-//        // Filters
-//        streamC2C.addFilter(function(eventName, args){
-//            return args;
-//        });
-//
-//
-//        // Test Events
-//        setInterval(function() {
-//            streamC2C.emit('test', 'server generated event');
-//        }, 1000);
-//    }
-//
-//    if (Meteor.isClient) {
-//
-//        streamC2C.on('test', function(data){
-//           console.log('stream test', data);
-//        });
-//
-//    }
-//
-//    return streamC2C;
-//};
-
 

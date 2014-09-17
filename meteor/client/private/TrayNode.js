@@ -32,7 +32,7 @@ _.extend( TrayNode.prototype, {
             dessert: 0.5
         };
 
-        this.state['trayLoadout'] = [];
+        this.state['trayLoadout'] = [null,null,null,null,null];
 
 
         this.methods({
@@ -47,7 +47,9 @@ _.extend( TrayNode.prototype, {
 
             serveCustomer: function( direction ){
                 console.log('serveCustomer',direction);
+
                 // Broadcast loadout
+                this.world.liveData.broadcast('servingCustomer',[direction, this.state['trayLoadout']]);
 
                 // Get valid servings
 
@@ -62,6 +64,13 @@ _.extend( TrayNode.prototype, {
             }
 
         });
+
+        // Internal events
+        amplify.subscribe('updateTray', function(queue){
+            console.log('received updateQueue',queue);
+            self.state['trayLoadout'] = queue;
+        });
+
 
         // Finally render node
         this.render();
