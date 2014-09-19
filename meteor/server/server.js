@@ -348,10 +348,20 @@ Meteor.startup(function () {
         service: "facebook"
     });
 
+    // PRODUCTION
+//    Accounts.loginServiceConfiguration.insert({
+//        service: "facebook",
+////        appId: 697413780331229,
+////        secret: "ed58a86e0c972fef62b79e324e26a10d"
+//        appId: process.env.FACEBOOK_APP_ID,
+//        secret: process.env.FACEBOOK_APP_SECRET
+//    });
+
+    // DEVELOPMENT
     Accounts.loginServiceConfiguration.insert({
         service: "facebook",
-        appId: 697413780331229,
-        secret: "ed58a86e0c972fef62b79e324e26a10d"
+        appId: 724819690923971,
+        secret: "8c71f216862925e5420b50da00fc90f5"
 //        appId: process.env.FACEBOOK_APP_ID,
 //        secret: process.env.FACEBOOK_APP_SECRET
     });
@@ -362,6 +372,10 @@ Meteor.startup(function () {
 
     // JAVASCRIPT ORIGINS
     //  http://localhost:3000/
+
+    // Reset Google login configuration
+    // http://stackoverflow.com/questions/17098307/how-do-i-reset-google-login-configuration-once-i-have-set-it-for-my-meteor-app
+
     Accounts.loginServiceConfiguration.remove({
         service: "google"
     });
@@ -426,11 +440,18 @@ Meteor.startup(function () {
             gender = user.services.google.gender;
             email = user.services.google.email;
 
+            user.avatarNeedsResolution = false;
+
         } else if ( user.services.facebook ){
 
             avatarUrl = 'https://graph.facebook.com/'+user.services.facebook.id+'/picture?type=large&height=500&width=500';
             gender = user.services.facebook.gender;
             email = user.services.facebook.email;
+
+            user.avatarNeedsResolution = true;
+
+            // Replace user avatar with CDN URL
+            updateFacebookProfileUrl(user.services.facebook.id,user._id);
         }
 
         // We still want the default hook's 'profile' behavior.
@@ -451,6 +472,9 @@ Meteor.startup(function () {
     Accounts.onLogin(function( request ){
 
         console.log('onLogin',request);
+
+        // TODO update avatar on login
+
 //        sendChat('onlogin yo',2);
 //        sendLogin(request.connection.id,request.user);
 
@@ -468,3 +492,19 @@ Meteor.startup(function () {
     });
 
 });
+
+// Replace user avatar with CDN URL
+updateFacebookProfileUrl = function (fbUserId, userId) {
+
+    Meteor.http.get('https://graph.facebook.com/'+fbUserId+'/picture?type=large&width=500&height=500&redirect=false',
+        function ( error, result ) {
+            console.log('Facebook user avatar CDN url',error, result);
+            // i.e. http://graph.facebook.com/517267866/?fields=picture&type=large&redirect=true
+            var cdnUrl = result.data.data.url;
+            if (!error && cdnUrl) {
+                Meteor.users.update( userId,
+                    {$set:{'profile.avatar':cdnUrl,'avatarNeedsResolution':false}});
+                console.log('updated user avatar to CDN url',cdnUrl);
+            }
+        });
+}
