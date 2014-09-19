@@ -3,14 +3,10 @@
  */
 Template.public.rendered = function() {
 
-
+    Session.set('client_type','public');
 
     visualClientStartup();
 
-    // Register new lobby
-    //Meteor.call('activateLobby');
-
-    Session.set('client_type','public');
 
     if (Session.get('lobby')){
         console.log('auto subscribe to lobby');
@@ -22,7 +18,7 @@ Template.public.rendered = function() {
     }
 };
 
-Template.public.helpers({
+Template.homeViewPublic.helpers({
     currentLobby: function(){
         return Session.get('lobby');
 
@@ -32,7 +28,7 @@ Template.public.helpers({
     }
 });
 
-Template.public.events({
+Template.homeViewPublic.events({
     'click .register-lobby': function(event){
         subscriptions.activate.lobby(this._id);
         Session.set('lobby',this);
@@ -49,6 +45,26 @@ Template.public.events({
         });
     }
 });
+
+
+
+Template.gameViewPublic.rendered = function(){
+
+    console.log('rendered gameViewPrivate',Session.get('activeGame'));
+
+    gameWorldStartup();
+    // Build game world
+
+    // Bind rendering contexts to DOM
+
+    // Preload assets for rendering contexts
+
+    // Bind interaction layer to DOM
+
+    // Notify server that game world is ready
+
+};
+
 
 
 Template.lobby.helpers({

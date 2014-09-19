@@ -4,7 +4,13 @@ body {
     padding: 0;
 }
 
+.game-options .size-helper {
+    margin-top: 50px;
+}
+
 #hit-area {
+    display: none;
+    
     position: absolute;
     top: 0;
     left: 0;

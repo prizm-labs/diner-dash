@@ -3,15 +3,14 @@
  */
 Template.private.rendered = function() {
 
-    visualClientStartup();
-
     Session.set('client_type','private');
 
+    visualClientStartup();
 
 };
 
 //https://www.eventedmind.com/classes/meteor-shark-ui-preview/meteor-template-reactivity-in-the-new-ui-system
-Template.private.helpers({
+Template.homeViewPrivate.helpers({
     activeGame: function(){
         return Session.get('activeGame');
 
@@ -37,7 +36,7 @@ Template.private.helpers({
     }
 });
 
-Template.private.events({
+Template.homeViewPrivate.events({
 
     'click .sign-out': function(event){
         Meteor.call('deactivateUser',Session.get('user')._id);
@@ -55,6 +54,7 @@ Template.gameViewPrivate.rendered = function(){
 
     console.log('rendered gameViewPrivate',Session.get('activeGame'));
 
+    gameWorldStartup();
     // Build game world
 
     // Bind rendering contexts to DOM
@@ -65,7 +65,7 @@ Template.gameViewPrivate.rendered = function(){
 
     // Notify server that game world is ready
 
-}
+};
 
 
 // how to access data context inside template event

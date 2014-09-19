@@ -23,19 +23,21 @@ Meteor.methods({
     'clientReadyForGameSession': function( clientId, arenaId ){
         console.log('client stub: clientReadyForGameSession');
 
-        // Bind stream for real-time data
+
         setTimeout(function() {
             Meteor.call('requestGameStream', Session.get('client_id'), Session.get('gameState_id'),
                 function (error, result) {
                     console.log('client requestGameStream', error, result);
 
-                    //bindGameStream(Session.get('gameState_id'));
-
+                    // Bind stream for real-time data
                     gameWorld.liveData.setupStream(Session.get('gameState_id'));
                     gameWorld.liveData.activateStream(Session.get('gameState_id'));
 
                     bindStreams();
 
+                    // Transition to game scene from lobby
+                    $('#home-view').hide();
+                    $('#hit-area').show();
                     gameWorld.call('setupDefaultWorld');
 
                 });

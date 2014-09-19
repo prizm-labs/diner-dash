@@ -12,15 +12,11 @@ Meteor.methods({
     // Stream helpers
     'requestGameStream': function( clientId, gameStateId ){
 
-        console.log('active streams', STREAMS);
-
         if (!LiveData.streams[gameStateId]) {
 
             console.log('new game stream',gameStateId);
             LiveData.setupStream(gameStateId);
             LiveData.activateStream(gameStateId);
-
-
 
             // Add client id to args
 //            LiveData.addFilter(function(eventName, args){
@@ -335,10 +331,6 @@ function teardownSession( connection ){
 
 Meteor.startup(function () {
 
-
-    STREAMS = {};
-
-
     // https://github.com/arunoda/meteor-streams/issues/17
     Meteor.onConnection(function(connection) {
         console.log('server made connection',connection);
@@ -347,7 +339,6 @@ Meteor.startup(function () {
             function(){ console.log('client called from server'); });
 
         connection.onClose( function(){teardownSession(connection)});
-
     });
 
 
@@ -365,6 +356,12 @@ Meteor.startup(function () {
 //        secret: process.env.FACEBOOK_APP_SECRET
     });
 
+    // https://console.developers.google.com/project
+    // REDIRECT URIS
+    // http://localhost:3000/_oauth/google?close
+
+    // JAVASCRIPT ORIGINS
+    //  http://localhost:3000/
     Accounts.loginServiceConfiguration.remove({
         service: "google"
     });

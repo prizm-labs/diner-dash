@@ -1,7 +1,12 @@
 <template name="private">
     {{>gameViewPrivate}}
+    {{>homeViewPrivate}}
+</template>
 
-    {{#if userLoggedIn}}
+<template name="homeViewPrivate">
+    <div id="home-view">
+
+        {{#if userLoggedIn}}
 
         {{#if activeGame}}
 
@@ -9,24 +14,25 @@
 
         {{/if}}
 
-            {{name}}
-            <img src="{{avatar}}" height="200" width="200"/>
-            <button class="sign-out">Sign out</button>
-            <hr/>
+        {{name}}
+        <img src="{{avatar}}" height="200" width="200"/>
+        <button class="sign-out">Sign out</button>
+        <hr/>
 
-            {{#if userChoseLobby}}
-                <button class="leave-lobby">Leave {{currentLobby}}</button>
-                {{>arenaConfiguration}}
-            {{else}}
-                {{>lobbySelection}}
-            {{/if}}
+        {{#if userChoseLobby}}
+        <button class="leave-lobby">Leave {{currentLobby}}</button>
+        {{>arenaConfiguration}}
+        {{else}}
+        {{>lobbySelection}}
+        {{/if}}
 
 
 
-    {{else}}
+        {{else}}
         {{>loginUi}}
-    {{/if}}
+        {{/if}}
 
+    </div>
 </template>
 
 <template name="gameViewPrivate">
@@ -87,15 +93,24 @@
 <template name="gameOptions">
 
     <hr/>
-
-    Set number of players:
-    {{#each requiredPlayerOptions}}
+    <div class="game-options">
+        Set number of players:
+        {{#each requiredPlayerOptions}}
         <button class="set-player-count">{{value}}</button>
-    {{/each}}
+        {{/each}}
 
+        <h1>Before you START, <br/>
+            Hide browser navigation bars by scrolling all the way to bottom
+            </h1>
 
-    <button class="game-enter">Start</button>
-    <button class="game-exit">Cancel</button>
+        <button class="game-enter">Start</button>
+        <button class="game-exit">Cancel</button>
+
+        <div class="size-helper">
+            <h1>OK, You're ready to play!</h1>
+        </div>
+    </div>
+
 
 </template>
 

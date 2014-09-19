@@ -191,12 +191,19 @@ _.extend( TrayNode.prototype, {
 
             console.log('plate button', body._entity, bounds);
 
+            // Enlarge hit area for mobile screen usability
+            var scaling = 1.5;
+            bounds[2] = bounds[2]*scaling;
+            bounds[3] = bounds[3]*scaling;
+
             var target = self.world.view.UI.addCircleTarget( bounds[0],bounds[1], Math.max(bounds[2],bounds[3])/2, 'mainContext');
 
             //boxTgt = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
             target.setBehavior( 'tap', null, null, function( event ){
                 console.log('plate direction tap',event);
 
+                body.registerAnimation('scale',{x:0.3,y:0.3},0.15);
+                body.resize(0.4,0.4, 0.2);
 
                 self.call('serveCustomer',body.state['directionIndex']);
             });

@@ -1,28 +1,33 @@
 <template name="public">
     {{>gameViewPublic}}
+    {{>homeViewPublic}}
+</template>
 
-    {{#if activeGame}}
-    {{else}}
-    {{/if}}
+<template name="homeViewPublic">
 
-    {{#each lobbies}}
+    <div id="home-view">
+        {{#if activeGame}}
+        {{else}}
+        {{/if}}
+
+        {{#each lobbies}}
         <button class="register-lobby">{{title}}</button>
-    {{/each}}
-    {{#each arenas}}
+        {{/each}}
+        {{#each arenas}}
         <br/>
 
         <button class="register-arena">{{title}}</button>
         {{#if client_id}}
         Linked client: {{client_id}}
         {{/if}}
-    {{/each}}
+        {{/each}}
 
-    {{>lobby currentLobby}}
+        {{>lobby currentLobby}}
 
-    {{#each arenas}}
+        {{#each arenas}}
         {{>arenaSettings}}
-    {{/each}}
-
+        {{/each}}
+    </div>
 
 </template>
 
@@ -54,18 +59,18 @@
     {{title}}
 
     {{#with playerStatus this}}
-        Players:
-        {{current}} / {{required}}
-        <br/>
-        Ready:
-        {{ready}} / {{required}}
+    Players:
+    {{current}} / {{required}}
+    <br/>
+    Ready:
+    {{ready}} / {{required}}
     {{/with}}
 
     <hr/>
     {{#with chosenGame game_id}}
 
-        {{title}}
-        {{description}}
+    {{title}}
+    {{description}}
 
     {{/with}}
     <hr/>

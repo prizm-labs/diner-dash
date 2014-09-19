@@ -11,12 +11,8 @@ visualClientStartup = function(){
     // clear client id binding, so this client will receive global messages from server
     Meteor.ClientCall.setClientId( 'default' );
 
-    registerViewportSize();
-
     // detect viewport size, to pass on to game world renderer
-    $( window ).resize(function() {
-        registerViewportSize();
-    });
+    registerViewportSize();
 
     // generate local client id for registration on server
     if (!Session.get('client_id')) {
@@ -42,25 +38,41 @@ visualClientStartup = function(){
         // offline
     });
 
+};
 
+gameWorldStartup = function(){
     // restore gameWorld from HCP
     if (Session.get('gameState_configuration')){
         createGameWorldFromConfiguration( Session.get('gameState_configuration') );
     }
-
-};
+}
 
 
 registerViewportSize = function(){
-    Session.set('viewport_width',$(window).width());
-    Session.set('viewport_height',$(window).height());
+    var height = window.screen.availHeight || window.screen.height;
+    var width = window.screen.availWidth || window.screen.width;
+
+    // 548, 460
+    if (height==568&&width==320) {
+        // iPhone5
+
+    }
+
+    // 460
+    if (height==480&&width==320) {
+        // iPhone4
+
+    }
+
+    Session.set('viewport_width',width);
+    Session.set('viewport_height',height);
 
     // if private client, resize UI hit area to fill screen
     if (Session.get('client_type')=='private'){
-        console.log('resizing hit area');
+        console.log('resizing hit area',width,height);
         $('#hit-area').css({
-            'width': $(window).width(),
-            'height': $(window).height()
+            'width': width,
+            'height': height
         })
     }
 };
