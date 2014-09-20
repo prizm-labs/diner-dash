@@ -155,25 +155,12 @@ _.extend( TrayNode.prototype, {
             slot.addTag('traySlot');
         });
 
+        // TODO map current user to player & avatar
+        avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
+            self.world.view.locations.center(), { variant:'p0', scale: 0.3 } );
 
-        // https://graph.facebook.com/10203388818815570/picture?type=large&height=500&width=500
-        // Player avatars
-        var avatarUrls = ['https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xaf1/v/t1.0-1/c32.113.402.402/197820_10200365622437550_1307454223_n.jpg?oh=8c158d69e3b36d07539b721b9cd0f404&oe=5492CF89&__gda__=1418764606_1684123b2a18eb8f4ab3bc3252c1e156',
-            'https://lh5.googleusercontent.com/-TbxFjAU9Vpg/AAAAAAAAAAI/AAAAAAAAAJU/ZiJRz12XYco/photo.jpg'];
-        var avatarManifest = [
-            [ 'avatar', {
-                'p1':'https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xaf1/v/t1.0-1/c32.113.402.402/197820_10200365622437550_1307454223_n.jpg?oh=8c158d69e3b36d07539b721b9cd0f404&oe=5492CF89&__gda__=1418764606_1684123b2a18eb8f4ab3bc3252c1e156',
-                'p2':'https://lh5.googleusercontent.com/-TbxFjAU9Vpg/AAAAAAAAAAI/AAAAAAAAAJU/ZiJRz12XYco/photo.jpg'}]
-        ];
-
-        self.world.view.factory.loadTemplates2D('mainContext',avatarUrls,avatarManifest,function(){
-            avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
-                self.world.view.locations.center(), { variant:'p1', scale: 0.3 } );
-
-            self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
-                { shape:'circle', position:self.world.view.locations.center(), size:60 } );
-        }, true);
-
+        self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
+            { shape:'circle', position:self.world.view.locations.center(), size:60 } );
 
         //TODO cleanup timing for binding UI
         self.bindUI();

@@ -240,6 +240,7 @@ Meteor.methods({
             console.log('arena client id',arena.client_id);
 
             return true;
+
         } else {
             console.log('waiting for players',arena.players_required-playersReady.length);
             console.log('arena client id',arena.client_id);
@@ -286,6 +287,8 @@ Meteor.methods({
         // broadcast to all valid clients
         console.log('notifying clients of game start',clients);
 
+        // Return game configuration options
+        // Return players so all clients can preload & render their name,avatar,etc.
         _.each(clients, function(clientId){
             Meteor.ClientCall.apply( clientId, 'onArenaReady', [gameState],
                 function(){ console.log('client called from server'); });

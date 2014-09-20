@@ -131,7 +131,7 @@ createGameWorldFromConfiguration = function( config ){
     //connectionStore = subscriptions.activate.gameState(config.gameStateId);
 
     if (!gameWorld.preloaded){
-        gameWorld.prepare( config.contexts[Session.get('client_type')] );
+        gameWorld.prepare( config.contexts[Session.get('client_type')], config.gameState.players );
     }
 
     // Once gameState received from server

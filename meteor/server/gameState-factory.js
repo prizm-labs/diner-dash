@@ -50,6 +50,7 @@ generateGameState = function( gameId, users, configJson ){
     return {
         gameId: gameId,
         gameStateId: gameStateId,
+        gameState: session,
         contexts: allContexts,
         factory: factory,
         palette: config['palette']

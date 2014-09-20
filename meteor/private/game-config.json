@@ -76,7 +76,8 @@
             "image": "atlas.png"
         },
 
-        "manifest": ["sprite-manifest.json","D2"]
+        "manifest": ["sprite-manifest.json","D2"],
+        "loadPlayers": true
     }
 
 }
