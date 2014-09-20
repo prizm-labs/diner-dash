@@ -12,7 +12,7 @@ CustomerLane.prototype = Object.create(PRIZM.Node.prototype);
 console.dir(CustomerLane);
 
 _.extend( CustomerLane.prototype, {
-    init:  function( x, y, rotation, world ){
+    init:  function( x, y, rotation, direction, world ){
 
         this.world = world;
 
@@ -30,6 +30,9 @@ _.extend( CustomerLane.prototype, {
         this.setLocation('orderPlaced', 0, -105);
         this.setLocation('orderItemOrigin', 0, -112);
         this.setLocation('plateOrigin',0,120);
+
+        // Set lane's direction so it can be distinguished
+        this.state['direction'] = direction;
 
         // What are total length of order bubbles per item count???
         this.state['orderWidths'] = [
@@ -164,6 +167,8 @@ _.extend( CustomerLane.prototype, {
 
             serveOrder: function( servings, clientId ){
                 var self = this;
+
+                //TODO show claiming player avatar
 
                 console.log('serveOrder',servings, clientId);
 

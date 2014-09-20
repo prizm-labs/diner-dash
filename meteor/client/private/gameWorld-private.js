@@ -19,7 +19,7 @@ bindPrivateClientMethods = function( key, methods ){
             self.addNode(queueNode);
 
             var trayNode = new TrayNode();
-            trayNode.init(self);
+            trayNode.init(self,Session.get('playerIndex'));
             self.addNode(trayNode);
         }
     });

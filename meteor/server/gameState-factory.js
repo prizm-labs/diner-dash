@@ -14,8 +14,8 @@ generateGameState = function( gameId, users, configJson ){
     var session = _.extend({}, config['session']);
 
     // merge in users to players
-    _.each( users, function( user ){
-        session.players.push( mergePlayer( user, config['player'] ))
+    _.each( users, function( user, index ){
+        session.players.push( mergePlayer( user, config['player'], index ))
     });
 
     for (var i=0;i<config['limits']['seats'];i++){
@@ -57,12 +57,13 @@ generateGameState = function( gameId, users, configJson ){
     };
 };
 
-function mergePlayer( user, playerTemplate ){
+function mergePlayer( user, playerTemplate, index ){
 
     return _.extend(_.clone(playerTemplate), {
         "name": user.profile.name,
         "user_id": user._id,
-        "avatar": user.profile.avatar
+        "avatar": user.profile.avatar,
+        "index":"p"+index
     });
 
 }

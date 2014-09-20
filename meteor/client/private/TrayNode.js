@@ -12,7 +12,7 @@ TrayNode.prototype = Object.create(PRIZM.Node.prototype);
 console.dir(TrayNode);
 
 _.extend( TrayNode.prototype, {
-    init: function (world) {
+    init: function (world,playerIndex) {
 
         var self = this;
 
@@ -20,6 +20,7 @@ _.extend( TrayNode.prototype, {
 
         this.world = world;
 
+        this.state['playerIndex'] = playerIndex;
         this.state['queueTimes'] = {
             drink: 1,
             veggie: 2.5,
@@ -157,7 +158,7 @@ _.extend( TrayNode.prototype, {
 
         // TODO map current user to player & avatar
         avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
-            self.world.view.locations.center(), { variant:'p0', scale: 0.3 } );
+            self.world.view.locations.center(), { variant:self.state['playerIndex'], scale: 0.3 } );
 
         self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
             { shape:'circle', position:self.world.view.locations.center(), size:60 } );

@@ -36,6 +36,13 @@
             "cooking":"dish-cooking.png"
         }],
         ["tray","background-tray.png"],
-        ["queue","background-queue.png"]
+        ["queue","background-queue.png"],
+        ["serveArrow",{
+            "valid":"serve-direction-valid.png",
+            "invalid":"serve-direction-invalid.png"
+        }],
+        ["serveLocation",{
+            "valid":"serve-location-won.png"
+        }]
     ]
 }

@@ -67,6 +67,12 @@
         "mediumGray": "#BBBDC0"
     },
 
+    "typography": {
+        "small": {
+
+        }
+    },
+
     "mainContext": {
         "type": "2D",
         "domAnchor": "context2D-main",

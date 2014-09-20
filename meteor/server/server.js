@@ -289,8 +289,9 @@ Meteor.methods({
 
         // Return game configuration options
         // Return players so all clients can preload & render their name,avatar,etc.
-        _.each(clients, function(clientId){
-            Meteor.ClientCall.apply( clientId, 'onArenaReady', [gameState],
+        _.each(clients, function (clientId,index) {
+            var playerIndex = gameState.gameState.players[index].index;
+            Meteor.ClientCall.apply( clientId, 'onArenaReady', [ [gameState,playerIndex] ],
                 function(){ console.log('client called from server'); });
         });
     }

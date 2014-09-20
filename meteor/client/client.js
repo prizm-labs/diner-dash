@@ -38,7 +38,7 @@ Meteor.methods({
                     // Transition to game scene from lobby
                     $('#home-view').hide();
                     $('#hit-area').show();
-                    gameWorld.call('setupDefaultWorld');
+                    gameWorld.call('setupDefaultWorld',Session.get('gameState_configuration'));
 
                 });
         },0);
@@ -111,15 +111,16 @@ Meteor.ClientCall.methods({
     'onArenaReady': function( args ){
 
         console.log('onArenaReady', args);
+        var config = args[0], playerIndex = args[1];
 
         // TODO bind current user to player in game state
 
         // Cache game config data for hot code reload
-        Session.set('gameState_configuration',args);
-        Session.set('gameState_id',args.gameStateId);
+        Session.set('gameState_configuration',config);
+        Session.set('gameState_id',config.gameStateId);
+        Session.set('playerIndex',playerIndex);
 
-
-        createGameWorldFromConfiguration( args );
+        createGameWorldFromConfiguration( config );
 
     }
 

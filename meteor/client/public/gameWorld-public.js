@@ -5,11 +5,9 @@ bindPublicClientMethods = function(){
     console.log('bindPublicClientMethods');
 
     gameWorld.methods({
-        setupDefaultWorld: function(){
+        setupDefaultWorld: function(config){
             console.log('setupDefaultWorld',this);
             var self = this;
-
-            config = Session.get('gameState_configuration');
 
             // Set global background colors
             this.view.contexts['mainContext'].setBackgroundColor(config.palette.brightOrange);
@@ -29,15 +27,32 @@ bindPublicClientMethods = function(){
             _.each( seatedPositions, function( position, index ){
 
                 var lane = new CustomerLane();
-                lane.init(position[0], position[1], position[2], self);
+                lane.init(position[0], position[1], position[2], index, self);
 
                 self.addNode(lane);
-
-                // Set lane's direction so it can be distinguished
-                lane.state['direction'] = index;
             });
 
             lanes = this.nodesWithTag('customerLane');
+
+
+            // Scoreboard
+            var players = config.gameState.players;
+            var scoreBoard = {
+                width: 800,
+                origin: [self.view.width/2,200]
+            };
+
+            var scorePositions = PRIZM.Layout.distributePositionsAcrossWidth(
+                scoreBoard.origin, players.length, scoreBoard.width
+            );
+            _.each( scorePositions, function(position,index) {
+                var player = players[index];
+                var playerScore = new PlayerScore();
+                playerScore.init(position.x,position.y,self);
+                playerScore.setPlayer(player.name,player.index);
+
+                self.addNode(playerScore);
+            });
         },
 
         welcomeCustomers: function(){
