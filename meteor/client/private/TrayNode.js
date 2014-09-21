@@ -160,8 +160,9 @@ _.extend( TrayNode.prototype, {
         avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
             self.world.view.locations.center(), { variant:self.state['playerIndex'], scale: 0.3 } );
 
-        self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
-            { shape:'circle', position:self.world.view.locations.center(), size:60 } );
+        avatar.addMask('circle',0,0,60);
+//        self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
+//            { shape:'circle', position:self.world.view.locations.center(), size:60 } );
 
         //TODO cleanup timing for binding UI
         self.bindUI();

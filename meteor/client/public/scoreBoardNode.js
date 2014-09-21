@@ -23,7 +23,7 @@ _.extend( PlayerScore.prototype, {
         this.setBody('container', container);
 
         // Setup entry and exit locations for customer
-        this.setLocation('avatarOrigin', 0, -100);
+        this.setLocation('avatarOrigin', 0, 0);
         this.setLocation('playerName', 0, 50);
 
     },
@@ -49,14 +49,25 @@ _.extend( PlayerScore.prototype, {
         var avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
             self.location('avatarOrigin'), { variant:self.state['playerIndex'], scale: 0.3 } );
 
-        self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
-            { shape:'circle', position:{x:0,y:0}, size:60 } );
+//        self.world.view.contexts['mainContext'].maskBody( avatar.entity(),
+//            { shape:'circle', position:{x:0,y:0}, size:60 } );
+
 
         self.body('container').addChild(avatar);
         self.setBody('avatar',avatar);
 
-        var nameText = self.world.view.contexts['mainContext'].addText(
-            self.location('playerName'));
+        avatar.addMask('circle',0,0,60);
+
+
+        var location = self.location('playerName');
+        var nameText = self.world.view.factory.makeBody2D( 'mainContext',
+            'text', location, { text:self.state['playerName'],
+                styles:{
+                font: 'normal 16px Helvetica'
+            }});
+        nameText.centerText();
+
+
 
         self.body('container').addChild(nameText);
         self.setBody('nameText',nameText);

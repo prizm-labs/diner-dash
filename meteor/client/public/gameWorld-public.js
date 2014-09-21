@@ -5,6 +5,7 @@ bindPublicClientMethods = function(){
     console.log('bindPublicClientMethods');
 
     gameWorld.methods({
+
         setupDefaultWorld: function(config){
             console.log('setupDefaultWorld',this);
             var self = this;
@@ -45,10 +46,13 @@ bindPublicClientMethods = function(){
             var scorePositions = PRIZM.Layout.distributePositionsAcrossWidth(
                 scoreBoard.origin, players.length, scoreBoard.width
             );
+
+            console.log('scoreboard positions',scorePositions);
+
             _.each( scorePositions, function(position,index) {
                 var player = players[index];
                 var playerScore = new PlayerScore();
-                playerScore.init(position.x,position.y,self);
+                playerScore.init(position[0],position[1],self);
                 playerScore.setPlayer(player.name,player.index);
 
                 self.addNode(playerScore);

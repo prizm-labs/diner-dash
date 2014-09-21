@@ -118,7 +118,11 @@ Meteor.ClientCall.methods({
         // Cache game config data for hot code reload
         Session.set('gameState_configuration',config);
         Session.set('gameState_id',config.gameStateId);
-        Session.set('playerIndex',playerIndex);
+
+        if (Session.get('client_type')=='private'){
+            Session.set('playerIndex',playerIndex);
+        }
+
 
         createGameWorldFromConfiguration( config );
 
