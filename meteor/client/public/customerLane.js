@@ -29,10 +29,12 @@ _.extend( CustomerLane.prototype, {
         this.setLocation('seated', 0, 0);
         this.setLocation('orderPlaced', 0, -105);
         this.setLocation('orderItemOrigin', 0, -112);
-        this.setLocation('plateOrigin',0,120);
+        this.setLocation('plateOrigin', 0,120);
+        this.setLocation('avatarOrigin', 0,230);
 
         // Set lane's direction so it can be distinguished
         this.state['direction'] = direction;
+        this.state['rotation'] = rotation;
 
         // What are total length of order bubbles per item count???
         this.state['orderWidths'] = [
@@ -46,7 +48,14 @@ _.extend( CustomerLane.prototype, {
         };
         this.state['customerPresent'] = false;
         this.state['currentClient'] = null; // Track which player is serving
+        this.state['playerIndex'] = null;
 
+        var avatarContainer = this.world.view.factory.makeGroup2D( 'mainContext',
+            this.locationToPoint('avatarOrigin'), {visible:false});
+        avatarContainer.rotate(-rotation);
+        avatarContainer.resize(0.01,0.01);
+        container.addChild(avatarContainer);
+        this.setBody('avatarContainer', avatarContainer);
 
         var customer = this.world.view.factory.makeBody2D( 'mainContext', 'customer',
             this.location('entry'),
@@ -74,6 +83,10 @@ _.extend( CustomerLane.prototype, {
 
         // Bind methods
         this.methods({
+
+            isLocked: function(){
+                return (this.state['currentClient']!=null);
+            },
 
             customerEnter: function( ){
                 var self = this;
@@ -129,6 +142,8 @@ _.extend( CustomerLane.prototype, {
                     //TODO add smaller item icons, since child sprites inherit scale from parent
                     orderItem.addTag(order);
                     orderItem.addTag('order');
+                    // Rotata icon to align with global direction UP
+                    orderItem.rotate(-self.state['rotation']);
                     self.setBody('order'+index,orderItem);
                     self.body('container').addChild(orderItem);
                 });
@@ -165,16 +180,27 @@ _.extend( CustomerLane.prototype, {
                 // Fade order bubble
             },
 
-            serveOrder: function( servings, clientId ){
+            serveOrder: function( servings, clientId, playerIndex ){
                 var self = this;
+
+                console.log('serveOrder',servings, clientId, playerIndex);
 
                 //TODO show claiming player avatar
 
-                console.log('serveOrder',servings, clientId);
+                var avatarContainer = this.body('avatarContainer');
+                var avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
+                    {x:0,y:0}, { variant:playerIndex, scale: 0.2 } );
+
+                avatarContainer.addChild(avatar);
+                avatar.addMask('circle',0,0,35);
+                avatarContainer.show();
+                avatarContainer.resize(1,1,0.5);
+                this.setBody('avatar',avatar);
 
                 if (clientId){
                     this.state['currentClient'] = clientId;
                 }
+                this.state['playerIndex'] = playerIndex;
 
                 // Lock customer
                 this.call('updatePlate','closed');
@@ -203,7 +229,6 @@ _.extend( CustomerLane.prototype, {
                         self.call('updateOrder');
                         self.call('makePayment',servedCache);
 
-                        this.state['currentClient'] = null;
                     });
                 } else {
                     // Release customer
@@ -360,6 +385,7 @@ _.extend( CustomerLane.prototype, {
                 });
 
                 console.log('payout',payout);
+                var payoutCache = payout;
 
                 // Create coins in front of customer
                 var coins = [];
@@ -380,6 +406,29 @@ _.extend( CustomerLane.prototype, {
                     coin.registerAnimation('scale',{x:1,y:1},0.3);
                     coin.place(target.x, target.y, 1);
                 })
+
+                // Remove player avatar
+//                alert('make payment');
+                var avatarContainer = this.body('avatarContainer');
+                avatarContainer.resize(0.01,0.01,0.5,function(){
+                    avatarContainer.hide();
+                    self.removeBody('avatar');
+
+                    // Update score
+                    self.world.liveData.broadcast('orderPaid',
+                        [
+                            self.state['currentClient'],
+                            self.state['playerIndex'],
+                            payoutCache,
+                            servedItems,
+                            self.state['direction']
+                        ]);
+
+                    // Finally, clear player data
+                    self.state['currentClient'] = null;
+                    self.state['playerIndex'] = null;
+                });
+
             },
 
             customerExit: function( ){

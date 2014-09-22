@@ -36,6 +36,7 @@ _.extend( TrayNode.prototype, {
         };
 
         this.state['trayLoadout'] = [null,null,null,null,null];
+        this.state['isServing'] = false;
 
         this.methods({
 
@@ -43,12 +44,107 @@ _.extend( TrayNode.prototype, {
 
             },
 
-            updatePlates: function( plates ){
+            laneWon: function (direction) {
+                console.log('laneWon',direction);
+
+                var iconKey = 'activeIcon';
+
+                // Icon for customer being served
+                var activeIcon = self.world.view.factory.makeBody2D( 'mainContext', 'serveLocation',
+                    this.location('plate'+direction), { variant:'valid', scale: 0.5, visible: false } );
+                activeIcon.resize(0.01,0.01);
+                activeIcon.show();
+                activeIcon.resize(0.5,0.5,0.5);
+                this.setBody(iconKey,activeIcon);
+
+                // Cache player at lane to clear later
+                this.state['lane'+direction] = iconKey;
+
+                this.call('startServing'); // Disable lanes
+            },
+
+            laneLost: function (direction, playerIndex){
                 var self = this;
 
-                _.each(plates, function(plate){
+                console.log('laneLost',direction, playerIndex);
 
-                })
+                var iconKey = 'serving'+playerIndex;
+
+                var avatarContainer = this.world.view.factory.makeGroup2D( 'mainContext',
+                    this.location('plate'+direction), {visible:false});
+                avatarContainer.resize(0.01,0.01);
+
+                var avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
+                    {x:0,y:0}, { variant:playerIndex, scale: 0.2 } );
+                avatarContainer.addChild(avatar);
+                avatar.addMask('circle',0,0,35);
+
+
+                avatarContainer.show();
+                avatarContainer.resize(1,1,0.5);
+                this.setBody(iconKey,avatarContainer);
+
+                // Cache player at lane to clear later
+                this.state['lane'+direction] = iconKey;
+            },
+
+            laneCleared: function (direction) {
+                console.log('laneCleared',direction);
+                var self = this;
+
+                var iconKey = this.state['lane'+direction];
+
+                if (iconKey) {
+
+                    if (iconKey=='activeIcon') {
+                        this.call('stopServing'); // Enable lanes
+                    }
+
+                    // Remove avatar
+                    var servingIcon = this.body(iconKey);
+                    servingIcon.resize(0.01,0.01,0.5, function(){
+                        self.removeBody(iconKey);
+                    });
+
+                    this.state['lane'+direction] = null;
+                }
+            },
+
+            startServing: function(){
+                var self = this;
+
+                this.state['isServing'] = true;
+
+                var plates = this.bodiesWithTag('plate');
+
+                _.each(plates,function(plate){
+                    plate.resize(0.01,0.01,0.5,function(){
+                        plate.hide();
+                    })
+                });
+
+            },
+
+            stopServing: function(){
+                var self = this;
+
+                this.state['isServing'] = false;
+
+                var plates = this.bodiesWithTag('plate');
+
+                _.each(plates,function(plate){
+                    plate.show();
+                    plate.resize(0.4,0.4,0.5);
+                });
+
+            },
+
+
+            updatePlates: function(){
+                for (var i=0;ui<plates.length;i++){
+
+                    //this.updatePlate(i, status);
+                }
             },
 
             updatePlate: function( index, status ){
@@ -83,7 +179,13 @@ _.extend( TrayNode.prototype, {
                 console.log('serveCustomer',direction);
 
                 // Broadcast loadout
-                this.world.liveData.broadcast('servingCustomer',[direction, this.state['trayLoadout'], Session.get('client_id')]);
+                this.world.liveData.broadcast('servingCustomer',
+                    [
+                        direction,
+                        this.state['trayLoadout'],
+                        Session.get('client_id'),
+                        this.state['playerIndex']
+                    ]);
 
 
 
@@ -191,10 +293,12 @@ _.extend( TrayNode.prototype, {
             target.setBehavior( 'tap', null, null, function( event ){
                 console.log('plate direction tap',event);
 
-                body.registerAnimation('scale',{x:0.3,y:0.3},0.15);
-                body.resize(0.4,0.4, 0.2);
+                if (!self.state['isServing']) {
+                    body.registerAnimation('scale',{x:0.3,y:0.3},0.15);
+                    body.resize(0.4,0.4, 0.2);
 
-                self.call('serveCustomer',body.state['directionIndex']);
+                    self.call('serveCustomer',body.state['directionIndex']);
+                }
             });
 
             body.setHitArea(target);

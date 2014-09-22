@@ -68,8 +68,14 @@ bindPublicStreams = function(){
 
     gameWorld.liveData.addTrigger('servingCustomer',function(args){
         console.log('servingCustomer', args, this);
-        //args: direction, trayLoadout, clientId
-        gameWorld.nodesWithTag('customerLane')[args[0]].apply('serveOrder',[args[1],args[2]]);
+        //args: direction, trayLoadout, clientId, playerIndex
+
+        var lane = gameWorld.nodesWithTag('customerLane')[args[0]];
+        if (!lane.call('isLocked')) {
+            lane.apply('serveOrder',[args[1],args[2],args[3]]);
+
+            gameWorld.liveData.broadcast('laneClaimed',[args[0],args[2],args[3]]);
+        }
     });
 
     gameWorld.liveData.addTrigger('registerClientId',function(args){
@@ -82,6 +88,17 @@ bindPublicStreams = function(){
 }
 
 bindPrivateStreams = function(){
+
+    gameWorld.liveData.addTrigger('laneClaimed',function(args){
+        console.log('laneClaimed', args, this);
+        //args: direction, clientId playerIndex
+
+        if (Session.get('client_id')==args[1]) {
+            gameWorld.nodesWithTag('trayNode')[0].apply('laneWon', [args[0]]);
+        } else {
+            gameWorld.nodesWithTag('trayNode')[0].apply('laneLost', [args[0],args[2]]);
+        }
+    });
 
     gameWorld.liveData.addTrigger('updatePlate',function(args){
         console.log('updatePlate', args, this);
@@ -96,6 +113,19 @@ bindPrivateStreams = function(){
         if (Session.get('client_id')==args[1]) {
             gameWorld.nodesWithTag('queueNode')[0].call('removeItem',args[0]);
         }
+
+    });
+
+    gameWorld.liveData.addTrigger('orderPaid',function(args){
+        console.log('orderPaid', args, this);
+        //args: clientId, playerIndex, payout, servedItems, direction
+
+        if (Session.get('client_id')==args[0]) {
+            //gameWorld.nodesWithTag('queueNode')[0].call('removeItem',args[0]);
+        }
+
+        // Clear lane on all clients
+        gameWorld.nodesWithTag('trayNode')[0].call('laneCleared',args[4]);
 
     });
 
