@@ -13,10 +13,39 @@ bindPublicClientMethods = function(){
             // Set global background colors
             this.view.contexts['mainContext'].setBackgroundColor(config.palette.brightOrange);
 
+            var center = this.view.locations.center();
+            // TODO set game timers from config !!!
+
+            // Timer: Game Over
+            gameTimer = new TimerNode();
+            gameTimer.init(center.x, center.y, self);
+            gameTimer.renderPie(265,
+                PRIZM.Colors.stringToHex(0xFFFFFF),
+                PRIZM.Colors.stringToHex(config.palette.darkGray));
+            gameTimer.configureInterval(30*1000,1000);
+            //gameTimer.start();
+
+            gameTimer.configureEvents(
+
+                function(progress,currentTime,delta){
+                    console.log(progress,currentTime,delta);
+
+                },
+
+                function(){
+                    console.log('complete!',this);
+                }
+            );
+
+            // Timer: Start countdown
+
+
+            // Timer: Refilling customers
+
 
             // Table & Seats
             table = this.view.factory.makeBody2D( 'mainContext', 'table',
-                this.view.locations.center(), { variant: 'public' } );
+                center, { variant: 'public' } );
 
 
             // Customers
@@ -57,6 +86,7 @@ bindPublicClientMethods = function(){
 
                 self.addNode(playerScore);
             });
+
         },
 
         welcomeCustomers: function(){
@@ -103,6 +133,26 @@ bindPublicClientMethods = function(){
             console.log('generateRandomOrder',result);
 
             return result;
+        },
+
+        startGame: function(){
+
+            // Start game over timer
+
+
+            // Start refilling timers
+
+        },
+
+        endGame: function(){
+            // Allow current servings to finish
+
+
+        },
+
+        giveAwards: function(){
+
+
         }
     });
 

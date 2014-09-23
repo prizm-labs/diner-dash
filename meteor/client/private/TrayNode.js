@@ -336,18 +336,19 @@ _.extend( TrayNode.prototype, {
         tray = this.world.view.factory.makeBody2D( 'mainContext', 'tray',
             this.world.view.locations.center(), { scale:0.6 } );
 
-        trayPositions = PRIZM.Layout.positionsAlongRadius(
-            this.world.view.locations.center(), 70,
-            [0, Math.PI*2/5, Math.PI*4/5, Math.PI*6/5, Math.PI*8/5 ]);
+        // 5 slots around tray
+//        trayPositions = PRIZM.Layout.positionsAlongRadius(
+//            this.world.view.locations.center(), 70,
+//            [0, Math.PI*2/5, Math.PI*4/5, Math.PI*6/5, Math.PI*8/5 ]);
+//
+//        _.each( trayPositions, function( position ){
+//            var slot = self.world.view.factory.makeBody2D( 'mainContext', 'dishStatus',
+//                { x:position[0], y:position[1]},
+//                { variant: 'cooking', scale:0.4 } );
+//            slot.addTag('traySlot');
+//        });
 
-        _.each( trayPositions, function( position ){
-            var slot = self.world.view.factory.makeBody2D( 'mainContext', 'dishStatus',
-                { x:position[0], y:position[1]},
-                { variant: 'cooking', scale:0.4 } );
-            slot.addTag('traySlot');
-        });
-
-        // TODO map current user to player & avatar
+        // Map current user to player & avatar
         avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
             self.world.view.locations.center(), { variant:self.state['playerIndex'], scale: 0.3 } );
 
