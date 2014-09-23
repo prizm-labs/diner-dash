@@ -47,6 +47,9 @@ _.extend( CustomerLane.prototype, {
             meat: 6,
             dessert: 4
         };
+
+        this.state['jackpotRatio'] = 0.5;
+
         this.state['customerPresent'] = false;
         this.state['currentClient'] = null; // Track which player is serving
         this.state['playerIndex'] = null;
@@ -383,22 +386,15 @@ _.extend( CustomerLane.prototype, {
                 });
             },
 
-            makePayment: function( servedItems ){
-                console.log('makPayment',servedItems);
+            addToJackpot: function(payout) {
                 var self = this;
-                var payout = 0;
-                // Calculate total payment from dishes served
-                _.each( servedItems, function(item){
-                    payout+=self.state['payouts'][item];
-                });
 
-                console.log('payout',payout);
-                var payoutCache = payout;
+                // Take percentage of payout
+                payout = Math.max( Math.floor(payout*this.state['jackpotRatio']), 1);
 
                 // Create coins in front of customer
                 var coins = [];
                 do {
-
                     var coin = self.world.view.factory.makeBody2D( 'mainContext', 'coin',
                         this.location('seated'),{ scale:0.01 } );
                     self.body('container').addChild(coin);
@@ -410,13 +406,27 @@ _.extend( CustomerLane.prototype, {
 
                 // Move coins into center pot
                 _.each(coins, function(coin){
-                    var target = PRIZM.Layout.randomPositionNear([0,400],150);
-                    coin.registerAnimation('scale',{x:1,y:1},0.3);
+                    var target = PRIZM.Layout.randomPositionNear([0,400],120);
+                    coin.registerAnimation('scale',{x:0.65,y:0.65},0.3);
                     coin.place(target.x, target.y, 1);
                 })
 
+            },
+
+            makePayment: function( servedItems ){
+                console.log('makPayment',servedItems);
+                var self = this;
+                var payout = 0;
+                // Calculate total payment from dishes served
+                _.each( servedItems, function(item){
+                    payout+=self.state['payouts'][item];
+                });
+
+                console.log('payout',payout);
+
+                this.call('addToJackpot',payout);
+
                 // Remove player avatar
-//                alert('make payment');
                 var avatarContainer = this.body('avatarContainer');
                 avatarContainer.resize(0.01,0.01,0.5,function(){
                     avatarContainer.hide();
@@ -427,11 +437,14 @@ _.extend( CustomerLane.prototype, {
                         [
                             self.state['currentClient'],
                             self.state['playerIndex'],
-                            payoutCache,
+                            payout,
                             servedItems,
                             self.state['direction']
                         ]);
-                    amplify.publish('orderPaid',[self.state['playerIndex'],payoutCache]);
+                    amplify.publish('orderPaid',[
+                        self.state['playerIndex'],
+                        payout, self.state['direction']
+                    ]);
 
                     // Finally, clear player data
                     self.state['currentClient'] = null;

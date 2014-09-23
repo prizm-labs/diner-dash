@@ -34,9 +34,9 @@ _.extend( PlayerScore.prototype, {
         // Internal events
 
         amplify.subscribe('orderPaid',function(args){
-            // args: playerIndex,scoreDelta
+            // args: playerIndex,scoreDelta,direction
             if (args[0] == self.state['playerIndex'])
-                self.updateScore(args[1]);
+                self.updateScore(args[1],args[2]);
         })
     },
 
@@ -50,16 +50,63 @@ _.extend( PlayerScore.prototype, {
         this.render();
     },
 
-    updateScore: function (scoreDelta) {
-        console.log('updateScore',scoreDelta);
+    updateScore: function (scoreDelta, direction) {
+        var self = this;
+
+        console.log('updateScore',scoreDelta, direction);
 
         this.state['coinScore'] = this.state['coinScore']+scoreDelta;
 
-        var coinScore = this.body('coinScore');
+        var customer = self.world.nodesWithTag('customerLane')[direction].body('container');
+        console.log('customer paid',customer.x,customer.y,customer);
 
-        coinScore.setText(this.state['coinScore']);
-        coinScore.resize(1.5,1.5,0.3);
-        coinScore.resize(1,1,0.6);
+        // Create coins in front of customer
+        var coins = [];
+        do {
+            var coin = self.world.view.factory.makeBody2D( 'mainContext', 'coin',
+                [customer.x,customer.y],{ scale:0.01 } );
+            //self.body('container').addChild(coin);
+            coin.addTag('coin');
+            coins.push(coin);
+            self.addBody(coin);
+
+            scoreDelta--;
+        } while (scoreDelta>0);
+
+        // Move coins around customer
+        _.each(coins, function(coin){
+            var target = PRIZM.Layout.randomPositionNear([customer.x,customer.y],100);
+            console.log('random near customer',target.x, target.y);
+            coin.registerAnimation('scale',{x:1,y:1},0.5,{parallel:true});
+            coin.place(target.x, target.y, 0.8);
+        });
+
+
+        // Move coins to player score avatar
+        Meteor.setTimeout(function(){
+
+            var target = self.body('container');
+            console.log('player score position',target.x, target.y);
+
+            _.each(coins, function(coin){
+                coin.registerAnimation('scale',{x:0.01,y:0.01},1, {parallel:true});
+                coin.place(target.x, target.y, 1, function(){
+                    self.removeBody(coin);
+                });
+            })
+
+        },1200);
+
+
+        // Pulse & update score number
+        Meteor.setTimeout(function(){
+            var coinScore = self.body('coinScore');
+
+            coinScore.setText(self.state['coinScore']);
+            coinScore.resize(1.5,1.5,0.3);
+            coinScore.resize(1,1,0.6);
+
+        },1800);
     },
 
     renderScore: function(){
@@ -89,8 +136,8 @@ _.extend( PlayerScore.prototype, {
         var nameText = self.world.view.factory.makeBody2D( 'mainContext',
             'text', self.location('playerName'), { text:self.state['playerName'],
                 styles:{
-                font: 'normal 16px Helvetica'
-            }});
+                    font: 'normal 16px Helvetica'
+                }});
         nameText.centerText();
         self.body('container').addChild(nameText);
         self.setBody('nameText',nameText);
