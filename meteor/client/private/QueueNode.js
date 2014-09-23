@@ -35,9 +35,39 @@ _.extend( QueueNode.prototype, {
         };
 
         this.state['queueSlots'] = [null,null,null,null,null];
+        this.state['isServing'] = false;
 
 
         this.methods({
+
+            lockOrdering: function(){
+                var self = this;
+
+                this.state['isServing'] = true;
+
+                var buttons = this.bodiesWithTag('orderButton');
+
+                _.each(buttons,function(button){
+                    button.resize(0.01,0.01,0.5,function(){
+                        button.hide();
+                    })
+                });
+
+            },
+
+            unlockOrdering: function(){
+                var self = this;
+
+                this.state['isServing'] = false;
+
+                var buttons = this.bodiesWithTag('orderButton');
+
+                _.each(buttons,function(button){
+                    button.show();
+                    button.resize(0.5,0.5,0.5);
+                });
+
+            },
 
             queueItem: function (item) {
 
@@ -100,6 +130,15 @@ _.extend( QueueNode.prototype, {
 
         });
 
+
+        // Internal events
+        amplify.subscribe('updateServingStatus', function(status){
+            console.log('received updateServingStatus',status);
+            if (status)
+                self.call('lockOrdering');
+            else
+                self.call('unlockOrdering');
+        });
 
 
         // Finally render node
@@ -175,12 +214,15 @@ _.extend( QueueNode.prototype, {
             target.setBehavior( 'tap', null, null, function( event ){
                 console.log('order button tap',event);
 
-                // Show feedback
-                //body.resize(0.6,0.6, 0.2);
-                body.registerAnimation('scale',{x:0.35,y:0.35},0.15);
-                body.resize(0.5,0.5, 0.2);
+                if (!self.state['isServing']) {
+                    // Show feedback
+                    //body.resize(0.6,0.6, 0.2);
+                    body.registerAnimation('scale',{x:0.35,y:0.35},0.15);
+                    body.resize(0.5,0.5, 0.2);
 
-                self.call('queueItem',body.state['itemType']);
+                    self.call('queueItem',body.state['itemType']);
+                }
+
             });
 
             target.activate();

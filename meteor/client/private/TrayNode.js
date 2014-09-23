@@ -47,6 +47,8 @@ _.extend( TrayNode.prototype, {
             laneWon: function (direction) {
                 console.log('laneWon',direction);
 
+                this.body('plate'+direction).hide();
+
                 var iconKey = 'activeIcon';
 
                 // Icon for customer being served
@@ -60,13 +62,16 @@ _.extend( TrayNode.prototype, {
                 // Cache player at lane to clear later
                 this.state['lane'+direction] = iconKey;
 
-                this.call('startServing'); // Disable lanes
+                amplify.publish('updateServingStatus',true);
+                //this.call('startServing'); // Disable lanes
             },
 
             laneLost: function (direction, playerIndex){
                 var self = this;
 
                 console.log('laneLost',direction, playerIndex);
+
+                this.body('plate'+direction).hide();
 
                 var iconKey = 'serving'+playerIndex;
 
@@ -92,12 +97,14 @@ _.extend( TrayNode.prototype, {
                 console.log('laneCleared',direction);
                 var self = this;
 
+                this.body('plate'+direction).show();
                 var iconKey = this.state['lane'+direction];
 
                 if (iconKey) {
 
                     if (iconKey=='activeIcon') {
-                        this.call('stopServing'); // Enable lanes
+                        amplify.publish('updateServingStatus',false);
+                        //this.call('stopServing'); // Enable lanes
                     }
 
                     // Remove avatar
@@ -110,7 +117,7 @@ _.extend( TrayNode.prototype, {
                 }
             },
 
-            startServing: function(){
+            lockServing: function(){
                 var self = this;
 
                 this.state['isServing'] = true;
@@ -122,10 +129,84 @@ _.extend( TrayNode.prototype, {
                         plate.hide();
                     })
                 });
+            },
+
+            receivePayment: function (payout, direction) {
+                var self = this;
+                console.log('receivePayment',payout,direction);
+                var payoutCache = (payout>0) ? '+'+payout : '-'+payout;
+
+                // Create & Move coins from plate to center
+                var coins = [];
+                do {
+
+                    var coin = self.world.view.factory.makeBody2D( 'mainContext', 'coin',
+                        this.location('plate'+direction),{ scale:0.01 } );
+                    self.addBody(coin);
+                    coin.addTag('coin');
+                    coins.push(coin);
+
+                    payout--;
+                } while (payout>0);
+
+                var center = self.world.view.locations.center();
+
+                // Move coins into center pot
+                _.each(coins, function(coin){
+                    var target = PRIZM.Layout.randomPositionNear([center.x,center.y],55);
+                    coin.registerAnimation('scale',{x:0.6,y:0.6},0.3,{parallel:true});
+                    coin.place(target.x, target.y, 0.3);
+                });
+
+                // Show number total of coins
+                Meteor.setTimeout(function(){
+                    var payoutBackground =  self.world.view.factory.makeShape2D( 'mainContext', 'circle',
+                        center,{ radius:50, fillColor:0xFFFFFF, visible:false } );
+                    payoutBackground.fade(0);
+                    self.setBody('payoutBackground',payoutBackground);
+                    var payoutNumber = self.world.view.factory.makeBody2D( 'mainContext',
+                        'text', center, { text:payoutCache,
+                            styles:{
+                                fontSize: 50,
+                                font: 'normal 50px Helvetica',
+                                fill: 'black'
+                            }, visible:false });
+                    payoutNumber.centerText();
+                    payoutNumber.fade(0);
+                    self.setBody('payoutNumber',payoutNumber);
+
+                    payoutNumber.fade(1,0.5);
+                    //payoutBackground.resize(1,1,0.5, function(){
+                    payoutBackground.fade(0.75,0.5, function(){
+
+                        // Shrink coins into center
+                        Meteor.setTimeout(function(){
+
+                            self.body('payoutBackground').fade(0,0.5,function(){
+                                self.removeBody('payoutBackground');
+                            });
+
+                            self.body('payoutNumber').fade(0,0.5,function(){
+                                self.removeBody('payoutNumber');
+                            });
+
+                            _.each(coins, function(coin){
+                                coin.registerAnimation('scale',{x:0.01,y:0.01},1,{parallel:true});
+                                coin.place( center.x,center.y, 1, function(){
+                                    self.removeBody(coin);
+                                });
+                            });
+
+                        },800);
+
+                    });
+
+                },500);
+
 
             },
 
-            stopServing: function(){
+            unlockServing: function(){
                 var self = this;
 
                 this.state['isServing'] = false;
@@ -212,6 +293,14 @@ _.extend( TrayNode.prototype, {
             self.state['trayLoadout'] = queue;
         });
 
+        amplify.subscribe('updateServingStatus', function(status){
+            console.log('received updateServingStatus',status);
+            if (status)
+                self.call('lockServing');
+            else
+                self.call('unlockServing');
+        });
+
 
         // Finally render node
         this.render();
@@ -240,7 +329,7 @@ _.extend( TrayNode.prototype, {
             plate.state['directionIndex'] = index;
 
             self.setLocation('plate'+index,position[0],position[1]);
-            self.addBody(plate);
+            self.setBody('plate'+index,plate);
         });
 
         // Player's Tray

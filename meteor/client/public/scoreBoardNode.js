@@ -12,6 +12,7 @@ console.dir(PlayerScore);
 _.extend( PlayerScore.prototype, {
 
     init:  function( x, y, world ) {
+        var self = this;
 
         this.world = world;
 
@@ -27,8 +28,16 @@ _.extend( PlayerScore.prototype, {
         // Setup entry and exit locations for customer
         this.setLocation('avatarOrigin', 0, -15);
         this.setLocation('playerName', 0, 50);
-        this.setLocation('coinIcon', -20, 100);
-        this.setLocation('coinScore', 10, 100-32/2);
+        this.setLocation('coinIcon', -50, 100);
+        this.setLocation('coinScore', -20, 100);
+
+        // Internal events
+
+        amplify.subscribe('orderPaid',function(args){
+            // args: playerIndex,scoreDelta
+            if (args[0] == self.state['playerIndex'])
+                self.updateScore(args[1]);
+        })
     },
 
     setPlayer: function (playerName, playerIndex) {
@@ -41,8 +50,30 @@ _.extend( PlayerScore.prototype, {
         this.render();
     },
 
-    updateScore: function (score) {
+    updateScore: function (scoreDelta) {
+        console.log('updateScore',scoreDelta);
 
+        this.state['coinScore'] = this.state['coinScore']+scoreDelta;
+
+        var coinScore = this.body('coinScore');
+
+        coinScore.setText(this.state['coinScore']);
+        coinScore.resize(1.5,1.5,0.3);
+        coinScore.resize(1,1,0.6);
+    },
+
+    renderScore: function(){
+        var self = this;
+
+        var coinScore = self.world.view.factory.makeBody2D( 'mainContext',
+            'text', self.location('coinScore'), { text:self.state['coinScore'],
+                styles:{
+                    font: 'normal 60px Helvetica',
+                    fontSize:60
+                }});
+        //nameText.centerText();
+        self.body('container').addChild(coinScore);
+        self.setBody('coinScore',coinScore);
     },
 
     render: function() {
@@ -70,14 +101,7 @@ _.extend( PlayerScore.prototype, {
         self.body('container').addChild(coinIcon);
         coinIcon.addTag('coinIcon');
 
-        var coinScore = self.world.view.factory.makeBody2D( 'mainContext',
-            'text', self.location('coinScore'), { text:self.state['coinScore'],
-                styles:{
-                    font: 'normal 32px Helvetica'
-                }});
-        //nameText.centerText();
-        self.body('container').addChild(coinScore);
-        self.setBody('coinScore',coinScore);
+        this.renderScore();
     }
 
 

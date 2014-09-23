@@ -24,13 +24,14 @@ _.extend( CustomerLane.prototype, {
         container.rotate(rotation);
         this.setBody('container', container);
 
+
         // Setup entry and exit locations for customer
         this.setLocation('entry', 0, -200);
         this.setLocation('seated', 0, 0);
         this.setLocation('orderPlaced', 0, -105);
         this.setLocation('orderItemOrigin', 0, -112);
         this.setLocation('plateOrigin', 0,120);
-        this.setLocation('avatarOrigin', 0,230);
+        this.setLocation('avatarOrigin', 0,250);
 
         // Set lane's direction so it can be distinguished
         this.state['direction'] = direction;
@@ -44,7 +45,7 @@ _.extend( CustomerLane.prototype, {
             drink: 1,
             veggie: 3,
             meat: 6,
-            dessert: 2.5
+            dessert: 4
         };
         this.state['customerPresent'] = false;
         this.state['currentClient'] = null; // Track which player is serving
@@ -56,6 +57,11 @@ _.extend( CustomerLane.prototype, {
         avatarContainer.resize(0.01,0.01);
         container.addChild(avatarContainer);
         this.setBody('avatarContainer', avatarContainer);
+
+        var avatarBackground = this.world.view.factory.makeBody2D( 'mainContext', 'tray',
+            {x:0,y:0}, { scale:0.6 } );
+        this.setBody('avatarBackground', avatarBackground);
+        avatarContainer.addChild(avatarBackground);
 
         var customer = this.world.view.factory.makeBody2D( 'mainContext', 'customer',
             this.location('entry'),
@@ -188,11 +194,13 @@ _.extend( CustomerLane.prototype, {
                 //TODO show claiming player avatar
 
                 var avatarContainer = this.body('avatarContainer');
+
                 var avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
-                    {x:0,y:0}, { variant:playerIndex, scale: 0.2 } );
+                    {x:0,y:0}, { variant:playerIndex, scale: 0.35 } );
+
 
                 avatarContainer.addChild(avatar);
-                avatar.addMask('circle',0,0,35);
+                avatar.addMask('circle',0,0,60);
                 avatarContainer.show();
                 avatarContainer.resize(1,1,0.5);
                 this.setBody('avatar',avatar);
@@ -423,6 +431,7 @@ _.extend( CustomerLane.prototype, {
                             servedItems,
                             self.state['direction']
                         ]);
+                    amplify.publish('orderPaid',[self.state['playerIndex'],payoutCache]);
 
                     // Finally, clear player data
                     self.state['currentClient'] = null;

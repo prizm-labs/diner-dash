@@ -85,6 +85,13 @@ bindPublicStreams = function(){
         gameWorld.liveData.mapCallerToClient(this.subscriptionId,args[0]);
     });
 
+//    gameWorld.liveData.addTrigger('orderPaid',function(args) {
+//        console.log('orderPaid', args, this);
+//        //args: clientId, playerIndex, payout, servedItems, direction
+//
+//        gameWorld.nodesWithTags(['playerScore',args[1]])[0].call('updateScore',args[2]);
+//    });
+
 }
 
 bindPrivateStreams = function(){
@@ -121,7 +128,7 @@ bindPrivateStreams = function(){
         //args: clientId, playerIndex, payout, servedItems, direction
 
         if (Session.get('client_id')==args[0]) {
-            //gameWorld.nodesWithTag('queueNode')[0].call('removeItem',args[0]);
+            gameWorld.nodesWithTag('trayNode')[0].apply('receivePayment',[args[2],args[4]]);
         }
 
         // Clear lane on all clients
