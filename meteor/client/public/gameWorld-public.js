@@ -17,8 +17,8 @@ bindPublicClientMethods = function(){
             // TODO set game timers from config !!!
 
             // Timer: Game Over
-            gameTimer = new TimerNode();
-            gameTimer.init(center.x, center.y, self);
+            gameTimer = new PRIZM.Nodes.Timer();
+            gameTimer.init(center.x, center.y, 'mainContext', self);
             gameTimer.renderPie(265,
                 PRIZM.Colors.stringToHex(0xFFFFFF),
                 PRIZM.Colors.stringToHex(config.palette.darkGray));
@@ -37,10 +37,7 @@ bindPublicClientMethods = function(){
                 }
             );
 
-            // Timer: Start countdown
 
-
-            // Timer: Refilling customers
 
 
             // Table & Seats
@@ -87,6 +84,18 @@ bindPublicClientMethods = function(){
                 self.addNode(playerScore);
             });
 
+
+            // Modal Views
+            // Countdown
+            countdownModal = new CountdownModal();
+            countdownModal.init(self.view.width,self.view.height,0.5,'#000000','mainContext',self);
+
+            countdownModal.present();
+
+            // Timer: Start countdown
+
+
+            // Timer: Refilling customers
         },
 
         welcomeCustomers: function(){
