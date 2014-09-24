@@ -14,27 +14,14 @@ _.extend( CountdownModal.prototype, {
 
     init: function(width, height, backdropOpacity, backdropColor, ctx, world){
 
+        var modal = this;
+
         this.super.init.call(this, width, height, backdropOpacity, backdropColor, ctx, world);
-        this.prepare('none','none',
-            function(){
-                var self = this;
-                var countdownText = self.world.view.factory.makeBody2D( this.ctx,
-                    'text', [0,0], { text:3,
-                        styles:{
-                            font: 'normal 100px Helvetica',
-                            fontSize: 100,
-                            fill: 'white'
-                        }});
-                countdownText.centerText();
-                self.body('container').addChild(countdownText);
-                self.setBody('countdownText',countdownText);
-            },
-            function(){
+    },
 
-            },
-            function(){
-
-            });
+    startTimer: function(){
+        console.log('startTimer',this);
+        this.nodesWithTag('timer')[0].start();
     }
 
 });

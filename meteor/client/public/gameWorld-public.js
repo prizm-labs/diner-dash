@@ -23,7 +23,7 @@ bindPublicClientMethods = function(){
                 PRIZM.Colors.stringToHex(0xFFFFFF),
                 PRIZM.Colors.stringToHex(config.palette.darkGray));
             gameTimer.configureInterval(30*1000,1000);
-            //gameTimer.start();
+
 
             gameTimer.configureEvents(
 
@@ -89,7 +89,43 @@ bindPublicClientMethods = function(){
             // Countdown
             countdownModal = new CountdownModal();
             countdownModal.init(self.view.width,self.view.height,0.5,'#000000','mainContext',self);
+            countdownModal.prepare('none','none',
+                function(){ // onRender
+                    var self = this;
 
+                    startTimer = new PRIZM.Nodes.Timer();
+                    startTimer.init(0, 0, 'mainContext', countdownModal.world);
+
+                    startTimer.configureInterval(3*1000,1000);
+                    startTimer.renderNumber('seconds');
+
+                    countdownModal.body('container').addChild(startTimer.body('container'));
+                    countdownModal.addNode(startTimer);
+
+
+                    startTimer.configureEvents(
+
+                        function(progress,currentTime,delta){
+                            console.log(progress,currentTime,delta);
+
+                        },
+
+                        function(){
+                            console.log('complete!',this);
+
+                            countdownModal.resign();
+                        }
+                    );
+                },
+                function(){ // onPresent
+                    console.log('onPresent');
+                    countdownModal.nodesWithTag('timer')[0].start();
+                    //this.startTimer();
+                },
+                function(){ // onResign
+                    console.log('onResign');
+                    gameTimer.start();
+                });
             countdownModal.present();
 
             // Timer: Start countdown
