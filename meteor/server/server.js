@@ -358,22 +358,22 @@ Meteor.startup(function () {
     });
 
     // PRODUCTION
-//    Accounts.loginServiceConfiguration.insert({
-//        service: "facebook",
-////        appId: 697413780331229,
-////        secret: "ed58a86e0c972fef62b79e324e26a10d"
-//        appId: process.env.FACEBOOK_APP_ID,
-//        secret: process.env.FACEBOOK_APP_SECRET
-//    });
-
-    // DEVELOPMENT
     Accounts.loginServiceConfiguration.insert({
         service: "facebook",
-        appId: 724819690923971,
-        secret: "8c71f216862925e5420b50da00fc90f5"
+        appId: 697413780331229,
+        secret: "ed58a86e0c972fef62b79e324e26a10d"
 //        appId: process.env.FACEBOOK_APP_ID,
 //        secret: process.env.FACEBOOK_APP_SECRET
     });
+
+    // DEVELOPMENT
+//    Accounts.loginServiceConfiguration.insert({
+//        service: "facebook",
+//        appId: 724819690923971,
+//        secret: "8c71f216862925e5420b50da00fc90f5"
+////        appId: process.env.FACEBOOK_APP_ID,
+////        secret: process.env.FACEBOOK_APP_SECRET
+//    });
 
     // https://console.developers.google.com/project
     // REDIRECT URIS

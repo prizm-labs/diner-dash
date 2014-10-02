@@ -6,6 +6,30 @@ bindPublicClientMethods = function(){
 
     gameWorld.methods({
 
+        resetWorld: function(){
+            console.log('resetWorld',this);
+
+
+        },
+
+        reportScores: function(){
+
+            var report = [];
+
+            var scores = this.nodesWithTag('playerScore');
+
+            _.each(scores,function(score){
+                report.push(score.reportScore());
+            });
+
+            // scores in descending order
+            report = _.sortBy(report,function(score){
+                return -score.coins;
+            });
+
+            return report;
+        },
+
         setupDefaultWorld: function(config){
             console.log('setupDefaultWorld',this);
             var self = this;
@@ -14,7 +38,15 @@ bindPublicClientMethods = function(){
             this.view.contexts['mainContext'].setBackgroundColor(config.palette.brightOrange);
 
             var center = this.view.locations.center();
+
             // TODO set game timers from config !!!
+            timers = {
+                session: 10 //120
+            };
+
+            gameOverModal = new GameOverModal();
+            gameOverModal.init(self.view.width,self.view.height,0.5,'#000000','mainContext',self);
+
 
             // Timer: Game Over
             gameTimer = new PRIZM.Nodes.Timer();
@@ -22,10 +54,15 @@ bindPublicClientMethods = function(){
             gameTimer.renderPie(265,
                 PRIZM.Colors.stringToHex(0xFFFFFF),
                 PRIZM.Colors.stringToHex(config.palette.darkGray));
-            gameTimer.configureInterval(30*1000,1000);
+            gameTimer.configureInterval(timers.session*1000,1000);
 
 
             gameTimer.configureEvents(
+
+                function(){
+                    console.log('gameTimer onStart');
+
+                },
 
                 function(progress,currentTime,delta){
                     console.log(progress,currentTime,delta);
@@ -34,6 +71,14 @@ bindPublicClientMethods = function(){
 
                 function(){
                     console.log('complete!',this);
+
+                    // Disable further serving from all players
+
+                    // Allow serving in process to complete
+
+                    // Show game over modal
+
+                    gameOverModal.present();
                 }
             );
 
@@ -89,52 +134,58 @@ bindPublicClientMethods = function(){
             // Countdown
             countdownModal = new CountdownModal();
             countdownModal.init(self.view.width,self.view.height,0.5,'#000000','mainContext',self);
-            countdownModal.prepare('none','none',
-                function(){ // onRender
-                    var self = this;
-
-                    startTimer = new PRIZM.Nodes.Timer();
-                    startTimer.init(0, 0, 'mainContext', countdownModal.world);
-
-                    startTimer.configureInterval(3*1000,1000);
-                    startTimer.renderNumber('seconds');
-
-                    countdownModal.body('container').addChild(startTimer.body('container'));
-                    countdownModal.addNode(startTimer);
-
-
-                    startTimer.configureEvents(
-
-                        function(progress,currentTime,delta){
-                            console.log(progress,currentTime,delta);
-
-                        },
-
-                        function(){
-                            console.log('complete!',this);
-
-                            countdownModal.resign();
-                        }
-                    );
-                },
-                function(){ // onPresent
-                    console.log('onPresent');
-                    countdownModal.nodesWithTag('timer')[0].start();
-                    //this.startTimer();
-                },
-                function(){ // onResign
-                    console.log('onResign');
-                    gameTimer.start();
-                });
+//            countdownModal.prepare('none','none',
+//                function(){ // onRender
+//                    var self = this;
+//
+//                    // Timer: Start countdown
+//                    startTimer = new PRIZM.Nodes.Timer();
+//                    startTimer.init(0, 0, 'mainContext', countdownModal.world);
+//
+//                    startTimer.configureInterval(3*1000,1000);
+//                    startTimer.renderNumber('seconds');
+//
+//                    countdownModal.body('container').addChild(startTimer.body('container'));
+//                    countdownModal.addNode(startTimer);
+//
+//
+//                    startTimer.configureEvents(
+//
+//                        function(progress,currentTime,delta){
+//                            console.log(progress,currentTime,delta);
+//
+//                        },
+//
+//                        function(){
+//                            console.log('complete!',this);
+//
+//                            Meteor.setTimeout(function(){
+//                                countdownModal.resign();
+//                            },1000)
+//
+//                        }
+//                    );
+//                },
+//                function(){ // onPresent
+//                    console.log('onPresent');
+//
+//                    countdownModal.nodesWithTag('timer')[0].start();
+//                    //this.startTimer();
+//                },
+//                function(){ // onResign
+//                    console.log('onResign');
+//                    gameTimer.start();
+//                });
+            countdownModal.linkGameTimer(gameTimer);
             countdownModal.present();
 
-            // Timer: Start countdown
+
 
 
             // Timer: Refilling customers
         },
 
-        welcomeCustomers: function(){
+        welcomeCustomers: function(callback){
             var self = this;
             var lanes = this.nodesWithTag('customerLane');
             console.log('welcomeCustomers',lanes);
@@ -143,10 +194,15 @@ bindPublicClientMethods = function(){
                 if (lane.state['customerPresent'] == false){
                     lane.call('customerEnter');
                 }
-            })
+            });
+
+            // TODO customer order as callback after seated !!!
+            Meteor.setTimeout(function(){
+                self.call('customersOrder',callback);
+            }, 2000);
         },
 
-        customersOrder: function(){
+        customersOrder: function(callback){
             var self = this;
             var lanes = this.nodesWithTag('customerLane');
             console.log('customersOrder',lanes);
@@ -156,7 +212,10 @@ bindPublicClientMethods = function(){
                     var orders = self.call('generateRandomOrder');
                     lane.call('placeOrder',orders);
                 }
-            })
+            });
+
+            if (callback) callback();
+
         },
 
         generateRandomOrder: function(){

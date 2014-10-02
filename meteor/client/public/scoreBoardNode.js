@@ -26,10 +26,10 @@ _.extend( PlayerScore.prototype, {
         this.setBody('container', container);
 
         // Setup entry and exit locations for customer
-        this.setLocation('avatarOrigin', 0, -15);
-        this.setLocation('playerName', 0, 50);
-        this.setLocation('coinIcon', -50, 100);
-        this.setLocation('coinScore', -20, 100);
+        this.setLocation('avatarOrigin', 0, -40);
+        this.setLocation('playerName', 0, 25);
+        this.setLocation('coinIcon', -50, 75);
+        this.setLocation('coinScore', -20, 75);
 
         // Internal events
 
@@ -37,7 +37,22 @@ _.extend( PlayerScore.prototype, {
             // args: playerIndex,scoreDelta,direction
             if (args[0] == self.state['playerIndex'])
                 self.updateScore(args[1],args[2]);
-        })
+        });
+
+//        amplify.subscribe('readyForScores',function(args){
+//            self.reportScore();
+//        });
+    },
+
+    reportScore: function(){
+        // TODO update game state via Meteor method
+        //amplify.publish('reportScore',[ this.state['playerIndex'],this.state['coinScore'] ]);
+        //return [ this.state['playerIndex'],this.state['coinScore'] ];
+        return {
+            index:this.state['playerIndex'],
+            coins:this.state['coinScore'],
+            name:this.state['playerName']
+        };
     },
 
     setPlayer: function (playerName, playerIndex) {
