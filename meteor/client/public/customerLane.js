@@ -14,6 +14,8 @@ console.dir(CustomerLane);
 _.extend( CustomerLane.prototype, {
     init:  function( x, y, rotation, direction, world ){
 
+        var self = this;
+
         this.world = world;
 
         this.addTag('customerLane');
@@ -88,6 +90,15 @@ _.extend( CustomerLane.prototype, {
         container.addChild(plate);
         this.setBody('plate',plate);
 
+
+        // Internal Events
+        amplify.subscribe('clearLane',function(direction){
+
+            if (direction==self.state['direction']){
+                self.call('clearServer');
+            }
+
+        });
 
 
         // Bind methods
@@ -187,6 +198,11 @@ _.extend( CustomerLane.prototype, {
                 // Shrink all orders
 
                 // Fade order bubble
+            },
+
+            clearServer: function(){
+                this.state['currentClient'] = null;
+                this.state['playerIndex'] = null;
             },
 
             serveOrder: function( servings, clientId, playerIndex ){
@@ -447,8 +463,7 @@ _.extend( CustomerLane.prototype, {
                     ]);
 
                     // Finally, clear player data
-                    self.state['currentClient'] = null;
-                    self.state['playerIndex'] = null;
+                    self.call('clearServer');
                 });
 
             },

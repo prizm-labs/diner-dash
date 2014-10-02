@@ -35,7 +35,7 @@ _.extend( QueueNode.prototype, {
         };
 
         this.state['queueSlots'] = [null,null,null,null,null];
-        this.state['isServing'] = false;
+        this.state['isServing'] = true;
 
 
         this.methods({
@@ -55,7 +55,7 @@ _.extend( QueueNode.prototype, {
 
             },
 
-            unlockOrdering: function(){
+            unlockOrdering: function(callback){
                 var self = this;
 
                 this.state['isServing'] = false;
@@ -64,8 +64,11 @@ _.extend( QueueNode.prototype, {
 
                 _.each(buttons,function(button){
                     button.show();
-                    button.resize(0.5,0.5,0.5);
+                    button.resize(0.5,0.5,0.5, function(){
+                        if (callback) callback();
+                    });
                 });
+
 
             },
 
@@ -158,7 +161,7 @@ _.extend( QueueNode.prototype, {
             var variant = self.state['itemTypes'][index];
             var button =  self.world.view.factory.makeBody2D( 'mainContext', 'dish',
                 { x:position[0], y:position[1]},
-                { variant: variant, scale:0.5 } );
+                { variant: variant, scale:0.01, visible:false } );
             button.addTags(['orderButton',variant]);
             button.state['itemType'] = variant;
             self.addBody(button);
@@ -187,10 +190,6 @@ _.extend( QueueNode.prototype, {
                         slot.addTag('queueSlot');
                         self.addBody(slot);
                     });
-
-                    //TODO cleanup timing for binding UI
-                    self.bindUI();
-
                 });
 
         },0);
@@ -217,7 +216,7 @@ _.extend( QueueNode.prototype, {
                 if (!self.state['isServing']) {
                     // Show feedback
                     //body.resize(0.6,0.6, 0.2);
-                    body.registerAnimation('scale',{x:0.35,y:0.35},0.15);
+                    body.registerAnimation('scale',{x:0.75,y:0.75},0.15);
                     body.resize(0.5,0.5, 0.2);
 
                     self.call('queueItem',body.state['itemType']);

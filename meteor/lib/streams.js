@@ -85,16 +85,50 @@ bindPublicStreams = function(){
         gameWorld.liveData.mapCallerToClient(this.subscriptionId,args[0]);
     });
 
-//    gameWorld.liveData.addTrigger('orderPaid',function(args) {
-//        console.log('orderPaid', args, this);
-//        //args: clientId, playerIndex, payout, servedItems, direction
-//
-//        gameWorld.nodesWithTags(['playerScore',args[1]])[0].call('updateScore',args[2]);
-//    });
+    gameWorld.liveData.addTrigger('paymentReceived',function(args) {
+        console.log('paymentReceived', args, this);
+        //args: playerIndex, direction
+
+        if (gameWorld.state['pendingEndGame']) {
+            console.log('resolving pending lane',gameWorld.state['lanesBeingServed']);
+            gameWorld.state['lanesBeingServed'] = _.without(gameWorld.state['lanesBeingServed'],args[0]);
+
+            if (gameWorld.state['lanesBeingServed'].length==0){
+                gameWorld.call('initiateEndGame');
+            }
+
+        }
+    });
 
 }
 
 bindPrivateStreams = function(){
+
+    // Unlock UI once game timer starts
+    gameWorld.liveData.addTrigger('gameTimerStart',function(args){
+        console.log('gameTimerStart', args, this);
+        var queueNode = gameWorld.nodesWithTag('queueNode')[0];
+        queueNode.call('unlockOrdering',queueNode.bindUI.bind(queueNode));
+
+        //TODO cleanup timing for binding UI
+
+    });
+
+    // Lock UI once game timer ends
+    gameWorld.liveData.addTrigger('gameTimerEnd',function(args){
+        console.log('gameTimerEnd', args, this);
+        gameWorld.nodesWithTag('queueNode')[0].call('lockOrdering');
+    });
+
+
+    // Show game over screen
+    gameWorld.liveData.addTrigger('winnerDeclared',function(args){
+        console.log('winnerDeclared', args, this);
+        //args: playerIndex
+
+        gameWorld.call('showGameOverModal',args[0]);
+    });
+
 
     gameWorld.liveData.addTrigger('laneClaimed',function(args){
         console.log('laneClaimed', args, this);

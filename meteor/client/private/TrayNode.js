@@ -199,6 +199,8 @@ _.extend( TrayNode.prototype, {
 
                         },800);
 
+                        // Report serving complete to public client
+                        self.world.liveData.broadcast('paymentReceived',[Session.get('playerIndex'),direction]);
                     });
 
                 },500);

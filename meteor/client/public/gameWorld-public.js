@@ -12,6 +12,16 @@ bindPublicClientMethods = function(){
 
         },
 
+        checkServingInProgress: function(){
+            var lanesBeingServed = _.filter(this.nodesWithTag('customerLane'),function(lane){
+                return lane.call('isLocked');
+            });
+
+            console.log('checkServingInProgress',lanesBeingServed);
+
+            return (lanesBeingServed.length>0)?lanesBeingServed:null;
+        },
+
         reportScores: function(){
 
             var report = [];
@@ -30,6 +40,16 @@ bindPublicClientMethods = function(){
             return report;
         },
 
+        initiateEndGame: function(){
+            console.log('initiateEndGame');
+            var self = this;
+
+            Meteor.setTimeout(function(){
+                self.liveData.broadcast('servingComplete');
+                gameOverModal.present();
+            },2000);
+        },
+
         setupDefaultWorld: function(config){
             console.log('setupDefaultWorld',this);
             var self = this;
@@ -41,7 +61,7 @@ bindPublicClientMethods = function(){
 
             // TODO set game timers from config !!!
             timers = {
-                session: 10 //120
+                session: 15 //120
             };
 
             gameOverModal = new GameOverModal();
@@ -61,7 +81,7 @@ bindPublicClientMethods = function(){
 
                 function(){
                     console.log('gameTimer onStart');
-
+                    gameWorld.liveData.broadcast('gameTimerStart');
                 },
 
                 function(progress,currentTime,delta){
@@ -72,13 +92,35 @@ bindPublicClientMethods = function(){
                 function(){
                     console.log('complete!',this);
 
-                    // Disable further serving from all players
+                    // Is serving in progress?
+                    var servingInProgress = gameWorld.call('checkServingInProgress');
 
-                    // Allow serving in process to complete
+                    // Disable further serving from all players
+                    gameWorld.liveData.broadcast('gameTimerEnd');
+
 
                     // Show game over modal
+                    if (servingInProgress==null) {
+                        gameWorld.call('initiateEndGame');
+                    } else {
 
-                    gameOverModal.present();
+                        gameWorld.state['pendingEndGame'] = true;
+
+                        // Cache playerIndex of lanes being served
+
+                        gameWorld.state['lanesBeingServed'] = _.map(servingInProgress,function(lane) {
+                            return lane.state['playerIndex'];
+                        });
+//                        var checkServingHandle = Meteor.setInterval(function(){
+//                            console.log('check serving');
+//                            if (!gameWorld.call('checkServingInpProgress')) {
+//                                Meteor.clearInterval(checkServingHandle);
+//
+//                                gameWorld.call('initiateEndGame');
+//                            }
+//                        },1000);
+                    }
+
                 }
             );
 

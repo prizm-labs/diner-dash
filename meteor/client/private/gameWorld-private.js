@@ -21,6 +21,23 @@ bindPrivateClientMethods = function( key, methods ){
             var trayNode = new TrayNode();
             trayNode.init(self,Session.get('playerIndex'));
             self.addNode(trayNode);
+
+            gameOverModal = new GameOverPrivateModal();
+            gameOverModal.init(self.view.width,self.view.height,0.5,'#000000','mainContext',self);
+        },
+        showGameOverModal: function(winningPlayerIndex){
+            var self = this;
+            var status;
+
+            if (Session.get('playerIndex') == winningPlayerIndex){
+                status = true;
+            } else if (winningPlayerIndex==null) {
+                status = null;
+            } else {
+                status = false;
+            }
+
+            gameOverModal.present(winningPlayerIndex);
         }
     });
 

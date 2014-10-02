@@ -78,6 +78,61 @@ _.extend( CountdownModal.prototype, {
 
 });
 
+
+
+
+GameOverPrivateModal = function (){
+    PRIZM.Nodes.Modal.call(this);
+    this.super = PRIZM.Nodes.Modal.prototype;
+};
+
+GameOverPrivateModal.prototype = Object.create(PRIZM.Nodes.Modal.prototype);
+
+console.dir(GameOverPrivateModal);
+
+_.extend( GameOverPrivateModal.prototype, {
+
+    init: function(width, height, backdropOpacity, backdropColor, ctx, world) {
+
+        var self = this;
+
+        this.super.init.call(this, width, height, backdropOpacity, backdropColor, ctx, world);
+
+
+        this.setLocation('modalTitle', 0, -self.world.view.height / 2 + 100);
+
+        this.prepare('none', 'none',
+            function () { // onRender
+                var self = this;
+
+                var titleText = this.world.view.factory.makeBody2D(this.ctx,
+                    'text', this.location('modalTitle'), { text: 'Game Over',
+                        styles: {
+                            font: 'normal 100px Helvetica',
+                            fontSize: 100,
+                            fill: 'white'
+                        }});
+                titleText.centerText();
+                this.body('container').addChild(titleText);
+                this.setBody('titleText', titleText);
+
+            },
+            function (options) { // onPresent
+                console.log('onPresent');
+
+
+
+            },
+            function () { // onResign
+                console.log('onResign');
+//                this.state['gameTimer'].start();
+            });
+
+    }
+});
+
+
+
 GameOverModal = function (){
     PRIZM.Nodes.Modal.call(this);
     this.super = PRIZM.Nodes.Modal.prototype;
@@ -146,10 +201,14 @@ _.extend( GameOverModal.prototype, {
             title = 'It\'s a';
             subtitle = 'TIE!';
 
+            self.world.liveData.broadcast('winnerDeclared',[null]);
+
         } else {
             // There is a winner]
             title = scores[0].name;
             subtitle = 'WINS!';
+
+            self.world.liveData.broadcast('winnerDeclared',[scores[0].index]);
 
             var origin = this.location('avatarOrigin');
 
