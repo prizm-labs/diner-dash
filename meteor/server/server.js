@@ -10,13 +10,13 @@ LiveData = new LiveDataDelegate();
 Meteor.methods({
 
     // Stream helpers
-    'requestGameStream': function( clientId, gameStateId ){
+    'requestGameStream': function( gameStateId ){
 
         if (!LiveData.streams[gameStateId]) {
 
             console.log('new game stream',gameStateId);
             LiveData.setupStream(gameStateId);
-            LiveData.activateStream(gameStateId);
+            //LiveData.activateStream(gameStateId);
 
             // Add client id to args
 //            LiveData.addFilter(function(eventName, args){
@@ -250,20 +250,29 @@ Meteor.methods({
 
     },
 
-    'clientReadyForGameSession': function( clientId, arenaId ){
+    'clientReadyForGameSession': function( clientId, arenaId, gameStateId ){
         console.log('clientReadyForGameSession',clientId, arenaId);
 
         // set client preloaded
         Sessions.update(clientId, {$set:{ preloaded: true }});
 
         // count clients preloaded
-        var linkedClients = Sessions.find({ arena_id:arenaId, preloaded:true}).fetch();
+        var linkedClients = Sessions.find({ arena_id:arenaId, preloaded:true, gameState_id:gameStateId }).fetch();
         var arena = Arenas.findOne(arenaId);
         console.log('clients linked to arena',linkedClients.length,arena);
 
         if ( arena.clients_required===linkedClients.length ){
             console.log('all clients preloaded');
             // Begin game clock
+
+            Meteor.call('requestGameStream',gameStateId);
+
+            _.each(linkedClients,function(client){
+                Meteor.ClientCall.apply(client._id,'onGameStart',[]);
+            });
+
+//            LiveData.activateStream(gameStateId);
+//            LiveData.broadcast('onGameStart',[]);
         }
     },
 
@@ -284,18 +293,23 @@ Meteor.methods({
         // broadcast to all valid clients
         console.log('notifying clients of game start',clients);
 
+
         // Return game configuration options
         // Return players so all clients can preload & render their name,avatar,etc.
 
         // Notify private clients
         _.each(clients, function (clientId,index) {
+
+            Sessions.update(clientId, {$set:{gameState_id:gameState.gameStateId}});
+
             var playerIndex = gameState.gameState.players[index].index;
             Meteor.ClientCall.apply( clientId, 'onArenaReady', [ [gameState,playerIndex] ],
                 function(){ console.log('client called from server'); });
         });
 
         // Notify public client
-        //clients.push(arena.client_id);
+        Sessions.update(arena.client_id, {$set:{gameState_id:gameState.gameStateId}});
+
         Meteor.ClientCall.apply( arena.client_id, 'onArenaReady', [ [gameState,null] ],
             function(){ console.log('client called from server'); });
 

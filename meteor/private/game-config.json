@@ -73,6 +73,8 @@
         }
     },
 
+    "sounds": { "manifest":"sound-manifest.json", "directory":"sounds" },
+
     "mainContext": {
         "type": "2D",
         "domAnchor": "context2D-main",

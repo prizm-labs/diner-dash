@@ -221,6 +221,9 @@ bindPublicClientMethods = function(){
             countdownModal.linkGameTimer(gameTimer);
             countdownModal.present();
 
+            // Start background music
+            console.log('game sounds',self.sound);
+            self.sound.sounds['background-normal'].loop().play().fadeIn();
 
 
 

@@ -19,31 +19,31 @@ Meteor.startup(function() {
 
 });
 
-Meteor.methods({
-    'clientReadyForGameSession': function( clientId, arenaId ){
-        console.log('client stub: clientReadyForGameSession');
-
-
-        setTimeout(function() {
-            Meteor.call('requestGameStream', Session.get('client_id'), Session.get('gameState_id'),
-                function (error, result) {
-                    console.log('client requestGameStream', error, result);
-
-                    // Bind stream for real-time data
-                    gameWorld.liveData.setupStream(Session.get('gameState_id'));
-                    gameWorld.liveData.activateStream(Session.get('gameState_id'));
-
-                    bindStreams();
-
-                    // Transition to game scene from lobby
-                    $('#home-view').hide();
-                    $('#hit-area').show();
-                    gameWorld.call('setupDefaultWorld',Session.get('gameState_configuration'));
-
-                });
-        },0);
-    }
-})
+//Meteor.methods({
+//    'clientReadyForGameSession': function( clientId, arenaId ){
+//        console.log('client stub: clientReadyForGameSession');
+//
+//
+//        setTimeout(function() {
+//            Meteor.call('requestGameStream', Session.get('client_id'), Session.get('gameState_id'),
+//                function (error, result) {
+//                    console.log('client requestGameStream', error, result);
+//
+//                    // Bind stream for real-time data
+//                    gameWorld.liveData.setupStream(Session.get('gameState_id'));
+//                    gameWorld.liveData.activateStream(Session.get('gameState_id'));
+//
+//                    bindStreams();
+//
+//                    // Transition to game scene from lobby
+//                    $('#home-view').hide();
+//                    $('#hit-area').show();
+//                    gameWorld.call('setupDefaultWorld',Session.get('gameState_configuration'));
+//
+//                });
+//        },0);
+//    }
+//});
 
 
 Meteor.ClientCall.methods({
@@ -123,9 +123,26 @@ Meteor.ClientCall.methods({
             Session.set('playerIndex',playerIndex);
         }
 
-
+        $('#home-view').hide();
+        $('#hit-area').show();
         createGameWorldFromConfiguration( config );
 
+        //TODO show loading screen
+    },
+
+    'onGameStart': function (args) {
+
+        console.log('client onGameStart', args);
+
+        // Bind stream for real-time data
+        gameWorld.liveData.setupStream(Session.get('gameState_id'));
+        gameWorld.liveData.activateStream(Session.get('gameState_id'));
+
+        bindStreams();
+
+        // Transition to game scene from lobby
+        // TODO teardown loading screen
+        gameWorld.call('setupDefaultWorld',Session.get('gameState_configuration'));
     }
 
 });
@@ -135,8 +152,15 @@ createGameWorldFromConfiguration = function( config ){
     // TODO Subscribe to gameState document, shared with all clients
     //connectionStore = subscriptions.activate.gameState(config.gameStateId);
 
-    if (!gameWorld.preloaded){
-        gameWorld.prepare( config.contexts[Session.get('client_type')], config.gameState.players );
+    if (!gameWorld.checkPreloadComplete()){
+        gameWorld.prepare(
+            config.contexts[Session.get('client_type')],
+            config.gameState.players,
+            {
+                entries:config.sounds.entries[Session.get('client_type')],
+                directory:config.sounds.directory
+            }
+        );
     }
 
     // Once gameState received from server

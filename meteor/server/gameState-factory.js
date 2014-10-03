@@ -7,6 +7,7 @@ generateGameState = function( gameId, users, configJson ){
     // 1) SYNCHRONIZATION: the game state session and how to subscribe to live data
     // 2) RENDERING: atlases & colors for rendering per context 2D/3D
     // 3) BALANCING: templates & limits for game objects during game
+    // 4) SOUNDS
 
     var config = JSON.parse(Assets.getText(configJson));
 
@@ -47,12 +48,21 @@ generateGameState = function( gameId, users, configJson ){
     // 3) FACTORY
     var factory = _.pick(config,'customer','dishes','limits');
 
+
+    // 4) SOUNDS
+    var sounds = {
+        entries:JSON.parse(Assets.getText(config['sounds'].manifest)),
+        directory:config['sounds'].directory
+    };
+
+
     return {
         gameId: gameId,
         gameStateId: gameStateId,
         gameState: session,
         contexts: allContexts,
         factory: factory,
+        sounds: sounds,
         palette: config['palette']
     };
 };
