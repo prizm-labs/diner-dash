@@ -36,7 +36,7 @@ _.extend( QueueNode.prototype, {
 
         this.state['queueSlots'] = [null,null,null,null,null];
         this.state['isServing'] = true;
-
+        this.state['lastOrder'] = false;
 
         this.methods({
 
@@ -89,6 +89,8 @@ _.extend( QueueNode.prototype, {
             },
 
             prepareItem: function (variant, slot) {
+                var self = this;
+
                 var position = this.location('queue'+slot);
 
                 console.log('prepareItem', variant, slot, position);
@@ -99,11 +101,14 @@ _.extend( QueueNode.prototype, {
                 var button =  this.world.view.factory.makeBody2D( 'mainContext', 'dish',
                     { x:position[0], y:position[1]},
                     { variant: variant, scale:0.01 } );
-                button.addTags(['queueButton',variant]);
+                button.addTags(['queueButton',variant,'queueSlot'+slot]);
                 button.state['itemType'] = variant;
+                button.state['slotIndex'] = slot;
                 this.addBody(button);
 
-                button.resize(0.5,0.5, 0.4);
+                button.resize(0.5,0.5, 0.4, function(){
+                    self.bindQueueSlotUI(button);
+                });
 
 
                 // Update tray loaded items
@@ -120,12 +125,22 @@ _.extend( QueueNode.prototype, {
 
             removeItem: function (item) {
                 var self = this;
-
+                var index;
                 // Remove item from slot data
-                this.state['queueSlots'][this.state['queueSlots'].indexOf(item)] = null;
+
+                if (typeof item=='string') {
+                    index = this.state['queueSlots'].indexOf(item);
+                    this.state['queueSlots'][index] = null;
+                } else if (typeof item=='number') {
+                    index = item;
+                    item = this.state['queueSlots'][index];
+                    this.state['queueSlots'][index] = null;
+                }
+
+                console.log('removeItem',index,item);
 
                 // Remove item body
-                var body = this.bodiesWithTags(['queueButton',item])[0];
+                var body = this.bodiesWithTags(['queueButton', 'queueSlot'+index, item])[0];
                 body.resize(0.01,0.01, 0.3, function(){
                     self.removeBody(body);
                 });
@@ -137,10 +152,13 @@ _.extend( QueueNode.prototype, {
         // Internal events
         amplify.subscribe('updateServingStatus', function(status){
             console.log('received updateServingStatus',status);
-            if (status)
+            if (status) {
                 self.call('lockOrdering');
-            else
-                self.call('unlockOrdering');
+            } else {
+                if (!self.state['lastOrder'])
+                    self.call('unlockOrdering');
+            }
+
         });
 
 
@@ -187,6 +205,7 @@ _.extend( QueueNode.prototype, {
                             { variant: 'cooking', scale:0.4 } );
 
                         self.setLocation('queue'+index,position.x,position.y);
+
                         slot.addTag('queueSlot');
                         self.addBody(slot);
                     });
@@ -227,21 +246,43 @@ _.extend( QueueNode.prototype, {
             target.activate();
         });
 
-        var queueButtons = self.bodiesWithTag('queueSlot');
+//        var queueButtons = self.bodiesWithTag('queueSlot');
+//
+//        _.each( queueButtons, function(body){
+//
+//            var bounds = body.getAbsoluteBounds({center:true});
+//
+//            console.log('queue button', body, bounds);
+//
+//            var target = self.world.view.UI.addCircleTarget( bounds[0],bounds[1], Math.max(bounds[2],bounds[3])/2, 'mainContext');
+//            target.setBehavior( 'tap', null, null, function( event ){
+//                console.log('box tap stop',event);
+//
+//                self.call('removeItem',body.state['slotIndex']);
+//            });
+//
+//            target.activate();
+//        });
 
-        _.each( queueButtons, function(body){
+    },
 
-            var bounds = body.getAbsoluteBounds();
+    bindQueueSlotUI: function(body){
 
-            console.log('queue button', body, bounds);
+        var self = this;
 
-            var target = self.world.view.UI.addBoxTarget( bounds[0],bounds[1],bounds[2],bounds[3], 'mainContext');
-            target.setBehavior( 'tap', null, null, function( event ){
-                console.log('box tap stop',event);
-            });
+        var bounds = body.getAbsoluteBounds({center:true});
 
-            target.activate();
+        console.log('queue button', body, bounds);
+
+        var target = self.world.view.UI.addCircleTarget( bounds[0],bounds[1], Math.max(bounds[2],bounds[3])/2, 'mainContext');
+        target.setBehavior( 'tap', null, null, function( event ){
+            console.log('box tap stop',event);
+
+            self.call('removeItem',body.state['slotIndex']);
         });
+
+        body.setHitArea(target);
+        body.hitArea.activate();
 
     }
 });

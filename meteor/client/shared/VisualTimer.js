@@ -100,6 +100,7 @@ _.extend( GameOverPrivateModal.prototype, {
 
 
         this.setLocation('modalTitle', 0, -self.world.view.height / 2 + 100);
+        this.setLocation('resultTitle', 0, 0);
 
         this.prepare('none', 'none',
             function () { // onRender
@@ -108,8 +109,8 @@ _.extend( GameOverPrivateModal.prototype, {
                 var titleText = this.world.view.factory.makeBody2D(this.ctx,
                     'text', this.location('modalTitle'), { text: 'Game Over',
                         styles: {
-                            font: 'normal 100px Helvetica',
-                            fontSize: 100,
+                            font: 'normal 50px Helvetica',
+                            fontSize: 50,
                             fill: 'white'
                         }});
                 titleText.centerText();
@@ -118,9 +119,32 @@ _.extend( GameOverPrivateModal.prototype, {
 
             },
             function (options) { // onPresent
-                console.log('onPresent');
+                console.log('onPresent',options);
 
+                var result;
 
+                switch (options) {
+                    case true:
+                        result = 'You won!';
+                        break;
+                    case false:
+                        result = 'You lost :(';
+                        break;
+                    case null:
+                        result = 'It\'s a tie!';
+                        break;
+                }
+
+                var resultText = this.world.view.factory.makeBody2D(this.ctx,
+                    'text', this.location('resultTitle'), { text: result,
+                        styles: {
+                            font: 'normal 50px Helvetica',
+                            fontSize: 50,
+                            fill: 'white'
+                        }});
+                resultText.centerText();
+                this.body('container').addChild(resultText);
+                this.setBody('resultText', resultText);
 
             },
             function () { // onResign

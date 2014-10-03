@@ -37,7 +37,7 @@ bindPrivateClientMethods = function( key, methods ){
                 status = false;
             }
 
-            gameOverModal.present(winningPlayerIndex);
+            gameOverModal.present(status);
         }
     });
 

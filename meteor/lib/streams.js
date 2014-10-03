@@ -117,7 +117,10 @@ bindPrivateStreams = function(){
     // Lock UI once game timer ends
     gameWorld.liveData.addTrigger('gameTimerEnd',function(args){
         console.log('gameTimerEnd', args, this);
-        gameWorld.nodesWithTag('queueNode')[0].call('lockOrdering');
+
+        var queueNode = gameWorld.nodesWithTag('queueNode')[0];
+        queueNode.call('lockOrdering');
+        queueNode.state['lastOrder'] = true;
     });
 
 
