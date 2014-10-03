@@ -2,12 +2,14 @@
     "public": [
         [ "background-normal", "bg_upbeat", ["m4a"] ],
         [ "background-rush", "bg_rush", ["m4a"] ],
+        [ "background-gameover", "bg_gameover", ["m4a"] ],
         [ "ready-dessert", "dessert", ["m4a"] ],
         [ "ready-drink", "drink", ["m4a"] ],
         [ "ready-meat", "meat", ["m4a"] ],
         [ "ready-veggie", "veggie", ["m4a"] ],
         [ "lane-won", "serving", ["m4a"] ],
-        [ "coins-received", "coins", ["m4a"] ]
+        [ "coins-received", "coins", ["m4a"] ],
+        [ "plate-consumed", "plates", ["m4a"] ]
     ],
     "private": [
         [ "ready-dessert", "dessert", ["m4a"] ],
@@ -15,6 +17,7 @@
         [ "ready-meat", "meat", ["m4a"] ],
         [ "ready-veggie", "veggie", ["m4a"] ],
         [ "lane-won", "serving", ["m4a"] ],
-        [ "coins-received", "coins", ["m4a"] ]
+        [ "coins-received", "coins", ["m4a"] ],
+        [ "plate-consumed", "plates", ["m4a"] ]
     ]
 }

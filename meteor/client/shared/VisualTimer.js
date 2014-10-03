@@ -38,7 +38,8 @@ _.extend( CountdownModal.prototype, {
 
                     },
                     function(progress,currentTime,delta){
-                        console.log(progress,currentTime,delta);
+                        console.log('startTimer progress',progress,currentTime,delta);
+
 
                     },
 
@@ -61,6 +62,10 @@ _.extend( CountdownModal.prototype, {
             function(){ // onResign
                 console.log('onResign');
                 var self = this;
+
+                // Start background music
+                //console.log('game sounds',this.world.sound);
+                this.world.sound.sounds['background-normal'].loop().play().fadeIn();
 
                 this.world.call('welcomeCustomers',function(){
                     Meteor.setTimeout(function(){
@@ -101,6 +106,7 @@ _.extend( GameOverPrivateModal.prototype, {
 
         this.setLocation('modalTitle', 0, -self.world.view.height / 2 + 100);
         this.setLocation('resultTitle', 0, 0);
+        this.setLocation('exitButton', 0, self.world.view.height / 4);
 
         this.prepare('none', 'none',
             function () { // onRender
@@ -146,6 +152,19 @@ _.extend( GameOverPrivateModal.prototype, {
                 this.body('container').addChild(resultText);
                 this.setBody('resultText', resultText);
 
+
+                //TODO show return to lobby & replay buttons
+
+                var exitText = this.world.view.factory.makeBody2D(this.ctx,
+                    'text', this.location('exitButton'), { text: 'Retrun to lobby',
+                        styles: {
+                            font: 'normal 25px Helvetica',
+                            fontSize: 25,
+                            fill: 'white'
+                        }});
+                exitText.centerText();
+                this.body('container').addChild(exitText);
+                this.setBody('exitText', exitText);
             },
             function () { // onResign
                 console.log('onResign');

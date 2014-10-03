@@ -210,8 +210,10 @@ _.extend( CustomerLane.prototype, {
 
                 console.log('serveOrder',servings, clientId, playerIndex);
 
-                //TODO show claiming player avatar
+                // Play sound serving customer
+                self.world.sound.sounds['lane-won'].play();
 
+                //Show claiming player avatar
                 var avatarContainer = this.body('avatarContainer');
 
                 var avatar = self.world.view.factory.makeBody2D( 'mainContext', 'avatar',
@@ -353,12 +355,13 @@ _.extend( CustomerLane.prototype, {
                 // Create served dishes in front of customer
                 var servedItem = this.world.view.factory.makeBody2D( 'mainContext', 'dish',
                     this.location('plateOrigin'),{ variant: item, scale:0.01 } );
-//                var orderItem = self.world.view.factory.makeBody2D( 'mainContext', 'dish',
-//                    orderPositions[index],{ variant: order, scale:0.01 } );
 
                 //this.setBody('served'+index,servedItem);
                 this.setBody('orderConsumed',servedItem);
                 this.body('container').addChild(servedItem);
+
+                // Play sound order presented to customer
+                self.world.sound.sounds['plate-consumed'].play();
 
                 // Move served dishes into customer mouth
                 servedItem.registerAnimation('scale',{x:0.5,y:0.5},0.3);

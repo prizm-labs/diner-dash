@@ -33,6 +33,7 @@ _.extend( PlayerScore.prototype, {
 
         // Internal events
 
+        // From CustomerLane node
         amplify.subscribe('orderPaid',function(args){
             // args: playerIndex,scoreDelta,direction
             if (args[0] == self.state['playerIndex'])
@@ -69,6 +70,9 @@ _.extend( PlayerScore.prototype, {
         var self = this;
 
         console.log('updateScore',scoreDelta, direction);
+
+        // Play sound for coins
+        self.world.sound.sounds['coins-received'].play();
 
         this.state['coinScore'] = this.state['coinScore']+scoreDelta;
 

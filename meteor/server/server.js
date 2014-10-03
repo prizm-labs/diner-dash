@@ -254,7 +254,7 @@ Meteor.methods({
         console.log('clientReadyForGameSession',clientId, arenaId);
 
         // set client preloaded
-        Sessions.update(clientId, {$set:{ preloaded: true }});
+        Sessions.update(clientId, {$set:{ arena_id:arenaId, preloaded:true, gameState_id:gameStateId }});
 
         // count clients preloaded
         var linkedClients = Sessions.find({ arena_id:arenaId, preloaded:true, gameState_id:gameStateId }).fetch();

@@ -47,6 +47,10 @@ bindPublicClientMethods = function(){
             Meteor.setTimeout(function(){
                 self.liveData.broadcast('servingComplete');
                 gameOverModal.present();
+
+                // Change background music
+                self.sound.sounds['background-rush'].fadeOut().pause();
+                self.sound.sounds['background-gameover'].loop().fadeIn().play();
             },2000);
         },
 
@@ -61,7 +65,7 @@ bindPublicClientMethods = function(){
 
             // TODO set game timers from config !!!
             timers = {
-                session: 15 //120
+                session: 30 //120
             };
 
             gameOverModal = new GameOverModal();
@@ -82,11 +86,22 @@ bindPublicClientMethods = function(){
                 function(){
                     console.log('gameTimer onStart');
                     gameWorld.liveData.broadcast('gameTimerStart');
+
+                    this.state['rushActive'] = false;
                 },
 
                 function(progress,currentTime,delta){
-                    console.log(progress,currentTime,delta);
+                    console.log('on GameTimer progress',progress,currentTime,delta);
 
+
+                    // Change background music to rushed theme near timer end
+
+                    if (progress>0.5 && !this.state['rushActive']){
+                        this.state['rushActive'] = true;
+
+                        gameWorld.sound.sounds['background-normal'].fadeOut().pause();
+                        gameWorld.sound.sounds['background-rush'].loop().play().fadeIn();
+                    }
                 },
 
                 function(){
@@ -176,56 +191,9 @@ bindPublicClientMethods = function(){
             // Countdown
             countdownModal = new CountdownModal();
             countdownModal.init(self.view.width,self.view.height,0.5,'#000000','mainContext',self);
-//            countdownModal.prepare('none','none',
-//                function(){ // onRender
-//                    var self = this;
-//
-//                    // Timer: Start countdown
-//                    startTimer = new PRIZM.Nodes.Timer();
-//                    startTimer.init(0, 0, 'mainContext', countdownModal.world);
-//
-//                    startTimer.configureInterval(3*1000,1000);
-//                    startTimer.renderNumber('seconds');
-//
-//                    countdownModal.body('container').addChild(startTimer.body('container'));
-//                    countdownModal.addNode(startTimer);
-//
-//
-//                    startTimer.configureEvents(
-//
-//                        function(progress,currentTime,delta){
-//                            console.log(progress,currentTime,delta);
-//
-//                        },
-//
-//                        function(){
-//                            console.log('complete!',this);
-//
-//                            Meteor.setTimeout(function(){
-//                                countdownModal.resign();
-//                            },1000)
-//
-//                        }
-//                    );
-//                },
-//                function(){ // onPresent
-//                    console.log('onPresent');
-//
-//                    countdownModal.nodesWithTag('timer')[0].start();
-//                    //this.startTimer();
-//                },
-//                function(){ // onResign
-//                    console.log('onResign');
-//                    gameTimer.start();
-//                });
+
             countdownModal.linkGameTimer(gameTimer);
             countdownModal.present();
-
-            // Start background music
-            console.log('game sounds',self.sound);
-            self.sound.sounds['background-normal'].loop().play().fadeIn();
-
-
 
             // Timer: Refilling customers
         },
@@ -283,6 +251,11 @@ bindPublicClientMethods = function(){
 
             return result;
         },
+
+        reset: function(){
+
+        },
+
 
         startGame: function(){
 

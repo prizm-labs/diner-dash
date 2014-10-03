@@ -107,6 +107,10 @@ _.extend( QueueNode.prototype, {
                 this.addBody(button);
 
                 button.resize(0.5,0.5, 0.4, function(){
+
+                    // Play sound of dish prepared
+                    self.world.sound.sounds['ready-'+variant].play();
+
                     self.bindQueueSlotUI(button);
                 });
 

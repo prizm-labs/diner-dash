@@ -123,11 +123,7 @@ Meteor.ClientCall.methods({
             Session.set('playerIndex',playerIndex);
         }
 
-        $('#home-view').hide();
-        $('#hit-area').show();
         createGameWorldFromConfiguration( config );
-
-        //TODO show loading screen
     },
 
     'onGameStart': function (args) {
@@ -140,14 +136,34 @@ Meteor.ClientCall.methods({
 
         bindStreams();
 
-        // Transition to game scene from lobby
+        // Transition to game scene from loading screen
         // TODO teardown loading screen
         gameWorld.call('setupDefaultWorld',Session.get('gameState_configuration'));
+    },
+
+    'onResetGame': function(args){
+
+        // Receive new game state config
+
+        console.log('onResetGame',args);
+
+        // Remove all children bodies
+
+        // Remove al nodes
+
+        //gameWorld.call('setupDefaultWorld',Session.get('gameState_configuration'));
     }
 
 });
 
 createGameWorldFromConfiguration = function( config ){
+
+
+    //TODO show loading screen
+
+    // Transition to loading screen from lobby
+    $('#home-view').hide();
+    $('#hit-area').show();
 
     // TODO Subscribe to gameState document, shared with all clients
     //connectionStore = subscriptions.activate.gameState(config.gameStateId);
