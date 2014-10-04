@@ -15,9 +15,7 @@ accounts-google
 underscore
 amplify
 streams
-anti-methods
 lodash
 prizm-core
 jquery
 iron:router
-

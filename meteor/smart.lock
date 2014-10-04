@@ -2,13 +2,15 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "iron-router": {},
+      "iron-router": {
+        "version": "0.8.2"
+      },
       "npm": {},
       "streams": {},
       "ddp-hooks": {
         "path": "../../ddpHooks"
       },
-      "anti-methods": {
+      "anti:methods": {
         "path": "../../meteor-methods"
       },
       "lodash": {
@@ -37,7 +39,7 @@
       "ddp-hooks": {
         "path": "../../ddpHooks"
       },
-      "anti-methods": {
+      "anti:methods": {
         "path": "../../meteor-methods"
       },
       "lodash": {
