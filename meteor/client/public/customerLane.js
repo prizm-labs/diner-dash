@@ -92,13 +92,20 @@ _.extend( CustomerLane.prototype, {
 
 
         // Internal Events
-        amplify.subscribe('clearLane',function(direction){
+        this.world.subscribe('clearLane',function(direction){
 
             if (direction==self.state['direction']){
                 self.call('clearServer');
             }
 
         });
+//        amplify.subscribe('clearLane',function(direction){
+//
+//            if (direction==self.state['direction']){
+//                self.call('clearServer');
+//            }
+//
+//        });
 
 
         // Bind methods

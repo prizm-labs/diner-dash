@@ -5,15 +5,9 @@ Meteor.startup(function() {
 
     Deps.autorun(function(){
 
-        if (Session.get('client_type')){
-
-            if (Session.get('client_type')==='private') {
-                bindPrivateClientMethods();
-            } else if (Session.get('client_type')==='public') {
-                bindPublicClientMethods();
-            }
-
-        }
+//        if (Session.get('client_type')){
+//            bindGameWorldMethodsByClientType(Session.get('client_type'));
+//        }
 
     });
 
@@ -124,6 +118,8 @@ Meteor.ClientCall.methods({
         }
 
         createGameWorldFromConfiguration( config );
+
+
     },
 
     'onGameStart': function (args) {
@@ -134,6 +130,7 @@ Meteor.ClientCall.methods({
         gameWorld.liveData.setupStream(Session.get('gameState_id'));
         gameWorld.liveData.activateStream(Session.get('gameState_id'));
 
+        bindGameWorldMethodsByClientType(Session.get('client_type'));
         bindStreams();
 
         // Transition to game scene from loading screen
@@ -143,73 +140,30 @@ Meteor.ClientCall.methods({
 
     'onResetGame': function(args){
 
-        // Receive new game state config
-
         console.log('onResetGame',args);
 
-        // Remove all children bodies
+        resetGameWorld();
 
-        // Remove al nodes
 
+        // TODO Receive new game state config
+        //Session.set('gameState_configuration',config);
+        //Session.set('gameState_id',config.gameStateId);
+
+        //createGameWorldFromConfiguration( config );
         //gameWorld.call('setupDefaultWorld',Session.get('gameState_configuration'));
+
+        return true;
+    },
+
+    'onReturnToLobby': function(args) {
+
+        console.log('onReturnToLobby',args);
+
+        resetGameWorld();
+
+        transitionGameWorldToLobby();
+
+        return true;
     }
 
 });
-
-createGameWorldFromConfiguration = function( config ){
-
-
-    //TODO show loading screen
-
-    // Transition to loading screen from lobby
-    $('#home-view').hide();
-    $('#hit-area').show();
-
-    // TODO Subscribe to gameState document, shared with all clients
-    //connectionStore = subscriptions.activate.gameState(config.gameStateId);
-
-    if (!gameWorld.checkPreloadComplete()){
-        gameWorld.prepare(
-            config.contexts[Session.get('client_type')],
-            config.gameState.players,
-            {
-                entries:config.sounds.entries[Session.get('client_type')],
-                directory:config.sounds.directory
-            }
-        );
-    }
-
-    // Once gameState received from server
-    // update gameWorld accordingly
-
-    // if a client disconnects
-    // pause game
-
-    // if all clients reconnected
-    // allow resume game clock
-
-    // TODO define DDP bindings for gameWorld
-    // TODO define stream bindings for gameWorld
-
-    //
-
-//    connectionStore = Meteor.connection.registerStore('nodes', {
-//     beginUpdate: function( batchSize, reset ){
-//     //console.log('beginUpdate nodes', batchSize, reset);
-//     },
-//     update: function( msg ){
-//     //console.log('update nodes', JSON.stringify(msg));
-//     //liveDataDelegate.updateSubscriptions( msg );
-//     },
-//     endUpdate: function(){
-//     //console.log('endUpdate nodes');
-//     },
-//     saveOriginals: function(){
-//     //console.log('saveOriginals');
-//     },
-//     retrieveOriginals: function(){
-//     //console.log('retrieveOriginals');
-//     }
-//     });
-
-}

@@ -261,9 +261,12 @@ Meteor.methods({
         var arena = Arenas.findOne(arenaId);
         console.log('clients linked to arena',linkedClients.length,arena);
 
+
+        // TODO clear 'raady' state for players in private client
+        //Meteor.call('cancelPlayerReady',userId);
+
         if ( arena.clients_required===linkedClients.length ){
             console.log('all clients preloaded');
-            // Begin game clock
 
             Meteor.call('requestGameStream',gameStateId);
 
@@ -313,11 +316,74 @@ Meteor.methods({
         Meteor.ClientCall.apply( arena.client_id, 'onArenaReady', [ [gameState,null] ],
             function(){ console.log('client called from server'); });
 
+    },
+
+    // Meteor.call('resetArenaForGame',Session.get('arena')._id);
+    'resetArenaForGame': function (arenaId) {
+
+        console.log('resetArenaForGame',arenaId);
+
+        var clients = getClientsInArena(arenaId);
+
+        var resetClientCounter=0;
+
+        _.each(clients, function (clientId,index) {
+
+            Sessions.update(clientId, {$set:{ arena_id:arenaId, preloaded:false, gameState_id:null }});
+
+            Meteor.ClientCall.apply( clientId, 'onResetGame', [ [] ],
+                function(){
+                    console.log('client reset');
+                    resetClientCounter++;
+
+                    // TODO Set player 'ready'
+                    //Meteor.call('setPlayerReady',userId);
+
+                    if (resetClientCounter==clients.length)
+                        Meteor.call('setupArenaForGame',arenaId);
+                });
+        });
+
+
+    },
+
+    // Meteor.call('exitGameinArena',Session.get('arena')._id);
+    'exitGameinArena': function (arenaId, gameStateId) {
+
+        console.log('exitGameinArena',arenaId);
+
+        var clients = getClientsInArena(arenaId);
+
+        _.each(clients, function (clientId) {
+
+            Sessions.update(clientId, {$set:{ arena_id:arenaId, preloaded:false, gameState_id:null }});
+
+            Meteor.ClientCall.apply( clientId, 'onReturnToLobby', [ 1,2,3 ],
+                function(){
+                    console.log('client reset');
+
+                });
+        });
+
     }
 
 });
 
+function getClientsInArena(arenaId) {
 
+    var clients = [];
+    var arena = Arenas.findOne(arenaId);
+    var users = Meteor.users.find({arena_id:arenaId}).fetch();
+
+    // get all private clients
+    _.each( users,function( user ){
+        clients.push( user.client_id );
+    });
+    clients.push(arena.client_id);
+
+    return clients;
+
+}
 
 
 function teardownSession( connection ){

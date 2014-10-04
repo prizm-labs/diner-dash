@@ -40,13 +40,6 @@ visualClientStartup = function(){
 
 };
 
-gameWorldStartup = function(){
-    // restore gameWorld from HCP
-    if (Session.get('gameState_configuration')){
-        createGameWorldFromConfiguration( Session.get('gameState_configuration') );
-    }
-}
-
 
 registerViewportSize = function(){
     var height = window.screen.availHeight || window.screen.height;
