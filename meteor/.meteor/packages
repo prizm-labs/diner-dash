@@ -19,3 +19,5 @@ lodash
 prizm-core
 jquery
 iron:router
+anti:methods
+
