@@ -5,7 +5,7 @@
         "streams": {},
         "ddp-hooks":{ "path": "../../ddpHooks"},
         "anti:methods": { "path": "../../meteor-methods" },
-
+        "urigo:ngmeteor":{},
         "lodash": { "path":"../../meteor-lodash" },
         "prizm-core": { "path":"../../prizm-core" }
     }

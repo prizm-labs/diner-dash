@@ -20,4 +20,7 @@ prizm-core
 jquery
 iron:router
 anti:methods
+urigo:ngmeteor
+urigo:angular-ui-router
+mrt:ionic
 
