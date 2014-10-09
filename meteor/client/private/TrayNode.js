@@ -330,6 +330,16 @@ _.extend( TrayNode.prototype, {
             plate.addTag('plate');
             plate.state['directionIndex'] = index;
 
+            // Show number of customer seat
+            var positionLabel = self.world.view.factory.makeBody2D( 'mainContext',
+                'text', position, { text:index+1,
+                    styles:{
+                        font: 'normal 16px Helvetica'
+                    }});
+            positionLabel.centerText();
+            //self.body('container').addChild(positionLabel);
+            self.setBody('positionLabel',positionLabel);
+
             self.setLocation('plate'+index,position[0],position[1]);
             self.setBody('plate'+index,plate);
         });
@@ -386,10 +396,17 @@ _.extend( TrayNode.prototype, {
                 console.log('plate direction tap',event);
 
                 if (!self.state['isServing']) {
-                    body.registerAnimation('scale',{x:0.3,y:0.3},0.15);
-                    body.resize(0.4,0.4, 0.2);
 
-                    self.call('serveCustomer',body.state['directionIndex']);
+                    // Do not serve if tray is empty
+                    if (_.without(self.state['trayLoadout'],null).length==0){
+                        console.log('empty tray');
+                    } else {
+                        body.registerAnimation('scale',{x:0.3,y:0.3},0.15);
+                        body.resize(0.4,0.4, 0.2);
+
+                        self.call('serveCustomer',body.state['directionIndex']);
+                    }
+
                 }
             });
 

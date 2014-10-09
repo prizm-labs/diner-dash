@@ -90,6 +90,16 @@ _.extend( CustomerLane.prototype, {
         container.addChild(plate);
         this.setBody('plate',plate);
 
+        // Show number of customer seat
+        var positionLabel = self.world.view.factory.makeBody2D( 'mainContext',
+            'text', this.location('plateOrigin'), { text:direction+1,
+                styles:{
+                    font: 'normal 16px Helvetica'
+                }});
+        positionLabel.centerText();
+        container.addChild(positionLabel);
+        this.setBody('positionLabel',positionLabel);
+
 
         // Internal Events
         this.world.subscribe('clearLane',function(direction){
