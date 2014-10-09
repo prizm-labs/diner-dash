@@ -1,0 +1,91 @@
+{
+    "session": {
+        "time_remaining": 10.0,
+        "players": [],
+        "paused": true,
+        "seats":[],
+        "jackpot": 0
+    },
+
+    "player": {
+        "user_id": null,
+        "name": null,
+        "avatar": null,
+        "loaded": false,
+        "load_progress": 0.0,
+        "coins_total": 0,
+        "queue":[],
+        "tray":[]
+    },
+
+    "seat": { "status": "open", "customer":null, "refresh_interval":3 },
+
+    "customer": {
+        "status": "entering",
+        "being_served": false,
+        "current_order": {
+            "dishes_pending":[],
+            "dishes_served":[],
+            "time_remaining":0
+        },
+        "orders": {
+            "completed":[],
+            "missed":[]
+        }
+    },
+
+    "limits":{
+        "seats": 8,
+        "orders": 5,
+        "tray": 5,
+        "queue":5
+    },
+
+    "dishes": {
+        "water": {
+            "price": 1,
+            "preparation_time": 1.0
+        },
+        "veggie": {
+            "price": 3,
+            "preparation_time": 2.0
+        },
+        "meat": {
+            "price": 8,
+            "preparation_time": 4.0
+        },
+        "dessert": {
+            "price": 3,
+            "preparation_time": 1.5
+        }
+    },
+
+    "palette":{
+        "brightOrange" : "#D79728",
+        "brightBlue": "#53C8EA",
+        "darkGray": "#3A3938",
+        "mediumGray": "#BBBDC0"
+    },
+
+    "typography": {
+        "small": {
+
+        }
+    },
+
+    "sounds": { "manifest":"sound-manifest.json", "directory":"sounds" },
+
+    "mainContext": {
+        "type": "2D",
+        "domAnchor": "context2D-main",
+
+        "atlas": {
+            "map": "atlas.json",
+            "image": "atlas.png"
+        },
+
+        "manifest": ["sprite-manifest.json","D2"],
+        "loadPlayers": true
+    }
+
+}

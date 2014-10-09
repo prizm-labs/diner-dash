@@ -1,0 +1,9 @@
+{
+  "packages": {
+    "meteor-ionic": {
+      "path": "../meteor-ionic"
+    },
+    "prizm-core": { "path":"../prizm-core" },
+    "streams": {}
+  }
+}

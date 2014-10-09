@@ -16,3 +16,7 @@
 .idea/workspace.xml
 
 .idea/codeStyleSettings.xml
+
+meteor/.meteor/versions
+
+meteor/packages/meteor-ionic

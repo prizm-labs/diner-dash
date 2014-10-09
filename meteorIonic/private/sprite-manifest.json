@@ -1,0 +1,48 @@
+{
+    "D2": [
+        ["orderBackground",{
+            "1": "background-order-1.png",
+            "2": "background-order-2.png",
+            "3": "background-order-3.png",
+            "4": "background-order-4.png",
+            "5": "background-order-5.png"
+        }],
+        ["table",{
+            "public":"background-public-table.png",
+            "private":"background-private-table.png"
+        }],
+        ["button",{
+            "info":"button-info.png",
+            "pause":"button-pause.png"
+        }],
+        ["coin","coin.png"],
+        ["customer",{
+            "eating":"customer-eating.png",
+            "happy":"customer-happy.png",
+            "walking":"customer-walking.png"
+        }],
+        ["dish",{
+            "drink":"dish-drink.png",
+            "veggie":"dish-veggie.png",
+            "meat":"dish-meat.png",
+            "dessert":"dish-dessert.png"
+        }],
+        ["seat",{
+            "closed":"seat-closed.png",
+            "neutral":"seat-neutral.png",
+            "open":"seat-open.png"
+        }],
+        ["dishStatus",{
+            "cooking":"dish-cooking.png"
+        }],
+        ["tray","background-tray.png"],
+        ["queue","background-queue.png"],
+        ["serveArrow",{
+            "valid":"serve-direction-valid.png",
+            "invalid":"serve-direction-invalid.png"
+        }],
+        ["serveLocation",{
+            "valid":"serve-location-won.png"
+        }]
+    ]
+}

@@ -1,0 +1,42 @@
+{
+    "lobbies": [
+
+        {
+            "title": "USC Startup Equinox",
+            "games_whitelist": ["diner-dash"],
+            "active": true
+        }
+
+    ],
+
+    "games": [
+
+        {
+            "title": "Diner Dash",
+            "player_limit": 5,
+            "age_restriction": "8+",
+            "description": "Race to serve customers and earn the most as a waiter in a bustling diner!",
+            "configuration": "game-config.json"
+        }
+
+    ],
+
+    "arenas": [
+
+        {
+            "title": "HDTV",
+            "lobby_id": null,
+            "client_id": null,
+            "game_id": null,
+            "players_required": 1
+        },
+        {
+            "title": "Tabletop",
+            "lobby_id": null,
+            "client_id": null,
+            "game_id": null,
+            "players_required":1
+        }
+    ]
+
+}
