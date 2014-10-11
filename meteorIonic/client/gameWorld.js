@@ -49,14 +49,14 @@ bindGameWorldMethodsByClientType = function(clientType) {
 transitionLobbyToGameWorld = function(){
 
     //TODO set DOM selectors dynamically
-    $('#home-view').hide();
+    //$('#home-view').hide();
     $('#hit-area').show();
 };
 
 transitionGameWorldToLobby = function(){
 
     //TODO set DOM selectors dynamically
-    $('#home-view').show();
+    //$('#home-view').show();
     $('#hit-area').hide();
 };
 

@@ -63,7 +63,7 @@
 
                 <ion-radio ng-repeat="lobby in lobbies"
                            ng-value="lobby._id"
-                           ng-model="data.lobby"
+                           ng-model="data.lobby._id"
                            ng-change="selectLobby(lobby)"
                            name="select-lobby">
                     [[ lobby.title ]]
@@ -77,12 +77,76 @@
 
                 <ion-radio ng-repeat="arena in arenas"
                            ng-value="arena._id"
-                           ng-model="data.arena"
+                           ng-model="data.arena._id"
                            ng-change="selectArena(arena)"
                            name="select-arena">
                     [[ arena.title ]]
                 </ion-radio>
 </template>
+
+<template name="gameSelect">
+  <div class="item item-divider">
+                    Select game: [[ data.game._id ]]
+                </div>
+
+                <ion-radio ng-repeat="game in games"
+                           ng-value="game._id"
+                           ng-model="data.game._id"
+                           ng-change="selectGame(game)"
+                           name="select-game">
+                    [[ game.title ]]
+                </ion-radio>
+</template>
+
+<template name="gamePreview">
+  <div class="row">
+    <div class="col col-33">
+      <img width="90%" ng-src="[[ data.game.icon ]]">
+    </div>
+     <div class="col col-67">      
+        <h1>[[ data.game.title ]]</h1>
+        <h3> 
+          <span>[[ data.game.player_minimum ]] to [[ data.game.player_maximum ]] players,</span> 
+          <span>[[ data.game.age_restriction ]]</span>
+        </h3>
+        <h2>[[ data.game.description ]]</h2>
+    </div>
+  </div>
+</template>
+
+<template name="gamePreviewCard">
+  <div class="card" ng-if="data.game">
+    <div class="item">
+      <div class="row">
+          <div class="col col-25">
+            <img width="90%" ng-src="[[ data.game.icon ]]">
+          </div>
+          <div class="col col-25">
+            <h1>[[ data.game.title ]]</h1>
+            <h2> 
+              <span>[[ data.game.player_minimum ]] to [[ data.game.player_maximum ]] players</span> 
+            </h2>
+            <h2>
+              <span>[[ data.game.age_restriction ]]</span>
+            </h2>
+          </div>
+          <div class="col col-50">
+            <h3>Description</h3>
+            <h2>[[ data.game.description ]]</h2>
+          </div>
+      </div>
+      <ion-scroll direction="x" style="width:100%">
+        <div>
+          <span class="padding" ng-repeat="image in data.game.previews">
+            <img ng-src="[[image]]" height="600">
+          </span>
+        </div>
+      </ion-scroll>
+    </div>
+  </div>
+</template>
+
+
 
 <template name="templates/private/home">
     <ion-view title="Home">
@@ -91,7 +155,7 @@
             <div ng-if="!data.user" class="padding">
             {{>loginWrapper}}
             </div>
-            
+
             <div ng-if="data.user">
 
               <div class="card">
@@ -114,7 +178,7 @@
               <div ng-if="data.lobby!=null && data.arena!=null">
               <a
                       class="button button-full icon-right ion-chevron-right button-calm"
-                      href="#/public/lobby">Enter Lobby</a>
+                      ng-click="enterLobby()">Enter Lobby</a>
               </div>
             </div>
 
@@ -123,6 +187,60 @@
     </ion-view>
 </template>
 
+
+<template name="templates/private/lobby">
+    <ion-view title="Lobby">
+        <div class="bar bar-header bar-dark">
+              <a class="button icon-left ion-chevron-left button-clear button-light" href="#/private/home">Back</a>
+              <h1 class="title">[[ data.arena.title ]]</h1>
+        </div>
+        <ion-content class="padding header-spacing">
+
+            <div class="list">
+              <div class="item item-divider">
+                  Selected game:
+              </div>
+              <span ng-if="data.selectedGame">
+              <div class="item item-thumbnail-left">
+                      <img ng-src="[[ data.selectedGame.icon ]]">
+                      <h2>[[ data.selectedGame.title ]]</h2>
+                      <h4>[[ data.selectedGame.description ]]</h4>
+                  </div>
+              <div class="item padding">
+                  <button ng-if="!data.user.readyToPlay" class="button button-balanced button-full"
+                   ng-click="setReadyToPlay()">Ready to play</button>
+              </div>
+              </span>
+            </div>
+
+            <div class="list">
+              <div class="item item-divider">
+                  Users paired with [[ data.arena.title ]]
+              </div>
+
+              <div ng-repeat="user in users">
+                <div ng-if="user.arena_id==data.arena._id" class="item item-thumbnail-left">
+                      <img ng-src="[[ user.profile.avatar ]]">
+                      <h2>[[ user.profile.name ]]</h2>
+                  </div>
+              </div>
+            </div>
+
+            <div class="list">
+              <div class="item item-divider">
+                  Users in [[ data.lobby.title ]]
+              </div>
+
+              <div ng-repeat="user in users" class="item item-thumbnail-left">
+                      <img ng-src="[[ user.profile.avatar ]]">
+                      <h2>[[ user.profile.name ]]</h2>
+                  </div>
+
+              </div>
+
+        </ion-content>
+    </ion-view>
+</template>
 
 
 <template name="templates/public">
@@ -142,60 +260,44 @@
 
             </div>
             <div ng-if="data.lobby!=null && data.arena!=null">
-            <a
-                    class="button button-full icon-right ion-chevron-right button-calm"
-                    href="#/public/lobby">Register Arena</a>
+            <button class="button button-full icon-right ion-chevron-right button-calm"
+                    ng-click="enterLobby()">Register Arena</button>
             </div>
         </ion-content>
     </ion-view>
 </template>
 
 
-<template name="templates/private/lobby">
-    <ion-view title="Lobby">
-        <ion-content class="padding">
-            
-            <p>
-                <a
-                        class="button icon-left ion-chevron-left button-clear button-dark" href="#/public/home">Back</a>
-            </p>
-
-            <div class="list">
-              <div class="item item-divider">
-                  Connected Users
-              </div>
-
-              <div ng-repeat="user in users" class="item item-thumbnail-left">
-                      <img ng-src="[[ user.profile.avatar ]]">
-                      <h2>[[ user.profile.name ]]</h2>
-                  </div>
-
-              </div>
-
-            <p>
-                <a
-                        class="button button-full icon-right ion-chevron-right button-calm"
-                   href="#/public/game">Start Game</a>
-            </p>
-        </ion-content>
-    </ion-view>
-</template>
-
 <template name="templates/public/lobby">
     <ion-view title="Lobby">
-        <ion-content class="padding">
-            <p>
+        <div class="bar bar-header bar-dark">
+          <a class="button icon-left ion-chevron-left button-clear button-light" href="#/public/home">Back</a>
+          <h1 class="title">[[ data.arena.title ]]</h1>
+        </div>
 
-                <a
-                        class="button icon-left ion-chevron-left button-clear button-dark" href="#/public/home">Back</a>
-
-            </p>
+        <ion-content class="padding header-spacing">
             <div class="row">
               
               <div class="col">
+                  <div class="list">
+                    <div class="item item-divider">
+                        Users paired with this screen
+                    </div>
+
+                    <div ng-repeat="user in users">
+                      <div ng-if="user.arena_id==data.arena._id" class="item item-thumbnail-left">
+                            <img ng-src="[[ user.profile.avatar ]]">
+                            <h2>[[ user.profile.name ]]</h2>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+
+
+              <div class="col">
                 <div class="list">
                   <div class="item item-divider">
-                      All Connected Users
+                      Users in [[ data.lobby.title ]]
                   </div>
 
                   <div ng-repeat="user in users" class="item item-thumbnail-left">
@@ -206,49 +308,52 @@
                   </div>
                 </div>
 
-                <div class="col">
-                <div class="list">
-                  <div class="item item-divider">
-                      All Connected Users
-                  </div>
-
-                  <div ng-repeat="user in users" class="item item-thumbnail-left">
-                          <img ng-src="[[ user.profile.avatar ]]">
-                          <h2>[[ user.profile.name ]]</h2>
-                      </div>
-
-                  </div>
-                </div>
-              
-                <div class="col">
-                <div class="list">
-                  <div class="item item-divider">
-                      All Connected Users
-                  </div>
-
-                  <div ng-repeat="user in users" class="item item-thumbnail-left">
-                          <img ng-src="[[ user.profile.avatar ]]">
-                          <h2>[[ user.profile.name ]]</h2>
-                      </div>
-
-                  </div>
-                </div>
+                
 
               </div>
             
-            <p>
-                <a
-                        class="button button-full icon-right ion-chevron-right button-calm"
-                   href="#/public/game">Start Game</a>
-            </p>
+            <div class="row">
+              <div class="col">
+                <div class="list">
+                {{>gameSelect}}
+                </div>
+              </div>
+            </div>
+
+            <div class="card" ng-if="data.game">
+                <div class="item">
+                  <p>
+                    <h2>Waiting for players...</h2>
+                    [[data.arena.players_required]]
+                  </p>
+
+                  <a class="button button-full icon-right ion-chevron-right button-balanced" ng-click="startGame()">Start Game</a>
+                </div>
+            </div>
+
+            {{>gamePreviewCard}}
+
+            
+        </ion-content>
+    </ion-view>
+</template>
+
+<template name="templates/private/game">
+    <ion-view title="Game">
+        <ion-content>
+            <button ng-if="data.user.readyToPlay" class="button button-assertive button-full" ng-click="cancelReadyToPlay()">Cancel</button>
+            <!-- anchors for game stage -->
+            <div id="context2D-main"></div>
+            <div id="hit-area"></div>
         </ion-content>
     </ion-view>
 </template>
 
 
-<template name="game-world">
+
+<template name="templates/public/game">
     <ion-view title="Game">
-        <ion-content class="padding">
+        <ion-content>
             <a
                     class="button icon-left ion-chevron-left button-clear button-dark" href="#/public/lobby">Back</a>
             <!-- anchors for game stage -->

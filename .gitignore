@@ -20,3 +20,9 @@
 meteor/.meteor/versions
 
 meteor/packages/meteor-ionic
+
+publicClient/.idea/publicClient.iml
+
+publicClient/.idea/scopes/scope_settings.xml
+
+publicClient/.idea/workspace.xml

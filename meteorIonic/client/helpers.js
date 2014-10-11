@@ -1,3 +1,7 @@
+/**
+ * Created by michaelgarrido on 9/6/14.
+ */
+
 // Ensure that registered sessions are being create from browser window
 // Prevent headless sessions...
 visualClientStartup = function(){
@@ -35,50 +39,6 @@ visualClientStartup = function(){
     });
 
 };
-
-// setupForClientType = function(){
-//     var clientType = Session.get('client_type');
-
-//     if (clientType=='private') {
-//         if (Session.get('user')){
-//             console.log('auto login user');
-
-//             if (Session.get('lobby')){
-//                 console.log('auto user enter lobby');
-
-//                 Meteor.call('userEnterLobby',Session.get('user')._id,Session.get('lobby')._id, function( error, result ){
-//                     console.log('user after enterLobby',result);
-//                     if (result) Session.set('user',result);
-//                 });
-
-
-//                 subscriptions.activate.lobby(Session.get('lobby')._id);
-//             }
-
-//             if (Session.get('arena')){
-//                 console.log('auto user enter arena');
-
-//                 Meteor.call('userEnterArena', Session.get('user')._id,Session.get('arena')._id, function( error, result ){
-//                     console.log('user after userEnterArena',result);
-//                     if (result) {
-//                         Session.set('user',result);
-//                     }
-//                 });
-//             }
-//         }      
-
-
-//     } else if (clientType=='public') {
-//         if (Session.get('lobby')){
-//             console.log('auto subscribe to lobby');
-//             subscriptions.activate.lobby(Session.get('lobby')._id);
-//         }
-//         if (Session.get('arena')){
-//             console.log('auto link client to arena');
-//             Meteor.call('requestArenaRegistration',Session.get('client_id'),Session.get('arena')._id);
-//         }
-//     }
-// }
 
 
 registerViewportSize = function(){

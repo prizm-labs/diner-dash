@@ -64,6 +64,7 @@ Meteor.ClientCall.methods({
                     // User has been linked with Session
 
                     if (user.lobby_id){
+                        console.log('auto enter lobby');
                         subscriptions.activate.lobby(user.lobby_id);
                     }
 
@@ -75,8 +76,18 @@ Meteor.ClientCall.methods({
 
 
 
+            } else if (clientType=='public') {
+                
+                if (Session.get('lobby')){
+                    console.log('auto subscribe to lobby');
+                    subscriptions.activate.lobby(Session.get('lobby')._id);
+                }
+                if (Session.get('arena')){
+                    console.log('auto link client to arena');
+                    Meteor.call('requestArenaRegistration',Session.get('client_id'),Session.get('arena')._id);
+                }
             }
-        }
+        } 
 
     },
 
@@ -101,6 +112,11 @@ Meteor.ClientCall.methods({
         }
     },
 
+    'onGameSelected': function (game) {
+        console.log('onGameSelected', game);
+
+        Session.set('selectedGame',game);
+    },
 
     'onArenaReady': function( args ){
 

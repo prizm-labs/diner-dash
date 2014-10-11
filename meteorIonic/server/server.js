@@ -189,6 +189,22 @@ Meteor.methods({
 
         Arenas.update({ _id:arenaId },{$set:{ game_id:gameId }})
 
+        var clients = [];
+        var users = Meteor.users.find({arena_id:arenaId}).fetch();
+        console.log('users in arena',arenaId,users);
+
+        // get all private clients
+        _.each( users,function( user ){
+            clients.push( user.client_id );
+            console.log('notifying clients of game start',user.client_id );
+        });
+
+        // Notify private clients
+        _.each(clients, function (clientId,index) {
+            Meteor.ClientCall.apply( clientId, 'onGameSelected', [ Games.findOne(gameId) ],
+                function(){ console.log('client call onGameSelected'); });
+        });
+
         return Arenas.findOne(arenaId);
     },
 
